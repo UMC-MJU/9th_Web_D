@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./style.css">
+
+    <script type="module" src="./dist/script.js" defer></script>
+
+    <title>UMC todo</title>
+</head>
+<body>
+    <div class="container">
+        <h1 class="header">todo</h1>
+        <form id="form" class="form"> 
+            <input id="input" class="input" placeholder="할 일을 입력해주세요." required />
+            <button class="submit" type="submit">추가</button>
+        </form>
+
+        <div class="list-container">
+            <div class="todo-container">
+                <h2 class="list-header">할 일</h2>
+                <ol id="todo-list" class="list"></ol>
+            </div>
+
+            <div class="done-container">
+                <h2 class="list-header">완료</h2>
+                <ol id="done-list" class="list">
+                    <li class="list-item">
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
