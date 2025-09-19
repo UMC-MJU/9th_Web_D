@@ -18,11 +18,47 @@
             <h3 class="form_title">⊕ 새 할 일 추가</h3>
             <div class="form_input_container">
                 <input type="text" class="form_input" placeholder="할 일을 입력하세요">
-                <button class="form_add_button">➕ 추가</button>
+                <button class="form_add_button">➕</button>
             </div>
         </div>
         
-        <div class="render"></div>
+        <div class="render">
+            <!-- 시작 전 -->
+            <div class="render_section">
+                <h3 class="render_title">시작 전</h3>
+                <div class="render_count">
+                    <!-- 할 일 개수 -->
+                </div>
+                <div class="render_list">
+                    <!-- 할 일 목록 -->
+                    <button class="render_list_button">▷</button>
+                </div>
+            </div>
+            
+            <!-- 진행 중 Column -->
+            <div class="render_section">
+                <h3 class="render_title">진행 중</h3>
+                <div class="render_count">
+                    <!-- 진행 중 개수 -->
+                </div>
+                <div class="render_list">
+                    <!-- 할 일 목록 -->
+                    <button class="render_list_button">✓</button>
+                </div>
+            </div>
+            
+            <!-- 완료 Column -->
+            <div class="render_section">
+                <h3 class="render_title">완료</h3>
+                <div class="render_count">
+                    <!-- 완료 개수 -->
+                </div>
+                <div class="render_list">
+                    <!-- 진행 중 목록 -->
+                    <button class="render_list_button">✕</button>
+                </div>
+            </div>
+        </div>
         <div class="stats"></div>
     </div>
 </body>
