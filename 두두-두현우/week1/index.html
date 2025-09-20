@@ -16,10 +16,10 @@
         <h2 class="subtitle">할 일을 효율적으로 관리하세요</h2>
         <!-- form_container -->
         <div id="todo-form" class="form_container">
-            <h3 class="form_title">⊕ 새 할 일 추가</h3>
+            <h3 class="form_title">새 할 일 추가</h3>
             <div class="form_input_container">
                 <input type="text" id="form-input" class="form_input" placeholder="할 일을 입력하세요" required>
-                <button type="button" class="form_add_button">➕ 추가</button>
+                <button type="submit" class="form_add_button">+ 추가</button>
             </div>
         </div>
         <!-- render -->
@@ -32,7 +32,6 @@
                 </div>
                 <ul id="todo-list" class="render_list">
                     <!-- 할 일 목록 -->
-                    <button class="render_list_button">▷</button>
                 </ul>
             </div>
             
@@ -44,7 +43,6 @@
                 </div>
                 <div id="inProgress-list" class="render_list">
                     <!-- 할 일 목록 -->
-                    <button class="render_list_button">✓</button>
                 </div>
             </div>
             
@@ -56,14 +54,13 @@
                 </div>
                 <div id="done-list" class="render_list">
                     <!-- 진행 중 목록 -->
-                    <button class="render_list_button">✕</button>
                 </div>
             </div>
         </div>
         <!-- stats -->
         <div class="stats">
             <div class="stats_section">
-                <div class="stats_count"></div>
+                <div class="stats_count">0</div>
                 <div class="stats_title">전체 할 일</div>
             </div>
             <div class="stats_section">
