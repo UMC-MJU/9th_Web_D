@@ -292,3 +292,27 @@ body {
 .stats_section:nth-child(4) .stats_title {
   color: #2f855a;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+    margin: 10px;
+  }
+
+  .render {
+    grid-template-columns: 1fr;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form_input_container {
+    flex-direction: column;
+  }
+
+  .form_input {
+    width: 100%;
+  }
+}
