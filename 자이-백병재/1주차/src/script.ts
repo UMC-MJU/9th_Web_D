@@ -1,97 +1,59 @@
-const  input = document.getElementById('input') as HTMLInputElement;
-const form = document.getElementById('form') as HTMLFormElement;
-const todolist = document.getElementById('todo-list') as HTMLUListElement;
-const donelist = document.getElementById('done-list') as HTMLUListElement;
-// HTML 입력 요소 가져오기
+// 0. HTML 요소 가져오기
+const input_form = document.getElementById('root_form') as HTMLFormElement;
+const input_text = document.getElementById('input_text') as HTMLInputElement;
+const todo_list = document.getElementById('list_todo') as HTMLUListElement;
+const done_list = document.getElementById('list_done') as HTMLUListElement;
 
-type doList = {
-    id: number;
-    text: string;
-};
-// 할 일 항목의 타입 정의
-
-let todos: doList[] = []; 
-let dones: doList[] = [];
-// 할 일과 완료된 할 일 항목을 저장할 배열
-
-const renderLists = (): void => {  
-    todolist.innerHTML = '';
-    donelist.innerHTML = '';
-    // 기존 목록 초기화 
-
-    todos.forEach((todo) : void => {
-        const li = createTodoItem(todo, false);
-        todolist.appendChild(li);
-});
-
-    dones.forEach((todo) : void => {
-        const li = createTodoItem(todo, true);
-        donelist.appendChild(li);
-});
-
-}
-
-const getText = (): string => {
-    return input.value.trim();
-} // 입력 필드에서 텍스트 가져오기 (공백 제거)
-
-const addTodo = (text: string): void => {
-    todos.push ({id: Date.now(),text,});
-    input.value = '';
-    renderLists();
-}
-
-const completeTodo = (todo:doList): void => {
-    todos = todos.filter(t => t.id !== todo.id);
-    dones.push(todo);
-    renderLists();
-} // 할 일 > 완료로 이동
-
-const deleteDone = (todo:doList): void => {
-    dones = dones.filter(t => t.id !== todo.id);
-    renderLists();
-} // 완료 > 삭제
-
-
-form.addEventListener('submit', (e : Event) : void => {
-    e.preventDefault();
-    const text = getText();
-    if (text) {
-        addTodo(text);
-    }
-}
-);
-
-renderLists(); // 초기 렌더링
-
-//<!-- <p class="item">2024-01-01</p>
-//<button class="item-button">삭제</button> -->
-
-const createTodoItem = (todo: doList, done: boolean ): HTMLElement => {
+// 1. 내용을 작성 후 '추가' 버튼을 누르면 '할 일' 리스트에 추가되야 한다.
+const create_todo_item = (text: string) => {
     const li = document.createElement('li');
-    li.classList.add('list-item');
-    li.textContent = todo.text;
+    const span = document.createElement('span');
     const button = document.createElement('button');
-    button.classList.add('item-button');
 
-    if(done) {
-        button.textContent = '삭제';
-        button.style.backgroundColor = 'red';
-    } else {
-        button.textContent = '완료';
-        button.style.backgroundColor = 'green';
+    span.innerText = text;
+    button.innerText = '완료';
+
+    button.addEventListener('click', () => {
+        done_item(li);
+    });
+
+    li.appendChild(span);
+    li.appendChild(button);
+    todo_list.appendChild(li);
+}
+
+// 2. '할 일' 리스트에서 '한 일' 리스트로 이동시킬 수 있어야 한다.
+const done_item = (li: HTMLLIElement) => {
+    const button = li.querySelector('button');
+    if (button) {
+        li.removeChild(button);
     }
 
+    const new_button = document.createElement('button');
+    new_button.innerText = "삭제";
 
-button.addEventListener('click', (): void => {
-    if(done) {
-        deleteDone(todo);
-    } else {
-        completeTodo(todo);
+    new_button.addEventListener('click', () => {
+        delete_item(li);
+    });
+
+    li.appendChild(new_button);
+    done_list.appendChild(li);
+}
+
+// 3. '한 일' 리스트에서 제거될 수 있어야 한다.
+const delete_item = (li: HTMLLIElement) => {
+    li.remove();
+};
+
+// form 제출 이벤트 리스너
+input_form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const item_text = input_text.value.trim();
+
+    if (item_text !== "") {
+        create_todo_item(item_text);
+        input_text.value = "";
+        input_text.focus();
     }
 });
-
-li.appendChild(button);
-return li;
-
-}

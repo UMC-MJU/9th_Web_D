@@ -3,35 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>umc_1week</title>
 
-    <link rel="stylesheet" href="./style.css">
-
-    <script type="module" src="./dist/script.js" defer></script>
-
-    <title>UMC todo</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="header">todo</h1>
-        <form id="form" class="form"> 
-            <input id="input" class="input" placeholder="할 일을 입력해주세요." required />
-            <button class="submit" type="submit">추가</button>
+    <div id="root_container">
+
+        <h1 id="root_title">todo_list</h1>
+
+        <form id="root_form">
+            <input type="text" id="input_text" placeholder="할 일을 입력하세요" />
+            <button type="submit" id="input_button">추가</button>
         </form>
 
-        <div class="list-container">
-            <div class="todo-container">
-                <h2 class="list-header">할 일</h2>
-                <ol id="todo-list" class="list"></ol>
+        <div id="list_wrapper">
+
+            <div class="list_container">
+                <h2 class="list_title">할 일</h2>
+                <ul id="list_todo">
+                    <!-- todo list -->
+                </ul>
             </div>
 
-            <div class="done-container">
-                <h2 class="list-header">완료</h2>
-                <ol id="done-list" class="list">
-                    <li class="list-item">
-                    </li>
-                </ol>
+            <div class="list_container">
+                <h2 class="list_title">한 일</h2>
+                <ul id="list_done">
+                    <!-- done list -->
+                </ul>
             </div>
+
         </div>
     </div>
+
+     <script src="dist/script.js"></script>
 </body>
 </html>
