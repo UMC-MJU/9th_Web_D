@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSS 파일 업로드 -->
+    <link rel="stylesheet" href="./style.css">
+    <!-- JS 파일 업로드 -->
+    <script type="module" src="./dist/script.js" defer></script>
+    <title>UMC 9th TODO</title>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <h1 class="title">TODO</h1>
+        <h2 class="subtitle">할 일을 효율적으로 관리하세요</h2>
+        <!-- form_container -->
+        <div id="todo-form" class="form_container">
+            <h3 class="form_title">새 할 일 추가</h3>
+            <div class="form_input_container">
+                <input type="text" id="form-input" class="form_input" placeholder="할 일을 입력하세요" required>
+                <button type="submit" class="form_add_button">+ 추가</button>
+            </div>
+        </div>
+        <!-- render -->
+        <div class="render">
+            <!-- 시작 전 -->
+            <div class="render_section">
+                <h3 class="render_title">시작 전</h3>
+                <div class="render_count">
+                    <!-- 할 일 개수 -->
+                </div>
+                <ul id="todo-list" class="render_list">
+                    <!-- 할 일 목록 -->
+                </ul>
+            </div>
+            
+            <!-- 진행 중 -->
+            <div class="render_section">
+                <h3 class="render_title">진행 중</h3>
+                <div class="render_count">
+                    <!-- 진행 중 개수 -->
+                </div>
+                <div id="inProgress-list" class="render_list">
+                    <!-- 할 일 목록 -->
+                </div>
+            </div>
+            
+            <!-- 완료 -->
+            <div class="render_section">
+                <h3 class="render_title">완료</h3>
+                <div class="render_count">
+                    <!-- 완료 개수 -->
+                </div>
+                <div id="done-list" class="render_list">
+                    <!-- 진행 중 목록 -->
+                </div>
+            </div>
+        </div>
+        <!-- stats -->
+        <div class="stats">
+            <div class="stats_section">
+                <div class="stats_count">0</div>
+                <div class="stats_title">전체 할 일</div>
+            </div>
+            <div class="stats_section">
+                <div class="stats_count">0</div>
+                <div class="stats_title">시작 전</div>
+            </div>
+            <div class="stats_section">
+                <div class="stats_count">0</div>
+                <div class="stats_title">진행 중</div>
+            </div>
+            <div class="stats_section">
+                <div class="stats_count">0</div>
+                <div class="stats_title">완료됨</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
