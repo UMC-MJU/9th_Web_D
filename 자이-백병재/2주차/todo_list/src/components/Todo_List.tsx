@@ -32,6 +32,10 @@ const Todo_List = (): JSX.Element => {
 
     }
 
+    const deleteDone = (id: number) => {
+        const newDone_list = done_list.filter(item => item.id !== id);  // 필터링
+        setDone_list(newDone_list);
+    }
 
     return (
     <div id="root_container">
@@ -63,7 +67,7 @@ const Todo_List = (): JSX.Element => {
                         {done_list.map(item => (           
                             <li key={item.id}>     
                                 <span>{item.text}</span>
-                                <button>삭제</button>
+                                <button onClick={() => deleteDone(item.id)}>삭제</button>
                             </li>
                         ))}
                     </ul>
