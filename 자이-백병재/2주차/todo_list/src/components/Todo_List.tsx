@@ -1,5 +1,6 @@
 import React, { useState, type JSX } from "react";
 import type { Items } from "../types/Items";
+import List_Component from "./List_component";
 
 const Todo_List = (): JSX.Element => {
     const [todo_list, setTodo_list] = useState<Items[]>([]);    // useState를 이용, Items[]형식의 todo_list
@@ -47,33 +48,9 @@ const Todo_List = (): JSX.Element => {
         </form>
         <hr />
         <div id="list_wrapper">
-            <div className="list_container">
-                <h2 className="list_title">Todo</h2>
-                <div className="li_container">
-                    <ul id="todo_list">
-                        {todo_list.map(item => (           
-                            <li key={item.id}>     
-                                <span>{item.text}</span>
-                                <button onClick={() => doneTodo(item.id)}>완료</button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
-            <div className="list_container" style={{backgroundColor: 'darkred'}}>
-                <h2 className="list_title">Done</h2>
-                <div className="li_container">
-                    <ul id="done_list">
-                        {done_list.map(item => (           
-                            <li key={item.id}>     
-                                <span>{item.text}</span>
-                                <button onClick={() => deleteDone(item.id)}>삭제</button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
-
+            {/* List_Component 사용해 컴포넌트 분리 */}
+            <List_Component title="Todo" list={todo_list} buttonText="완료" onButtonClick={doneTodo} BG={{backgroundColor: 'green'}} />
+            <List_Component title="Done" list={done_list} buttonText="삭제" onButtonClick={deleteDone} BG={{backgroundColor: 'darkred'}} />
         </div>
     </div>
     );
