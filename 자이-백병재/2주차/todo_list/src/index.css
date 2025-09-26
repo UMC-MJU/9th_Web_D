@@ -102,20 +102,24 @@ hr {  /* 중간 점선 줄 */
 
 .li_container {
   width: 100%;
-  height: 100%;
+  height: 95%;
   background-color: white;
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 li {
     list-style: none;
     display: flex;
     justify-content: space-around;
+    margin-bottom: 10px;
 }
 
 li > span {
     font-size: 20px;
     margin-right: 10px;
     flex: 1;
+    color: black;
 }
 
 li > button {
