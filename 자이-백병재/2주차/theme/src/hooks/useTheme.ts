@@ -1,15 +1,14 @@
+// useContext를 수월히 하기 위한 훅
+
 import { useContext } from 'react';
-import { ThemeContext } from '../contexts/themeContext' // 경로에 맞게 수정해주세요.
+import { ThemeContext } from '../contexts/themeContext'
 
 export const useTheme = () => {
-  // 1. useContext를 호출하여 context 값을 가져옵니다.
-  const context = useContext(ThemeContext);
+  const context = useContext(ThemeContext); // usecontext로 값 가져오기
 
-  // 2. context 값이 없는 경우(Provider로 감싸지지 않은 경우) 에러를 발생시킵니다.
-  if (context === undefined) {
+  if (context === undefined) {              // 값이 없으면 오류 발생
     throw new Error('useTheme must be used within a ThemeProvider');
   }
 
-  // 3. context 값을 그대로 반환합니다.
   return context;
 };

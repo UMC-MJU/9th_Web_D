@@ -1,3 +1,5 @@
+// createContext를 한다.
+
 import { createContext } from "react";
 import type { themeContextType } from "../types/theme";
 
