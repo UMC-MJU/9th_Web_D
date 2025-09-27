@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { ThemeContext } from './themeContext';
+import { ThemeContext } from '../contexts/themeContext';
 
 const ThemeController = () => {
   const context = useContext(ThemeContext); // useContext로 가져오기
@@ -11,7 +11,7 @@ const ThemeController = () => {
   const { theme, themeChange } = context;   // useContext 값 할당
 
   return (
-    <div>
+    <div className='flex flex-col items-center justify-center min-h-screen'>
       <button onClick={() => themeChange(theme)}>{theme}</button>
       <h1>Lorem ipsum dolor sit amet consectetur adipisicing elit. 
         Tempora, obcaecati. Aspernatur eius provident animi quae similique corrupti, 

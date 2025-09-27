@@ -1,10 +1,7 @@
-import { createContext, useState, type ReactNode } from "react";
-import type { themeType, themeContextType } from '../types/theme';
+import { useState, type ReactNode } from "react";
+import type { themeType } from '../types/theme';
+import { ThemeContext } from "../contexts/themeContext";
 
-// 1. Context 생성
-export const ThemeContext = createContext<themeContextType | undefined>(undefined);
-
-// 2. provider 사용
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {   // 하위 html 태그 받아오기
   const [theme, setTheme] = useState<themeType>('🌙');                    // useState 사용
 
