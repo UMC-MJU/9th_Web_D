@@ -4,9 +4,14 @@ import TodoForm from "./components/TodoForm";
 import TodoSection from "./components/TodoSection";
 import Stats from "./components/Stats";
 import ThemeToggle from "./components/ThemeToggle";
+import { useTheme } from "./hooks/useTheme";
 
 function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const { isDark } = useTheme();
+
+  // 디버깅용
+  console.log("App 컴포넌트 - 다크모드 상태:", isDark);
 
   // 할 일 추가
   const addTodo = (text: string) => {
@@ -52,15 +57,60 @@ function App() {
   const doneList = todos.filter((todo) => todo.status === "done");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-400 via-purple-500 to-purple-600 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-5">
-      <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-10">
+    <div
+      className={`min-h-screen p-5 ${
+        isDark
+          ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
+          : "bg-gradient-to-br from-indigo-400 via-purple-500 to-purple-600"
+      }`}
+    >
+      <div
+        className={`max-w-6xl mx-auto rounded-3xl shadow-2xl p-10 ${
+          isDark ? "bg-gray-800" : "bg-white"
+        }`}
+      >
         {/* Header */}
-        <h1 className="text-4xl font-bold text-gray-800 dark:text-white text-center mb-3">
+        <h1
+          className={`text-4xl font-bold text-center mb-3 ${
+            isDark ? "text-white" : "text-gray-800"
+          }`}
+        >
           TODO
         </h1>
-        <h2 className="text-lg text-gray-600 dark:text-gray-300 text-center mb-10">
+        <h2
+          className={`text-lg text-center mb-5 ${
+            isDark ? "text-gray-300" : "text-gray-600"
+          }`}
+        >
           할 일을 효율적으로 관리하세요
         </h2>
+        {/* 디버깅용 상태 표시 */}
+        <div className="text-center mb-5 p-2 bg-yellow-100 dark:bg-yellow-900 rounded">
+          <span className="text-sm text-yellow-800 dark:text-yellow-200">
+            현재 모드: {isDark ? "다크모드" : "라이트모드"} | HTML 클래스:{" "}
+            {typeof window !== "undefined"
+              ? document.documentElement.className
+              : "N/A"}
+          </span>
+        </div>
+
+        {/* 간단한 다크모드 테스트 카드 */}
+        <div className="mb-5 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+            다크모드 테스트 카드
+          </h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-3">
+            이 카드는 다크모드에서 회색 배경과 흰색 텍스트로 표시되어야 합니다.
+          </p>
+          <div className="flex gap-2">
+            <div className="px-3 py-1 bg-blue-500 text-white rounded">
+              블루 버튼
+            </div>
+            <div className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded">
+              다크모드 적용 버튼
+            </div>
+          </div>
+        </div>
 
         {/* Form */}
         <TodoForm onAddTodo={addTodo} />

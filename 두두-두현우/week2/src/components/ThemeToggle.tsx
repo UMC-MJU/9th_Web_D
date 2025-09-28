@@ -3,10 +3,15 @@ import { useTheme } from "../hooks/useTheme";
 const ThemeToggle = () => {
   const { isDark, toggleTheme } = useTheme();
 
+  const handleToggle = () => {
+    console.log("토글 버튼 클릭됨. 현재 상태:", isDark);
+    toggleTheme();
+  };
+
   return (
     <button
-      onClick={toggleTheme}
-      className="fixed top-6 right-6 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+      onClick={handleToggle}
+      className="fixed top-6 right-6 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 backdrop-blur-sm"
       aria-label="다크모드 토글"
     >
       {isDark ? (
@@ -25,7 +30,7 @@ const ThemeToggle = () => {
       ) : (
         // 달 아이콘 (다크 모드로 전환)
         <svg
-          className="w-6 h-6 text-gray-700"
+          className="w-6 h-6 text-gray-700 dark:text-gray-300"
           fill="currentColor"
           viewBox="0 0 20 20"
         >

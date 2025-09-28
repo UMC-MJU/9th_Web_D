@@ -1,4 +1,5 @@
 import type { Todo } from "../types/Todo";
+import { useTheme } from "../hooks/useTheme";
 
 interface TodoItemProps {
   todo: Todo;
@@ -13,6 +14,7 @@ const TodoItem = ({
   onMoveToDone,
   onDelete,
 }: TodoItemProps) => {
+  const { isDark } = useTheme();
   const getButtonContent = () => {
     switch (todo.status) {
       case "todo":
@@ -37,8 +39,14 @@ const TodoItem = ({
   const button = getButtonContent();
 
   return (
-    <li className="bg-white dark:bg-gray-600 rounded-xl p-4 mb-3 shadow-sm flex items-center justify-between transition-transform hover:-translate-y-1">
-      <span className="text-gray-800 dark:text-white">{todo.text}</span>
+    <li
+      className={`rounded-xl p-4 mb-3 shadow-sm flex items-center justify-between transition-transform hover:-translate-y-1 ${
+        isDark ? "bg-gray-600" : "bg-white"
+      }`}
+    >
+      <span className={isDark ? "text-white" : "text-gray-800"}>
+        {todo.text}
+      </span>
       <button
         className={`w-9 h-9 rounded-lg flex items-center justify-center text-base cursor-pointer transition-all hover:scale-110 text-white ${
           button.color === "blue"

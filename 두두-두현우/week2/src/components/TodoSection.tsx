@@ -1,5 +1,6 @@
 import type { Todo } from "../types/Todo";
 import TodoItem from "./TodoItem";
+import { useTheme } from "../hooks/useTheme";
 
 interface TodoSectionProps {
   title: string;
@@ -16,6 +17,7 @@ const TodoSection = ({
   onMoveToDone,
   onDelete,
 }: TodoSectionProps) => {
+  const { isDark } = useTheme();
   const getSectionIcon = () => {
     switch (title) {
       case "시작 전":
@@ -32,21 +34,29 @@ const TodoSection = ({
   const getCountStyle = () => {
     switch (title) {
       case "시작 전":
-        return "bg-gray-200 text-gray-600";
+        return "bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300";
       case "진행 중":
-        return "bg-orange-100 text-orange-700";
+        return "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300";
       case "완료":
-        return "bg-green-100 text-green-700";
+        return "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300";
       default:
-        return "bg-gray-200 text-gray-600";
+        return "bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300";
     }
   };
 
   const sectionIcon = getSectionIcon();
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-700 rounded-2xl p-6 shadow-lg">
-      <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-3">
+    <div
+      className={`rounded-2xl p-6 shadow-lg ${
+        isDark ? "bg-gray-700" : "bg-gray-50"
+      }`}
+    >
+      <h3
+        className={`text-lg font-semibold mb-4 flex items-center gap-3 ${
+          isDark ? "text-white" : "text-gray-800"
+        }`}
+      >
         <span
           className={`${sectionIcon.bgColor} text-white w-6 h-6 rounded-full flex items-center justify-center text-sm`}
         >
