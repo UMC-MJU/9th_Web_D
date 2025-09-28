@@ -3,6 +3,7 @@ import type { Todo } from "./types/Todo";
 import TodoForm from "./components/TodoForm";
 import TodoSection from "./components/TodoSection";
 import Stats from "./components/Stats";
+import ThemeToggle from "./components/ThemeToggle";
 
 function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -51,13 +52,13 @@ function App() {
   const doneList = todos.filter((todo) => todo.status === "done");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-400 via-purple-500 to-purple-600 p-5">
-      <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-10">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-400 via-purple-500 to-purple-600 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-5">
+      <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-10">
         {/* Header */}
-        <h1 className="text-4xl font-bold text-gray-800 text-center mb-3">
+        <h1 className="text-4xl font-bold text-gray-800 dark:text-white text-center mb-3">
           TODO
         </h1>
-        <h2 className="text-lg text-gray-600 text-center mb-10">
+        <h2 className="text-lg text-gray-600 dark:text-gray-300 text-center mb-10">
           할 일을 효율적으로 관리하세요
         </h2>
 
@@ -99,6 +100,9 @@ function App() {
           doneCount={doneCount}
         />
       </div>
+
+      {/* Theme Toggle Button */}
+      <ThemeToggle />
     </div>
   );
 }
