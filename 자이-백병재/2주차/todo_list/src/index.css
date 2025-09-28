@@ -1,0 +1,136 @@
+* {
+    margin: 1px;
+    padding: 1px;
+}
+
+body {
+    width: 100%;
+    display: flex;
+    background-color: black;
+    color: #ccc;
+    height: 100vh;
+    flex-direction: column;
+    padding-top: 1%;
+    padding-left: 2%;
+    overflow-x: hidden; /* x축 스크롤바 제거  */
+}
+
+#root_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 95%;
+    height: 95%;
+    background-color: rgb(35, 35, 35);
+    border-radius: 20px;
+    box-shadow: 0px 0px 10px gray;
+    padding-bottom: 10px;
+}
+
+#root_title {
+    margin: 10px;
+    font-size: 40px;
+}
+
+#root_form {
+    display: flex;
+    width: 90%;
+    height: 55px;
+    font-size: 25px;
+    margin-top: 10px;
+    justify-content: space-between;
+    padding: 0 10px;
+    align-items: center;
+}
+
+#input_text {
+    width: 600px;
+    height: 50px;
+    flex: 1;
+    border-radius: 10px;
+    font-size: 20px;
+    text-align: left;
+    padding-left: 1%;
+    margin-right: 3%;
+}
+
+#input_button {
+    height: 50px;
+    width: 7%;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+#input_button:hover {
+    background-color: gray;
+}
+
+hr {  /* 중간 점선 줄 */
+  border: 0;  /* 상하좌우 선 제거 */
+  border-top: 5px dashed #ccc;  /* 위에 점선 줄 5px #ccc 색으로 */
+  margin: 1em 0; 
+  width: 95%;
+}
+
+#list_wrapper {
+    display: flex;
+    justify-content: space-around;
+    width: 90%;
+    height: 80%;
+    margin-top: 10px;
+}
+
+.list_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: gray;
+    width: 45%;
+    height: 95%;
+    border-radius: 15px 15px 15px 15px;
+    overflow: hidden;
+    background-color: green;
+    text-align: center;
+}
+
+.list_title{
+    margin: 0;
+    font-size: 30px;
+}
+
+.li_container {
+  width: 100%;
+  height: 95%;
+  background-color: white;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+li {
+    list-style: none;
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 10px;
+}
+
+li > span {
+    font-size: 20px;
+    margin-right: 10px;
+    flex: 1;
+    color: black;
+}
+
+li > button {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-left: 5px;
+    width: 50px;
+}
+
+li > button:hover {
+    background-color: gray;
+}
