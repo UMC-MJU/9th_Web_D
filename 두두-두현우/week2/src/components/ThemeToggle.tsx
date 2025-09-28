@@ -3,14 +3,9 @@ import { useTheme } from "../hooks/useTheme";
 const ThemeToggle = () => {
   const { isDark, toggleTheme } = useTheme();
 
-  const handleToggle = () => {
-    console.log("토글 버튼 클릭됨. 현재 상태:", isDark);
-    toggleTheme();
-  };
-
   return (
     <button
-      onClick={handleToggle}
+      onClick={toggleTheme}
       className="fixed top-6 right-6 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 backdrop-blur-sm"
       aria-label="다크모드 토글"
     >

@@ -40,13 +40,6 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
       } else {
         document.documentElement.classList.remove("dark");
       }
-
-      console.log(
-        "다크모드 상태:",
-        isDark,
-        "HTML 클래스:",
-        document.documentElement.className
-      );
     }
   }, [isDark]);
 
