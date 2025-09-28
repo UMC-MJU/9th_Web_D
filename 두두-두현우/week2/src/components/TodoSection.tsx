@@ -45,8 +45,8 @@ const TodoSection = ({
   const sectionIcon = getSectionIcon();
 
   return (
-    <div className="bg-gray-50 rounded-2xl p-6 shadow-lg">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-3">
+    <div className="bg-gray-50 dark:bg-gray-700 rounded-2xl p-6 shadow-lg">
+      <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-3">
         <span
           className={`${sectionIcon.bgColor} text-white w-6 h-6 rounded-full flex items-center justify-center text-sm`}
         >
