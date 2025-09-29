@@ -1,36 +1,31 @@
 import type { Todo } from "../types/Todo";
 import { useTheme } from "../hooks/useTheme";
+import { useTodos } from "../hooks/useTodos";
 
 interface TodoItemProps {
   todo: Todo;
-  onMoveToInProgress: (id: number) => void;
-  onMoveToDone: (id: number) => void;
-  onDelete: (id: number) => void;
 }
 
-const TodoItem = ({
-  todo,
-  onMoveToInProgress,
-  onMoveToDone,
-  onDelete,
-}: TodoItemProps) => {
+const TodoItem = ({ todo }: TodoItemProps) => {
   const { isDark } = useTheme();
+  const { updateTodoStatus, deleteTodo } = useTodos();
+
   const getButtonContent = () => {
     switch (todo.status) {
       case "todo":
         return {
           text: "▷",
           color: "blue",
-          action: () => onMoveToInProgress(todo.id),
+          action: () => updateTodoStatus(todo.id, "inProgress"),
         };
       case "inProgress":
         return {
           text: "✓",
           color: "green",
-          action: () => onMoveToDone(todo.id),
+          action: () => updateTodoStatus(todo.id, "done"),
         };
       case "done":
-        return { text: "✕", color: "red", action: () => onDelete(todo.id) };
+        return { text: "✕", color: "red", action: () => deleteTodo(todo.id) };
       default:
         return { text: "", color: "", action: () => {} };
     }
