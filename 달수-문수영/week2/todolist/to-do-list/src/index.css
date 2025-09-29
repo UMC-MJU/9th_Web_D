@@ -1,0 +1,123 @@
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+body{
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Apple SD Gothic Neo', 'Malgun Gothic','Helvetica Neue', Arial, 'Nanum Gothic', sans-serif;
+  line-height: 1.5; 
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+}
+
+.todo-container{
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  width: 300px;
+  text-align: center;
+}
+
+.todo-container_header{
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.todo-container_form{
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.todo-container_input{
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.todo-container_button{
+  padding: 8px 12px;
+  border: none;
+  background-color: #28a745;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+.todo-container_button:hover{
+  background-color: #218838;
+}
+
+.render-container{
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.todo-container_title{
+  font-size: 18px;
+  margin-bottom: 10px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.render-containerw_section{
+  width: 100%;
+  text-align: left;
+}
+
+.todo-container_title{
+  font-size: 18px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.render-container_list{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.render-container_item{
+  background-color: #f9f9f9;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.render-container_item-text{
+  flex: 1;
+}
+
+.render-container_item-button{
+  background-color: #dc3545;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.render-container_item-button:hover{
+  background-color: #c82333;
+}
