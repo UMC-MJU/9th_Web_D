@@ -1,57 +1,33 @@
-import { useState } from "react";
-import type { Todo } from "./types/Todo";
+import { useMemo } from "react";
 import TodoForm from "./components/TodoForm";
 import TodoSection from "./components/TodoSection";
 import Stats from "./components/Stats";
 import ThemeToggle from "./components/ThemeToggle";
 import { useTheme } from "./hooks/useTheme";
+import { useTodos } from "./hooks/useTodos";
+import type { Todo } from "./types/Todo";
 
 function App() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const { todos } = useTodos();
   const { isDark } = useTheme();
 
-  // 할 일 추가
-  const addTodo = (text: string) => {
-    if (text.trim()) {
-      const newTodo: Todo = {
-        id: Date.now(),
-        text: text.trim(),
-        status: "todo",
-      };
-      setTodos([...todos, newTodo]);
-    }
-  };
+  const todoList = useMemo(
+    () => todos.filter((todo: Todo) => todo.status === "todo"),
+    [todos]
+  );
+  const inProgressList = useMemo(
+    () => todos.filter((todo: Todo) => todo.status === "inProgress"),
+    [todos]
+  );
+  const doneList = useMemo(
+    () => todos.filter((todo: Todo) => todo.status === "done"),
+    [todos]
+  );
 
-  // 할 일 상태 변경
-  const moveToInProgress = (id: number) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, status: "inProgress" } : todo
-      )
-    );
-  };
-
-  const moveToDone = (id: number) => {
-    setTodos(
-      todos.map((todo) => (todo.id === id ? { ...todo, status: "done" } : todo))
-    );
-  };
-
-  // 할 일 삭제
-  const deleteTodo = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-  };
-
-  // 통계 계산
   const totalCount = todos.length;
-  const todoCount = todos.filter((t) => t.status === "todo").length;
-  const inProgressCount = todos.filter((t) => t.status === "inProgress").length;
-  const doneCount = todos.filter((t) => t.status === "done").length;
-
-  // 필터링된 할 일들
-  const todoList = todos.filter((todo) => todo.status === "todo");
-  const inProgressList = todos.filter((todo) => todo.status === "inProgress");
-  const doneList = todos.filter((todo) => todo.status === "done");
+  const todoCount = todoList.length;
+  const inProgressCount = inProgressList.length;
+  const doneCount = doneList.length;
 
   return (
     <div
@@ -83,33 +59,15 @@ function App() {
         </h2>
 
         {/* Form */}
-        <TodoForm onAddTodo={addTodo} />
+        <TodoForm />
 
         {/* Render Sections */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <TodoSection
-            title="시작 전"
-            todos={todoList}
-            onMoveToInProgress={moveToInProgress}
-            onMoveToDone={moveToDone}
-            onDelete={deleteTodo}
-          />
+          <TodoSection status="todo" todos={todoList} />
 
-          <TodoSection
-            title="진행 중"
-            todos={inProgressList}
-            onMoveToInProgress={moveToInProgress}
-            onMoveToDone={moveToDone}
-            onDelete={deleteTodo}
-          />
+          <TodoSection status="inProgress" todos={inProgressList} />
 
-          <TodoSection
-            title="완료"
-            todos={doneList}
-            onMoveToInProgress={moveToInProgress}
-            onMoveToDone={moveToDone}
-            onDelete={deleteTodo}
-          />
+          <TodoSection status="done" todos={doneList} />
         </div>
 
         {/* Stats */}
