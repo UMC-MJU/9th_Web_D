@@ -1,3 +1,6 @@
+@import "tailwindcss";  
+/*Tailwindcss 가져오기(Tailwind의 모든 기본 유틸리티 클래스를 사용할 수 있음)*/
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
