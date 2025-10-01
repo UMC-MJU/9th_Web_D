@@ -1,6 +1,6 @@
 import type { MouseEvent } from "react";
-import type { LinkProps } from "./types";
-import { getCurrentPath, navigateTo } from "./utils";
+import type { LinkProps } from "../types/types";
+import { getCurrentPath, navigateTo } from "../utils/utils";
 
 export const Link = ({ to, children }: LinkProps) => {
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
