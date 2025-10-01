@@ -1,10 +1,18 @@
-function App() {
+import Link from "./components/Link" 
+//link는 <a>태그 컴포넌트. 클릭하면 전체 리로드 대신 history.pushState를 호출해서 SPA방식으로 이동
+import Router from "./Router"
+//Router는 현재 URL 경로에 맞는 컴포넌트를 매칭해서 보여주는 컴포넌트
+
+//APP 컴포넌트 본문
+export default function App() {
   return (
-    <div className="w-full bg-purple-500 text-white p-4 font-bold text-center">
-      {/*가로 전체 폭 지정, 배경색 보라색 팔레트 500단계, 텍스트 흰색, p-4 모든 방향 패딩, 글씨 두껍게, 텍스트정렬 */}
-      <h1>춘식이의 고구마 코딩</h1>
+    <div className="p-6 space-y-6"> {/*전체 레이아웃, TailwindCSS로 padding 6, 위아래 요소 간격 6 적용*/}
+      <nav className="flex gap-4"> {/*상단 네비게이션 바. Flexbox로 배치, 링크 간격 4*/}
+        <Link to="/" className="text-blue-600 underline">Home</Link> {/* 클릭 시 /경로로 이동, 전체 리로드 없음*/}
+        <Link to="/about" className="text-blue-600 underline">About</Link> {/* /about경로로 이동*/}
+        <Link to="/users" className="text-blue-600 underline">Users</Link> {/* /users경로로 이동*/}
+      </nav>
+      <Router /> {/*현재 URL 경로에 맞는 컴포넌트를 매칭해서 보여줌*/}
     </div>
   )
 }
-
-export default App
