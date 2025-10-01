@@ -1,18 +1,16 @@
 import { useState } from "react";
 import { useTheme } from "../hooks/useTheme";
+import { useTodos } from "../hooks/useTodos";
 
-interface TodoFormProps {
-  onAddTodo: (text: string) => void;
-}
-
-const TodoForm = ({ onAddTodo }: TodoFormProps) => {
+const TodoForm = () => {
   const { isDark } = useTheme();
+  const { addTodo } = useTodos();
   const [inputValue, setInputValue] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim()) {
-      onAddTodo(inputValue);
+      addTodo(inputValue);
       setInputValue("");
     }
   };
