@@ -6,8 +6,7 @@ import {
   type FC,
 } from "react";
 import type { RoutesProps, RouteProps } from "../types/types";
-import { useCurrentPath } from "../hooks/hooks";
-
+import { useCurrentPath } from "../hooks";
 // 라우트 엘리먼트인지 확인하는 헬퍼 함수
 const isRouteElement = (
   element: unknown
