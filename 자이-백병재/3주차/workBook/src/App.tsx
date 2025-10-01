@@ -17,10 +17,13 @@ function App() {
 
   return (
     <div>
-      <nav>
-        <button onClick={() => push('/')}>MainPage</button>
-        <button onClick={() => push('/1')}>NewPage_1</button>
-        <button onClick={() => push('/2')}>NewPage_2</button>        
+      <nav className="flex justify-center items-center space-x-6 py-4">
+        <button onClick={() => push('/')} className="px-4 py-2 text-xl hover:bg-gray-400 rounded-lg border-2 border-gray-300">
+          MainPage</button>
+        <button onClick={() => push('/1') } className="px-4 py-2 text-xl hover:bg-gray-400 rounded-lg border-2 border-gray-300">
+          NewPage_1</button>
+        <button onClick={() => push('/2')} className="px-4 py-2 text-xl hover:bg-gray-400 rounded-lg border-2 border-gray-300">
+          NewPage_2</button>        
       </nav>
       <main>
         { urls[path] || <h1>Error!</h1>}
