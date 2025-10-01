@@ -3,8 +3,10 @@ import MainPage from './components/MainPage'
 import NewPage_1 from './components/NewPage_1'
 import NewPage_2 from './components/NewPage_2'
 import { useRouter } from './hooks/useRouter'
+import type { url } from './types/url'
 
-const urls = {
+
+const urls: url = {
   "/": <MainPage />,
   "/1": <NewPage_1 />,
   "/2": <NewPage_2 />
