@@ -23,7 +23,7 @@ const MovieCard = ({ movie }: MovieCardProps) => {
 
   return (
     <div
-      className="relative w-full aspect-[2/3] rounded-xl overflow-hidden shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-2 hover:shadow-2xl"
+      className="relative w-full aspect-[2/3] rounded-xl overflow-hidden shadow-lg transition-all duration-400 cursor-pointer hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(251,113,133,0.3),0_0_40px_rgba(251,113,133,0.2),0_0_60px_rgba(251,113,133,0.1)] hover:scale-105"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -36,7 +36,7 @@ const MovieCard = ({ movie }: MovieCardProps) => {
           }`}
         />
         <div
-          className={`absolute inset-0 bg-black/80 flex items-center justify-center p-6 transition-opacity duration-300 ${
+          className={`absolute inset-0 bg-gradient-to-b from-black/20 via-black/60 to-black/80 flex items-center justify-center p-6 transition-opacity duration-300 ${
             isHovered ? "opacity-100" : "opacity-0"
           }`}
         >
