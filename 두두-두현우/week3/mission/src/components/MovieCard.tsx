@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Movie } from "../types/movie";
+import { TMDB_CONFIG } from "../config/api";
 
 interface MovieCardProps {
   movie: Movie;
@@ -17,7 +18,7 @@ const MovieCard = ({ movie }: MovieCardProps) => {
   };
 
   const getImageUrl = (posterPath: string) => {
-    return `https://image.tmdb.org/t/p/w500${posterPath}`;
+    return `${TMDB_CONFIG.IMAGE_BASE_URL}${posterPath}`;
   };
 
   return (
