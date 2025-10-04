@@ -1,21 +1,7 @@
-import { useEffect, useState } from "react";
-import axios from 'axios';
-import type { Movie } from "../types/movie";
+import useAPI from "../hooks/useAPI";
 
 const MoviePage = () => {
-    const [movie, setMovie] = useState<Movie[]>([]);
-
-    useEffect(() : void => {
-      const getMovieAPI = async () : Promise<void> => {
-        const { data } = await axios('https://api.themoviedb.org/3/movie/popular?language=en-US', {
-          headers: {
-            Authorization : `Bearer ${import.meta.env.VITE_MOVIE_KEY}`
-          },
-        });
-        setMovie(data.results);
-      }; 
-      getMovieAPI();
-    }, []);
+  const { movie }  = useAPI();
 
   return(
     <div>
