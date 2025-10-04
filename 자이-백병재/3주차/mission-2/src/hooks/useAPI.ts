@@ -3,12 +3,12 @@ import type { Movie } from "../types/movie";
 import axios from "axios";
 
 
-export default function useAPI() {
+export default function useAPI( pageNum : number = 1 ) {
     const [movie, setMovie] = useState<Movie[]>([]);
 
     useEffect(() : void => {
       const getMovieAPI = async () : Promise<void> => {
-        const { data } = await axios(`https://api.themoviedb.org/3/movie/popular?language=en-US&page=1`, {
+        const { data } = await axios(`https://api.themoviedb.org/3/movie/popular?language=en-US&page=${pageNum}`, {
           headers: {
             Authorization : `Bearer ${import.meta.env.VITE_MOVIE_KEY}`
           },
@@ -16,7 +16,7 @@ export default function useAPI() {
         setMovie(data.results);
       }; 
       getMovieAPI();
-    }, []);
+    }, [pageNum]);
 
     return { movie };
 }

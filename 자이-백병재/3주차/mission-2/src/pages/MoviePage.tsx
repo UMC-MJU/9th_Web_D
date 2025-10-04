@@ -1,7 +1,10 @@
+import { useState } from "react";
 import useAPI from "../hooks/useAPI";
 
 const MoviePage = () => {
-  const { movie }  = useAPI();
+  const [pageNum, setPageNum] = useState(1);
+
+  const { movie }  = useAPI(pageNum);
 
   return(
     <div>
