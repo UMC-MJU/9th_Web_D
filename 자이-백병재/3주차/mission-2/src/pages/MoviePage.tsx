@@ -2,6 +2,7 @@ import { useState } from "react";
 import useAPI from "../hooks/useAPI";
 import MovieList from "../components/movieList";
 import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorAppear from "../components/ErrorAppear";
 
 const MoviePage = () => {
   const [pageNum, setPageNum] = useState(1);
@@ -11,7 +12,7 @@ const MoviePage = () => {
     return (<LoadingSpinner />);
   }
   else if(isError) {
-    return (<p>에러 발생!!</p>);
+    return (<ErrorAppear />);
   }
   else {
   return(<MovieList movie={movie}/>);
