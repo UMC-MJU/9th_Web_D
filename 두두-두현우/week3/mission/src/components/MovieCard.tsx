@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { Movie } from "../types/movie";
 import { TMDB_CONFIG } from "../config/api";
 
@@ -8,6 +9,7 @@ interface MovieCardProps {
 
 const MovieCard = ({ movie }: MovieCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -15,6 +17,10 @@ const MovieCard = ({ movie }: MovieCardProps) => {
 
   const handleMouseLeave = () => {
     setIsHovered(false);
+  };
+
+  const handleClick = () => {
+    navigate(`/movie/${movie.id}`);
   };
 
   const getImageUrl = (posterPath: string) => {
@@ -26,6 +32,7 @@ const MovieCard = ({ movie }: MovieCardProps) => {
       className="relative w-full aspect-[2/3] rounded-xl overflow-hidden shadow-lg transition-all duration-400 cursor-pointer hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(251,113,133,0.3),0_0_40px_rgba(251,113,133,0.2),0_0_60px_rgba(251,113,133,0.1)] hover:scale-105"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
     >
       <div className="relative w-full h-full">
         <img
