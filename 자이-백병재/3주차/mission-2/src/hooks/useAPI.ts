@@ -18,6 +18,7 @@ export default function useAPI( pageNum : number = 1 ) {
                 },
             });
             setMovie(data.results);
+            setIsError(false);           
         } catch {
             setIsError(true);
         } finally {
