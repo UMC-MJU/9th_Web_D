@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Movie } from '../types/movie';
 
 interface MoiveCardProps {
@@ -5,7 +6,7 @@ interface MoiveCardProps {
 }
 
 export default function MoiveCard({ movie }: MoiveCardProps) {
-    console [isHovered, setIsHovered] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     
     return (
         <div 

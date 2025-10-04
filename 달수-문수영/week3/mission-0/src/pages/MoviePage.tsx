@@ -1,5 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
+import type { Movie, MovieResponse } from '../types/movie';
+import MoiveCard from '../components/MoiveCard';
 
 export default function MoviePage() {
     const [movies, setMovies] = useState<Movie[]>([]);
@@ -14,7 +16,7 @@ export default function MoviePage() {
                     }
                 }
             );
-            setMovies(data.result);
+            setMovies(data.results);
         };
 
         fetchMovies();
@@ -22,7 +24,7 @@ export default function MoviePage() {
 
     return(
         <div className='p-10 grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'>
-            {movies && movies.map((movie): JSX.Element => (
+            {movies && movies.map((movie) => (
                 <MoiveCard key={movie.id} movie={movie} />
             ))}
         </div>
