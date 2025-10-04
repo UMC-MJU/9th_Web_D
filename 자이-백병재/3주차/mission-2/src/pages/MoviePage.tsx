@@ -4,8 +4,15 @@ import useAPI from "../hooks/useAPI";
 const MoviePage = () => {
   const [pageNum, setPageNum] = useState(1);
 
-  const { movie }  = useAPI(pageNum);
+  const { movie, isLoading, isError }  = useAPI(pageNum);
 
+  if(isLoading) {
+    return (<p>로딩중!</p>);
+  }
+  else if(isError) {
+    return (<p>에러 발생!!</p>);
+  }
+  else {
   return(
     <div>
       <div className="flex flex-wrap m-5 gap-5 justify-center">
@@ -31,6 +38,7 @@ const MoviePage = () => {
       </div>
     </div>
     );
+  }
 };
 
 export default MoviePage;
