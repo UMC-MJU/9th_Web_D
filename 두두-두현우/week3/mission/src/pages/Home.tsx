@@ -1,8 +1,17 @@
+import { useState } from "react";
 import { useMovies } from "../hooks/useMovies";
 import MovieCard from "../components/MovieCard";
+import Pagination from "../components/Pagination";
+import ErrorPage from "./ErrorPage";
 
 const Home = () => {
-  const { movies, loading, error } = useMovies();
+  const [currentPage, setCurrentPage] = useState(1);
+  const { movies, loading, error } = useMovies(currentPage);
+
+  // 11페이지 접근 시 에러 처리
+  if (currentPage === 11) {
+    return <ErrorPage onGoHome={() => setCurrentPage(1)} />;
+  }
 
   if (loading) {
     return (
@@ -22,17 +31,42 @@ const Home = () => {
     );
   }
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // 페이지 변경 시 스크롤을 맨 위로 이동
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-700 p-5">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-white text-center mb-8">
           Popular Movies
         </h1>
+
+        {/* 페이지네이션 (상단) */}
+        {movies && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={movies.total_pages}
+            onPageChange={handlePageChange}
+          />
+        )}
+
         <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
           {movies?.results.map((movie) => (
             <MovieCard key={movie.id} movie={movie} />
           ))}
         </main>
+
+        {/* 페이지네이션 (하단) */}
+        {movies && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={movies.total_pages}
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
     </div>
   );
