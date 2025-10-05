@@ -13,9 +13,8 @@ const router = createBrowserRouter([
     errorElement: <NotFoundPage />,
     children: [
       {
-        path:'moive/:category',
+        path:'movie/:category',
         element: <MoviePage />,
-        index: true,
       },
       {
         path:'movies/:movieId',

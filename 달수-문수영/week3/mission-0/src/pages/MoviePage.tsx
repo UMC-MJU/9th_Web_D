@@ -70,7 +70,7 @@ export default function MoviePage() {
                 onClick={():void => setPage((prev):number => prev + 1)}
                 >{'>'}</button>
          </div>
-        {!isPending && (
+        {isPending && (
             <div className='flex items-center justify-center h-dvh'>
                 <LoadingSpinner />
             </div>
