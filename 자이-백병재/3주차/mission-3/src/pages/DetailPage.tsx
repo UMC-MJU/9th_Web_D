@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import useAPI from "../hooks/useAPI";
 import Render from "../components/Render";
-import MovieList from "../components/MovieList";
+import MovieDetail from "../components/MovieDetail";
 
 const DetailPage = () => {
     const { id } = useParams();
@@ -10,7 +10,7 @@ const DetailPage = () => {
       return (
     <div>
       <Render isLoading={isLoading} isError={isError} movie={movie}
-      SuccessComponent={MovieList} />
+      SuccessComponent={MovieDetail} />
     </div>
   );
 }
