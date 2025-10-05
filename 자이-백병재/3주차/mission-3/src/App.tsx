@@ -11,10 +11,10 @@ const router = createBrowserRouter([
     element: <MainPage /> ,
     errorElement: <ErrorPage />,
     children: [{
-      path: 'movies/:category',
+      path: '/movies/:category',
       element: <MoviePage />
     }, {
-      path: "details/:id",
+      path: "/details/:id",
       element: <DetailPage />
     }]
   },

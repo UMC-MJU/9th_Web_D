@@ -1,7 +1,7 @@
-import type { Movie } from "../types/movie"
+import type { Detail } from "../types/detail";
 import StarPoint from "./StarPoint";
 
-const MovieDetail = ({ movie }: { movie: Movie }) => {
+const MovieDetail = ({ movie }: { movie: Detail }) => {
     const bgImg = `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`;
 
     return (

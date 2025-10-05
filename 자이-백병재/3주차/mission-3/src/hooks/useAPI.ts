@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import type { Movie } from "../types/movie";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import type { Detail } from "../types/detail";
 
 export default function useAPI( pageNum : number = 1 ) {
-    const [movie, setMovie] = useState<Movie[]>([]);
+    const [movie, setMovie] = useState<Movie[] | Detail[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
     const { category, id } = useParams();
