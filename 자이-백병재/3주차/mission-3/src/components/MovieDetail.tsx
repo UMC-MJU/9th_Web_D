@@ -1,4 +1,5 @@
 import type { Detail } from "../types/detail";
+import CastList from "./CastList";
 import StarPoint from "./StarPoint";
 
 const MovieDetail = ({ movie }: { movie: Detail }) => {
@@ -20,14 +21,15 @@ const MovieDetail = ({ movie }: { movie: Detail }) => {
                     {movie.title}
                 </h1>
 
-                <div className="flex items-center gap-x-4 mb-6">
+                <div className="flex items-center gap-x-4 mb-6 mt-2.5">
                     <StarPoint score={movie.vote_average} />
                     <p className="text-lg text-gray-300">({movie.vote_count.toLocaleString()} votes)</p>
                 </div>
 
-                <p className="text-base md:text-lg leading-relaxed max-w-3xl">
+                <p className="text-xl leading-relaxed max-w-3xl mt-5">
                     {movie.overview}
                 </p>
+                <CastList castList={movie.production_companies} />
             </div>
         </div>
     );
