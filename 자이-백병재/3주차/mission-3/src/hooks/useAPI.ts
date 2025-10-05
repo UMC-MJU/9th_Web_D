@@ -37,7 +37,7 @@ export default function useAPI( pageNum : number = 1 ) {
 
       }; 
       getMovieAPI();
-    }, [pageNum, category]);
+    }, [pageNum, category, id]);
 
     return { movie, isLoading, isError };
 }

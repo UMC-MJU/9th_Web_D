@@ -9,7 +9,7 @@ const DetailPage = () => {
     const { movie, isLoading, isError }  = useAPI(Number(id));
       return (
     <div>
-      <Render isLoading={isLoading} isError={isError} movie={movie}
+      <Render isLoading={isLoading} isError={isError} movie={movie[0]}
       SuccessComponent={MovieDetail} />
     </div>
   );

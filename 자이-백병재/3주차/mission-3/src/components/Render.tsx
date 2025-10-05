@@ -1,15 +1,16 @@
+import type { Movie } from "../types/movie";
 import ErrorAppear from "./ErrorAppear";
 import LoadingSpinner from "./LoadingSpinner";
 
 interface RenderProps {
   isLoading: boolean;
   isError: boolean;
-  movie: any; 
-  SuccessComponent: React.ComponentType<{ movie: any }>; 
+  movie: Movie; 
+  SuccessComponent: React.ComponentType<{ movie: Movie }>; 
 }
 
 const Render = ({ isLoading, isError, movie, SuccessComponent }: RenderProps) => {
-  if (isLoading) {
+  if (isLoading || !movie) {
     return <LoadingSpinner />;
   }
   
