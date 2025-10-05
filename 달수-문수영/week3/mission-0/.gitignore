@@ -24,6 +24,3 @@ dist-ssr
 *.sw?
 
 .env
-.pnpm-store/
-.vite/
-node_modules/
