@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Movie } from '../types/movie';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface MoiveCardProps {
     movie: Movie;
@@ -7,9 +8,14 @@ interface MoiveCardProps {
 
 export default function MoiveCard({ movie }: MoiveCardProps) {
     const [isHovered, setIsHovered] = useState(false);
-    
+    const navigate = useNavigate();
+    const params = useParams();
+
+    console.log(params);
+
     return (
         <div 
+            onClick ={(): void | Promise<void> => navigate(`/movies/${movie.id}`)}
             className='relative rounded-xl shadow-lg overflow-hidden cursor-pointer w-44 transition-transform duration-500 hover:scale-105' //상위 요소에 relative 추가
             onMouseEnter={(): void => setIsHovered(true)} 
             onMouseLeave={(): void => setIsHovered(false)}

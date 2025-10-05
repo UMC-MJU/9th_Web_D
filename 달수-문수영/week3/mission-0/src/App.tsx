@@ -2,6 +2,8 @@ import './App.css';
 import MoviePage from "./pages/MoviePage" //영화 페이지
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import HomePage from "./pages/HomePage";
+import { MovieDetailPage } from './pages/MovieDetailPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 
 const router = createBrowserRouter([
@@ -15,6 +17,10 @@ const router = createBrowserRouter([
         element: <MoviePage />,
         index: true,
       },
+      {
+        path:'movies/:movieId',
+        element: <MovieDetailPage />
+      }
     ],
   },
 ]);
