@@ -55,21 +55,34 @@ export default function MoviePage() {
 
     return(
         <>
-         <div className='flex items-center justify-center gap-6 mt-5'>
-            <button
-                className='bg-[#169514] text-black px-6 py-3 rounded-lg shadow-md
-                hover:bg-[#61915e] transition-all duration-200 disabled:bg-[#ccc]
-                cursor-pointer disabled:cursor-not-allowed'
-                disabled={page === 1}
-                onClick={():void => setPage((prev):number => prev - 1)}
-                >{'<'}</button>
-            <span>{page}페이지</span>
-            <button
-                className='bg-[#b2dab1] text-black px-6 py-3 rounded-lg shadow-md
-                hover:bg-[#9cc699] transition-all duration-200 cursor-pointer'
-                onClick={():void => setPage((prev):number => prev + 1)}
-                >{'>'}</button>
-         </div>
+         <nav aria-label='페이지 네비게이션' className='mt-6 flex items-center justify-center'>
+            <ul className='inline-flex items-center gap-3'>
+                <li>
+                    <button
+                        aria-label={`이전 페이지 ${page > 1 ? page - 1 : 1}로 이동`}
+                        className='px-4 h-10 inline-flex items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed'
+                        disabled={page === 1}
+                        onClick={():void => setPage((prev):number => prev - 1)}
+                    >
+                        {page > 1 ? page - 1 : '이전'}
+                    </button>
+                </li>
+                <li>
+                    <span aria-live='polite' className='px-4 h-10 inline-flex items-center justify-center rounded-full bg-black text-white text-sm font-medium shadow'>
+                        {page} 페이지
+                    </span>
+                </li>
+                <li>
+                    <button
+                        aria-label={`다음 페이지 ${page + 1}로 이동`}
+                        className='px-4 h-10 inline-flex items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition'
+                        onClick={():void => setPage((prev):number => prev + 1)}
+                    >
+                        {page + 1}
+                    </button>
+                </li>
+            </ul>
+         </nav>
         {isPending && (
             <div className='flex items-center justify-center h-dvh'>
                 <LoadingSpinner />

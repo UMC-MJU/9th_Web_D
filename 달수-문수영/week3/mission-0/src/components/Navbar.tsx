@@ -10,7 +10,7 @@ const LINKS = [
 
 export const Navbar = () => {
     return(
-    <nav className='sticky top-0 z-50 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-blue-500'>
+    <nav className='sticky top-0 z-50 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-gray-300'>
         <div className='max-w-5xl mx-auto px-4'>
             <div className='flex items-center gap-6 h-12'>
                 {LINKS.map(({to, label}) => (
