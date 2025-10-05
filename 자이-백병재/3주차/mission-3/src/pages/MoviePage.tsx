@@ -9,7 +9,6 @@ const MoviePage = () => {
   const [pageNum, setPageNum] = useState(1);
   const { movie, isLoading, isError }  = useAPI(pageNum);
 
-
   const renderContent = () => {
     if (isLoading) {
       return <LoadingSpinner />;
