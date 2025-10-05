@@ -1,3 +1,4 @@
+import { NavLink } from "react-router-dom";
 import type { Movie } from "../types/movie";
 
 const MovieList = ({ movie }: { movie: Movie[] }) => {
@@ -6,7 +7,8 @@ const MovieList = ({ movie }: { movie: Movie[] }) => {
     <div>
       <div className="flex flex-wrap m-5 gap-5 justify-center">
         {movie.map((movieItem) => (
-          <div key={movieItem.id} 
+          <NavLink key={movieItem.id} 
+          to = {`/details/${movieItem.id}`}
           className=" p-2.5 w-[100px] md:w-[200px] xl:w-[300px] group relative rounded-3xl overflow-hidden">
             {/* 영화 포스터 이미지 */}
             <img
@@ -22,7 +24,7 @@ const MovieList = ({ movie }: { movie: Movie[] }) => {
               {/* 영화 설명 */}
               <p className="text-sm md:text-md lg:text-lg line-clamp-2">{movieItem.overview}</p>
             </div>
-          </div>
+          </NavLink>
         ))}
       </div>
     </div>
