@@ -1,3 +1,5 @@
+import type { Cast } from "./cast";
+
 export type Detail = {
   title : string;       // 영화 이름
   overview : string;    // 영화 설명
@@ -6,4 +8,6 @@ export type Detail = {
   backdrop_path : string// 영화 배경그림
   vote_average : number // 영화 평점
   vote_count : number   // 평점 참여 인원
+  production_companies : Cast[] // 제작진 리스트
 };
+
