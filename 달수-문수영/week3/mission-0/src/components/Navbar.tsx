@@ -10,7 +10,7 @@ const LINKS = [
 
 export const Navbar = () => {
     return(
-    <nav className='sticky top-0 z-50 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-gray-300'>
+    <nav className='sticky top-0 z-50 bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-black-500 border-b border-gray-800'>
         <div className='max-w-5xl mx-auto px-4'>
             <div className='flex items-center gap-6 h-12'>
                 {LINKS.map(({to, label}) => (
@@ -19,8 +19,8 @@ export const Navbar = () => {
                         to={to}
                         className={({isActive}): string => (
                             isActive 
-                                ? '!text-black font-semibold' 
-                                : '!text-black hover:!text-black'
+                                ? '!text-white font-semibold' 
+                                : '!text-gray-200 hover:!text-white'
                         )}
                     >
                         {label}

@@ -55,12 +55,13 @@ export default function MoviePage() {
 
     return(
         <>
-         <nav aria-label='페이지 네비게이션' className='mt-6 flex items-center justify-center'>
+         <div className='bg-gray-300 py-8'>
+         <nav aria-label='페이지 네비게이션' className='flex items-center justify-center'>
             <ul className='inline-flex items-center gap-3'>
                 <li>
                     <button
                         aria-label={`이전 페이지 ${page > 1 ? page - 1 : 1}로 이동`}
-                        className='px-4 h-10 inline-flex items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed'
+                        className='px-4 h-10 inline-flex items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:bg-gray-300 transition disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed'
                         disabled={page === 1}
                         onClick={():void => setPage((prev):number => prev - 1)}
                     >
@@ -75,7 +76,7 @@ export default function MoviePage() {
                 <li>
                     <button
                         aria-label={`다음 페이지 ${page + 1}로 이동`}
-                        className='px-4 h-10 inline-flex items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition'
+                        className='px-4 h-10 inline-flex items-center justify-center rounded-full border border-gray-300 text-gray-700 hover:bg-gray-300 transition'
                         onClick={():void => setPage((prev):number => prev + 1)}
                     >
                         {page + 1}
@@ -97,6 +98,7 @@ export default function MoviePage() {
                 ))}
             </div>
         )}
+         </div>
         </>
     );
 }
