@@ -6,7 +6,7 @@ const MovieList = ({ movie }: { movie: Movie[] }) => {
     <div>
       <div className="flex flex-wrap m-5 gap-5 justify-center">
         {movie.map((movieItem) => (
-          <div key={movieItem.title} 
+          <div key={movieItem.id} 
           className=" p-2.5 w-[100px] md:w-[200px] xl:w-[300px] group relative rounded-3xl overflow-hidden">
             {/* 영화 포스터 이미지 */}
             <img
