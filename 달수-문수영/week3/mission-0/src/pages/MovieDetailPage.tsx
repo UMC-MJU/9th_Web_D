@@ -32,7 +32,7 @@ export const MovieDetailPage = () => {
                     setDetails(detailsResult.value.data);
                 } else {
                     const reason: any = detailsResult.reason;
-                    // Abort(StrictMode 더블 이펙트 등)로 취소된 경우는 에러로 표시하지 않음
+                
                     if (!(reason && (reason.name === 'CanceledError' || reason.code === 'ERR_CANCELED'))) {
                         console.error(reason);
                         setIsError('영화 상세 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
