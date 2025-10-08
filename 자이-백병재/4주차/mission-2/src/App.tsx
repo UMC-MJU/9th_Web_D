@@ -2,6 +2,7 @@ import './App.css'
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import MainPage from './pages/MainPage'
 import MainLayout from './layouts/MainLayout';
+import LoginPage from './pages/LoginPage';
 
 const router = createBrowserRouter([
   {
@@ -9,7 +10,8 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     errorElement: <>Error</>,
     children: [
-      { index: true, element: <MainPage /> }
+      { index: true, element: <MainPage /> },
+      { path: "login", element: <LoginPage /> },
     ],
   },
 ]);
