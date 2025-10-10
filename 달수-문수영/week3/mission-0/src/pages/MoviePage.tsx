@@ -30,8 +30,14 @@ export default function MoviePage() {
 
     if(isError) {
         return(
-            <div>
-                <span className='text-red-500'>Error loading movies</span>
+            <div className='min-h-screen flex flex-col items-center justify-center gap-4 p-6'>
+                <div className='text-red-500 font-medium'>영화 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</div>
+                <button
+                    className='px-4 py-2 rounded bg-black text-white hover:bg-gray-800'
+                    onClick={() => location.reload()}
+                >
+                    다시 시도
+                </button>
             </div>
         )
     }
