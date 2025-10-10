@@ -1,11 +1,27 @@
 import { useState } from "react";
+import LoginModal from "./components/LoginModal";
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+  const handleLogin = (email: string, password: string) => {
+    // 로그인 로직 구현
+    console.log("로그인:", email, password);
+    setIsLoggedIn(true);
+    setIsLoginModalOpen(false);
+  };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+  };
+
+  const handleGoogleLogin = () => {
+    // 구글 소셜 로그인 로직
+    console.log("구글 로그인");
+    setIsLoggedIn(true);
+    setIsLoginModalOpen(false);
   };
 
   return (
@@ -65,7 +81,9 @@ export default function Navbar() {
 
                 {/* 로그인/로그아웃 버튼 */}
                 <NavButton
-                  onClick={isLoggedIn ? handleLogout : () => {}}
+                  onClick={
+                    isLoggedIn ? handleLogout : () => setIsLoginModalOpen(true)
+                  }
                   isVisible={isHovered}
                   delay="300"
                 >
@@ -80,6 +98,12 @@ export default function Navbar() {
       {/* 회원가입 버튼 - 오른쪽 상단 */}
 
       {/* 로그인 모달 */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onLogin={handleLogin}
+        onGoogleLogin={handleGoogleLogin}
+      />
 
       {/* 회원가입 모달 */}
     </>
