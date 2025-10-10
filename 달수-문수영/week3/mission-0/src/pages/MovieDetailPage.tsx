@@ -1,67 +1,50 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import type { MovieDetails, CreditsResponse } from '../types/movie';
+import useCustomFetch from '../hooks/useCustomFetch';
 
 export const MovieDetailPage = () => {
     const { movieId } = useParams<{ movieId: string }>();
-    const [details, setDetails] = useState<MovieDetails | null>(null);
-    const [credits, setCredits] = useState<CreditsResponse | null>(null);
-    const [isPending, setIsPending] = useState(false);
-    const [isError, setIsError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (!movieId) return;
-        const controller = new AbortController();
-        const fetchAll = async (): Promise<void> => {
-            setIsPending(true);
-            setIsError(null);
-            try {
-                const [detailsResult, creditsResult] = await Promise.allSettled([
-                    axios.get<MovieDetails>(`https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`, {
-                        headers: { Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}` },
-                        signal: controller.signal,
-                    }),
-                    axios.get<CreditsResponse>(`https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko-KR`, {
-                        headers: { Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}` },
-                        signal: controller.signal,
-                    }),
-                ]);
+    const detailsFetcher = useMemo(() => (
+        async (signal: AbortSignal): Promise<MovieDetails> => {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`, {
+                headers: { Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}` },
+                signal,
+            });
+            if (!res.ok) throw new Error('Failed to fetch details');
+            return res.json();
+        }
+    ), [movieId]);
 
-                if (detailsResult.status === 'fulfilled') {
-                    setDetails(detailsResult.value.data);
-                } else {
-                    const reason: any = detailsResult.reason;
-                    // Abort(StrictMode 더블 이펙트 등)로 취소된 경우는 에러로 표시하지 않음
-                    if (!(reason && (reason.name === 'CanceledError' || reason.code === 'ERR_CANCELED'))) {
-                        console.error(reason);
-                        setIsError('영화 상세 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
-                    }
-                }
+    const creditsFetcher = useMemo(() => (
+        async (signal: AbortSignal): Promise<CreditsResponse> => {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko-KR`, {
+                headers: { Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}` },
+                signal,
+            });
+            if (!res.ok) throw new Error('Failed to fetch credits');
+            return res.json();
+        }
+    ), [movieId]);
 
-                if (creditsResult.status === 'fulfilled') {
-                    setCredits(creditsResult.value.data);
-                } else {
-                    console.warn('크레딧을 불러오지 못했습니다:', creditsResult.reason);
-                }
-            } catch (err: any) {
-                if (!((err instanceof DOMException && err.name === 'AbortError') || err?.code === 'ERR_CANCELED')) {
-                    console.error(err);
-                    setIsError('영화 상세 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
-                }
-            } finally {
-                setIsPending(false);
-            }
-        };
-        fetchAll();
-        return () => controller.abort();
-    }, [movieId]);
+    const { data: details, isPending: isPendingDetails, isError: isErrorDetails } = useCustomFetch<MovieDetails>({
+        fetcher: detailsFetcher,
+        deps: [movieId],
+        enabled: Boolean(movieId),
+    });
 
-    if (isPending) {
+    const { data: credits } = useCustomFetch<CreditsResponse>({
+        fetcher: creditsFetcher,
+        deps: [movieId],
+        enabled: Boolean(movieId),
+    });
+
+    if (isPendingDetails) {
         return <div className='p-6 text-center'>불러오는 중...</div>;
     }
-    if (isError) {
-        return <div className='p-6 text-center text-red-500'>{isError}</div>;
+    if (isErrorDetails) {
+        return <div className='p-6 text-center text-red-500'>영화 상세 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</div>;
     }
     if (!details) {
         return <div className='p-6 text-center'>데이터가 없습니다.</div>;
