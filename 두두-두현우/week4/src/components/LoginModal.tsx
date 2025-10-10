@@ -51,7 +51,7 @@ export default function LoginModal({
 
   const handlePasswordChange = (value: string) => {
     setPassword(value);
-    if (value && value.length < 8) {
+    if (value && value.length <= 8) {
       setErrors((prev) => ({
         ...prev,
         password: "비밀번호는 8글자 이상이어야 합니다",
