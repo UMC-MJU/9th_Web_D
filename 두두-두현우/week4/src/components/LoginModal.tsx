@@ -39,7 +39,13 @@ export default function LoginModal({
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
-    if (value && !validateEmail(value)) {
+    if (!value) {
+      setErrors((prev) => ({ ...prev, email: "" }));
+    }
+  };
+
+  const handleEmailBlur = () => {
+    if (email && !validateEmail(email)) {
       setErrors((prev) => ({
         ...prev,
         email: "올바른 이메일 형식을 입력해주세요",
@@ -51,7 +57,13 @@ export default function LoginModal({
 
   const handlePasswordChange = (value: string) => {
     setPassword(value);
-    if (value && value.length <= 8) {
+    if (!value) {
+      setErrors((prev) => ({ ...prev, password: "" }));
+    }
+  };
+
+  const handlePasswordBlur = () => {
+    if (password && password.length <= 8) {
       setErrors((prev) => ({
         ...prev,
         password: "비밀번호는 8글자 이상이어야 합니다",
@@ -148,6 +160,7 @@ export default function LoginModal({
               type="text"
               value={email}
               onChange={(e) => handleEmailChange(e.target.value)}
+              onBlur={handleEmailBlur}
               className={`w-full px-4 py-3 backdrop-blur-md bg-black/20 border rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-300 ${
                 errors.email
                   ? "border-red-400 focus:ring-red-400/50"
@@ -170,6 +183,7 @@ export default function LoginModal({
               type="password"
               value={password}
               onChange={(e) => handlePasswordChange(e.target.value)}
+              onBlur={handlePasswordBlur}
               className={`w-full px-4 py-3 backdrop-blur-md bg-black/20 border rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-300 ${
                 errors.password
                   ? "border-red-400 focus:ring-red-400/50"
