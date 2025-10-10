@@ -13,7 +13,8 @@ const MovieDetail = () => {
 
   if (loading) return <LoadingView message="Loading movie details..." />;
 
-  if (error || !movieDetail) {
+  // Show error UI only when an explicit error exists after loading finished
+  if (!loading && error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-700 flex items-center justify-center p-5">
         <div className="text-center text-white">
@@ -32,6 +33,10 @@ const MovieDetail = () => {
       </div>
     );
   }
+
+  // Fallback: when no error but data not yet present (e.g., effect timing/abort),
+  // keep showing the loading view instead of error UI.
+  if (!movieDetail) return <LoadingView message="Loading movie details..." />;
 
   const getImageUrl = (path: string) => {
     return `${TMDB_CONFIG.IMAGE_BASE_URL}${path}`;
