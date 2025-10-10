@@ -1,19 +1,17 @@
 import { useParams, Link } from "react-router-dom";
 import { useMovieDetail } from "../hooks/useMovieDetail";
 import { TMDB_CONFIG } from "../config/api";
+import LoadingView from "../components/LoadingView";
 
 const MovieDetail = () => {
   const { movieId } = useParams<{ movieId: string }>();
   const { movieDetail, loading, error } = useMovieDetail(Number(movieId));
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-white">
-        <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mb-5"></div>
-        <p className="text-lg">Loading movie details...</p>
-      </div>
-    );
-  }
+  // Guard: when route param is not yet ready, show the unified loading view
+  const isIdInvalid = !movieId || Number.isNaN(Number(movieId));
+  if (isIdInvalid) return <LoadingView message="Loading movie details..." />;
+
+  if (loading) return <LoadingView message="Loading movie details..." />;
 
   if (error || !movieDetail) {
     return (
