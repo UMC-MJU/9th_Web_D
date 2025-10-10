@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -7,18 +8,34 @@ interface LoginModalProps {
   onGoogleLogin: () => void;
 }
 
+type LoginFormValues = {
+  email: string;
+  password: string;
+};
+
 export default function LoginModal({
   isOpen,
   onClose,
   onLogin,
   onGoogleLogin,
 }: LoginModalProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState({ email: "", password: "", login: "" });
   const [loginState, setLoginState] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
+  const [loginError, setLoginError] = useState("");
+
+  const {
+    register,
+    handleSubmit: rhfHandleSubmit,
+    formState: { errors },
+    clearErrors,
+    watch,
+    reset,
+  } = useForm<LoginFormValues>({
+    mode: "onBlur",
+    reValidateMode: "onBlur",
+    defaultValues: { email: "", password: "" },
+  });
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[A-Za-z0-9_.-]+@[A-Za-z0-9-]+\.[A-Za-z0-9-]+$/;
@@ -27,9 +44,10 @@ export default function LoginModal({
 
   // 로그인 버튼 활성화 조건 체크
   const isFormValid = () => {
+    const { email, password } = watch();
     return (
-      email &&
-      password &&
+      !!email &&
+      !!password &&
       validateEmail(email) &&
       password.length >= 8 &&
       !errors.email &&
@@ -37,50 +55,13 @@ export default function LoginModal({
     );
   };
 
-  const handleEmailChange = (value: string) => {
-    setEmail(value);
-    if (!value) {
-      setErrors((prev) => ({ ...prev, email: "" }));
-    }
-  };
-
-  const handleEmailBlur = () => {
-    if (email && !validateEmail(email)) {
-      setErrors((prev) => ({
-        ...prev,
-        email: "올바른 이메일 형식을 입력해주세요",
-      }));
-    } else {
-      setErrors((prev) => ({ ...prev, email: "" }));
-    }
-  };
-
-  const handlePasswordChange = (value: string) => {
-    setPassword(value);
-    if (!value) {
-      setErrors((prev) => ({ ...prev, password: "" }));
-    }
-  };
-
-  const handlePasswordBlur = () => {
-    if (password && password.length <= 8) {
-      setErrors((prev) => ({
-        ...prev,
-        password: "비밀번호는 8글자 이상이어야 합니다",
-      }));
-    } else {
-      setErrors((prev) => ({ ...prev, password: "" }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = async ({ email, password }: LoginFormValues) => {
     // 폼이 유효하지 않으면 제출하지 않음
     if (!isFormValid()) {
       return;
     }
 
+    setLoginError("");
     setLoginState("loading");
 
     try {
@@ -100,10 +81,7 @@ export default function LoginModal({
         }, 300);
       } else {
         setLoginState("error");
-        setErrors((prev) => ({
-          ...prev,
-          login: "아이디 또는 비밀번호가 올바르지 않습니다",
-        }));
+        setLoginError("아이디 또는 비밀번호가 올바르지 않습니다");
 
         // 에러 상태를 3초 후 초기화
         setTimeout(() => {
@@ -112,10 +90,7 @@ export default function LoginModal({
       }
     } catch {
       setLoginState("error");
-      setErrors((prev) => ({
-        ...prev,
-        login: "로그인 중 오류가 발생했습니다",
-      }));
+      setLoginError("로그인 중 오류가 발생했습니다");
 
       setTimeout(() => {
         setLoginState("idle");
@@ -124,9 +99,8 @@ export default function LoginModal({
   };
 
   const handleClose = () => {
-    setEmail("");
-    setPassword("");
-    setErrors({ email: "", password: "", login: "" });
+    reset();
+    setLoginError("");
     setLoginState("idle");
     onClose();
   };
@@ -153,14 +127,21 @@ export default function LoginModal({
           <h2 className="text-2xl font-bold text-white mb-2">로그인</h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={rhfHandleSubmit(onSubmit)} className="space-y-6">
           {/* 아이디 입력 */}
           <div>
             <input
               type="text"
-              value={email}
-              onChange={(e) => handleEmailChange(e.target.value)}
-              onBlur={handleEmailBlur}
+              {...register("email", {
+                validate: (value) =>
+                  !value ||
+                  validateEmail(value) ||
+                  "올바른 이메일 형식을 입력해주세요",
+                onChange: (e) => {
+                  const value = (e.target as HTMLInputElement).value;
+                  if (!value) clearErrors("email");
+                },
+              })}
               className={`w-full px-4 py-3 backdrop-blur-md bg-black/20 border rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-300 ${
                 errors.email
                   ? "border-red-400 focus:ring-red-400/50"
@@ -172,7 +153,7 @@ export default function LoginModal({
             {errors.email && (
               <div className="mt-2 text-red-300 text-sm flex items-center space-x-1">
                 <i className="ri-error-warning-line text-xs"></i>
-                <span>{errors.email}</span>
+                <span>{errors.email.message as string}</span>
               </div>
             )}
           </div>
@@ -181,9 +162,16 @@ export default function LoginModal({
           <div>
             <input
               type="password"
-              value={password}
-              onChange={(e) => handlePasswordChange(e.target.value)}
-              onBlur={handlePasswordBlur}
+              {...register("password", {
+                validate: (value) =>
+                  !value ||
+                  value.length >= 8 ||
+                  "비밀번호는 8글자 이상이어야 합니다",
+                onChange: (e) => {
+                  const value = (e.target as HTMLInputElement).value;
+                  if (!value) clearErrors("password");
+                },
+              })}
               className={`w-full px-4 py-3 backdrop-blur-md bg-black/20 border rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-300 ${
                 errors.password
                   ? "border-red-400 focus:ring-red-400/50"
@@ -195,7 +183,7 @@ export default function LoginModal({
             {errors.password && (
               <div className="mt-2 text-red-300 text-sm flex items-center space-x-1">
                 <i className="ri-error-warning-line text-xs"></i>
-                <span>{errors.password}</span>
+                <span>{errors.password.message as string}</span>
               </div>
             )}
           </div>
@@ -240,10 +228,10 @@ export default function LoginModal({
           </button>
 
           {/* 로그인 오류 메시지 */}
-          {errors.login && (
+          {loginError && (
             <div className="text-red-300 text-sm flex items-center justify-center space-x-1">
               <i className="ri-error-warning-line text-xs"></i>
-              <span>{errors.login}</span>
+              <span>{loginError}</span>
             </div>
           )}
 
