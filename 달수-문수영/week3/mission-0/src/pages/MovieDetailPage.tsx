@@ -63,22 +63,34 @@ export const MovieDetailPage = () => {
     const posterUrl = details.poster_path
         ? `https://image.tmdb.org/t/p/w300${details.poster_path}`
         : undefined;
+    const backdropUrl = details.backdrop_path
+        ? `https://image.tmdb.org/t/p/original${details.backdrop_path}`
+        : undefined;
 
     const topCast = (credits?.cast ?? []).slice(0, 10);
     const directorName = credits?.crew.find((m) => m.job === 'Director')?.name;
     const releaseYear = details.release_date?.slice(0, 4) ?? '-';
 
     return (
-        <div className='min-h-screen'>
+        <div className='min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-black text-gray-100'>
+            {/* Hero */}
+            <div className='relative h-56 sm:h-72 md:h-80 lg:h-96'>
+                {backdropUrl && (
+                    <img src={backdropUrl} alt='' className='absolute inset-0 w-full h-full object-cover opacity-40' />
+                )}
+                <div className='absolute inset-0 bg-gradient-to-b from-transparent to-black'></div>
+                <div className='relative h-full flex items-end max-w-5xl mx-auto px-6 pb-4'>
+                    <h1 className='text-3xl sm:text-4xl font-bold drop-shadow'>{details.title}</h1>
+                </div>
+            </div>
             {/* Card */}
-            <div className='max-w-5xl mx-auto px-6 mt-8'>
+            <div className='max-w-5xl mx-auto px-6 mt-6'>
                 <div className='rounded-xl border border-gray-800 bg-gray-900/70 backdrop-blur p-6 sm:p-8'>
                     <div className='flex flex-col sm:flex-row gap-6'>
                         {posterUrl && (
                             <img src={posterUrl} alt={`${details.title} 포스터`} className='w-44 sm:w-56 md:w-60 rounded-lg shadow' />
                         )}
                         <div className='flex-1'>
-                            <h1 className='text-2xl sm:text-3xl font-bold text-white leading-snug'>{details.title}</h1>
                             <div className='mt-2 flex items-center gap-3'>
                                 <span className='inline-flex items-center gap-1 text-amber-400 font-semibold'>★ {details.vote_average.toFixed(1)}</span>
                                 <span className='text-sm text-gray-400'>평점</span>

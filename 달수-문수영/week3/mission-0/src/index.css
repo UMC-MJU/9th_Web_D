@@ -1,8 +1,9 @@
 @import "tailwindcss";  
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap");
 /*Tailwindcss 가져오기(Tailwind의 모든 기본 유틸리티 클래스를 사용할 수 있음)*/
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Noto Sans KR", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
