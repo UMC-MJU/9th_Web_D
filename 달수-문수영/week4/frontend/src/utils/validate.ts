@@ -7,6 +7,7 @@ export type UserSignupInformation = {
     email: string;
     password: string;
     confirmPassword: string;
+    nickname: string;
 };
 
 function validate(values: UserSigninInformation) {
@@ -35,10 +36,11 @@ export function validateSignin(values: UserSigninInformation) {
 }
 
 function validateSignup(values: UserSignupInformation) {
-    const errors: { email: string; password: string; confirmPassword: string } = {
+    const errors: { email: string; password: string; confirmPassword: string; nickname: string } = {
         email: "", 
         password: "",
         confirmPassword: "",
+        nickname: "",
     };
 
     if (
@@ -57,6 +59,13 @@ function validateSignup(values: UserSignupInformation) {
       //비밀번호 확인
       if(values.password !== values.confirmPassword) {
         errors.confirmPassword = "비밀번호가 일치하지 않습니다!";
+      }
+
+      //닉네임 유효성 검사
+      if (!values.nickname.trim()) {
+        errors.nickname = "닉네임을 입력해주세요!";
+      } else if (values.nickname.length < 2 || values.nickname.length > 10) {
+        errors.nickname = "닉네임은 2자 이상 10자 이하여야 합니다!";
       }
 
       return errors;

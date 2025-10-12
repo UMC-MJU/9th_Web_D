@@ -1,6 +1,6 @@
 import useForm from '../../hooks/useForm';
 import { useNavigate } from 'react-router-dom';
-import { validateSignin, type UserSigninInformation } from '../../utils/validate';
+import { validateSignup, type UserSignupInformation } from '../../utils/validate';
 import { useState } from 'react';
 
 const SignupPage = () => {
@@ -9,9 +9,9 @@ const SignupPage = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     
     const { values, errors, touched, getInputProps } =
-        useForm<UserSigninInformation>({
-            initialValues: { email: "", password: "" },
-            validate: validateSignin,
+        useForm<UserSignupInformation>({
+            initialValues: { email: "", password: "", confirmPassword: "", nickname: "" },
+            validate: validateSignup,
         });
 
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -33,7 +33,7 @@ const SignupPage = () => {
                     setConfirmPasswordError('비밀번호가 일치하지 않습니다!');
                     return;
                 }
-                handleSubmit();
+                setStep(3); // 닉네임 단계로 이동
             }
         }
     };
@@ -41,15 +41,20 @@ const SignupPage = () => {
     const handleBack = () => {
         if (step === 2) {
             setStep(1);
+        } else if (step === 3) {
+            setStep(2);
         } else {
             navigate(-1);
         }
     };
 
     const handleSubmit = () => {
-        console.log({ ...values, confirmPassword });
-        alert('회원가입이 완료되었습니다!');
-        navigate('/login');
+        // 최종 회원가입 로직
+        if (!errors.nickname && values.nickname) {
+            console.log(values);
+            alert('회원가입이 완료되었습니다!');
+            navigate('/login');
+        }
     };
 
     const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,6 +73,8 @@ const SignupPage = () => {
             return !values.email || !!errors.email;
         } else if (currentStep === 2) {
             return !values.password || !!errors.password || !confirmPassword || !!confirmPasswordError;
+        } else if (currentStep === 3) {
+            return !values.nickname || !!errors.nickname;
         }
         return true;
     };
@@ -188,6 +195,35 @@ const SignupPage = () => {
                             disabled={isDisabled(2)}
                             className="w-full bg-gray-800 text-white py-3 rounded-md text-lg font-medium hover:bg-gray-900 transition-colors cursor-pointer disabled:bg-gray-400">
                                 다음
+                        </button>
+                    </>
+                )}
+
+                {step === 3 && (
+                    // 3단계: 닉네임 및 프로필 이미지
+                    <>
+                        {/* 프로필 이미지 UI */}
+                        <div className="w-[100px] h-[100px] rounded-full bg-gray-200 flex items-center justify-center text-gray-500 mb-4">
+                            <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                        </div>
+
+                        <input
+                            {...getInputProps("nickname")}
+                            className={`border w-[300px] p-[10px] rounded-sm focus:border-[#807bff] ${errors?.nickname && touched?.nickname ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                            type={"text"}
+                            placeholder={"닉네임을 입력해주세요!"}
+                        />
+
+                        {errors?.nickname && touched?.nickname && (<div className="text-red-500 text-sm">{errors.nickname}</div>)}
+
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={isDisabled(3)}
+                            className="w-full bg-pink-500 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-600 transition-colors cursor-pointer disabled:bg-pink-300">
+                                회원가입 완료
                         </button>
                     </>
                 )}
