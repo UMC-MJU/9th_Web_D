@@ -92,7 +92,7 @@ const SignupPage = () => {
             <div className="flex flex-col gap-3 items-center">
                 <h1 className="text-center text-base font-semibold">회원가입</h1>
                 
-                {step === 1 ? (
+                {step === 1 && (
                     // 1단계: 이메일 입력
                     <>
                         <button
@@ -125,7 +125,9 @@ const SignupPage = () => {
                                 다음
                         </button>
                     </>
-                ) : (
+                )}
+
+                {step === 2 && (
                     // 2단계: 비밀번호 입력
                     <>
                         {/* 이메일 정보 표시 */}
