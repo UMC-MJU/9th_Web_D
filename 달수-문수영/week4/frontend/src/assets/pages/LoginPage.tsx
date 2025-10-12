@@ -30,7 +30,20 @@ const LoginPage = () => {
             >
                 ←
             </button>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 items-center">
+                <h1 className="text-center text-base font-semibold">로그인</h1>
+                <button
+                    type="button"
+                    className="w-[300px] h-10 rounded bg-white text-black border border-gray-300 hover:bg-gray-100"
+                    aria-label="구글 로그인"
+                >
+                    구글 로그인
+                </button>
+                <div className="my-1 flex items-center gap-2 text-xs text-gray-400 w-[300px]">
+                    <span className="flex-1 h-px bg-gray-300" />
+                    OR
+                    <span className="flex-1 h-px bg-gray-300" />
+                </div>
                 <input
                     {...getInputProps("email")}
                     name="email"
