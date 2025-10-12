@@ -3,12 +3,13 @@ import Navbar from "./Navbar";
 
 interface LayoutProps {
   children: ReactNode;
+  username: string;
 }
 
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children, username }: LayoutProps) {
   return (
     <div className="min-h-screen">
-      <Navbar />
+      <Navbar username={username} />
       <main>{children}</main>
     </div>
   );
