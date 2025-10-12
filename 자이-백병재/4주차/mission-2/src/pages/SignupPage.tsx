@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import SignUpInput from "../components/SignUpInput";
 
 const schema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
@@ -32,65 +33,35 @@ return (
         <div className="flex flex-col items-center justify-center bg-gray-800 rounded-2xl p-10 gap-5 w-full max-w-sm">
             <h2 className="text-white font-bold text-3xl mb-2">Sign Up</h2>
 
-            <div className="flex flex-col w-full">
-                <input 
-                    className={`border-3 focus:border-[#FFA900] focus:outline-none text-white
-                    rounded-lg h-12 px-4 ${errors.email ? "border-red-500" : "border-gray-200"}`}
-                    type="email" 
-                    {...register("email")}
-                    placeholder="Enter your e-mail"
-                />
-                {errors.email && (
-                    <div className="text-red-500 text-sm mt-1.5">
-                        {errors.email.message}
-                    </div>
-                )}
-            </div>
+            <SignUpInput 
+                name="email"
+                type="email"
+                placeholder="Enter your e-mail"
+                register={register}
+                error={errors.email}
+            />
 
-            <div className="flex flex-col w-full">
-                <input 
-                    className={`border-3 focus:border-[#FFA900] focus:outline-none text-white
-                    rounded-lg h-12 px-4 ${errors.password ? "border-red-500" : "border-gray-200"}`}
-                    type="password" 
-                    {...register("password")}
-                    placeholder="Enter your password"
-                />
-                {errors.password && (
-                    <div className="text-red-500 text-sm mt-1.5">
-                        {errors.password.message}
-                    </div>
-                )}
-            </div>
-
-            <div className="flex flex-col w-full">
-                <input 
-                    className={`border-3 focus:border-[#FFA900] focus:outline-none text-white
-                    rounded-lg h-12 px-4 ${errors.confirmPassword ? "border-red-500" : "border-gray-200"}`}
-                    type="password" 
-                    {...register("confirmPassword")}
-                    placeholder="Confirm your password"
-                />
-                {errors.confirmPassword && (
-                    <div className="text-red-500 text-sm mt-1.5">
-                        {errors.confirmPassword.message}
-                    </div>
-                )}
-            </div>
-
-            <div className="flex flex-col w-full">
-                <input 
-                    className={`border-3 focus:border-[#FFA900] focus:outline-none text-white
-                    rounded-lg h-12 px-4 ${errors.name ? "border-red-500" : "border-gray-200"}`}
-                    type="text"
-                    {...register("name")}
-                    placeholder="Enter your name"
-                />
-                {errors.name && (
-                    <div className="text-red-500 text-sm mt-1.5">
-                        {errors.name.message}
-                    </div>
-                )}
-            </div>
+            <SignUpInput
+                name="password"
+                type="password"
+                placeholder="Enter your password"
+                register={register}
+                error={errors.password}
+            />
+            <SignUpInput
+                name="confirmPassword"
+                type="password"
+                placeholder="Confirm your password"
+                register={register}
+                error={errors.confirmPassword}
+            />
+            <SignUpInput
+                name="name"
+                type="text"
+                placeholder="Enter your name"
+                register={register}
+                error={errors.name}
+            />
 
             <button 
                 className={`flex bg-white hover:bg-[#FFA900] transition-colors focus:outline-none disabled:bg-gray-500 
