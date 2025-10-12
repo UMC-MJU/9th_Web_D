@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import SignUpInput from "../components/SignUpInput";
 import { signupSchema } from "../schemas/signupSchema";
 import type { UserSignupInformation } from "../schemas/signupSchema";
+import postSignup from "../apis/auth";
 
 const SignupPage = () => {
 
@@ -12,8 +13,10 @@ const SignupPage = () => {
         mode: "onBlur",
     });
 
-    const onSubmit = (data: UserSignupInformation) => {
+    const onSubmit = async (data: UserSignupInformation) => {
         const { confirmPassword, ...rest } = data;
+        const respone = await postSignup(rest);
+        console.log(respone);
     }
 
 return (
