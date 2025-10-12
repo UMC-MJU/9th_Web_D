@@ -112,6 +112,16 @@ const LoginPage = () => {
                         로그인
                 </button>
             </div>
+            
+            <div className="text-center text-sm text-gray-600">
+                계정이 없으신가요?{' '}
+                <a 
+                    href="/signup" 
+                    className="text-blue-600 hover:text-blue-700 underline"
+                >
+                    회원가입하기
+                </a>
+            </div>
         </div>
     );
 };
