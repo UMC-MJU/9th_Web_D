@@ -19,6 +19,7 @@ const SignupPage = () => {
     } = useForm<SignupFormData>({
         resolver: zodResolver(signupSchema),
         mode: 'onChange',
+        reValidateMode: 'onChange',
     });
 
     const watchedValues = watch();
@@ -161,7 +162,9 @@ const SignupPage = () => {
 
                         <div className="relative w-[300px]">
                             <input
-                                {...register("password")}
+                                {...register("password", {
+                                    onChange: () => trigger(['password', 'confirmPassword'])
+                                })}
                                 className={`border w-full p-[10px] pr-12 rounded-sm focus:border-[#807bff] ${errors?.password ? "border-red-500 bg-red-200" : "border-gray-300"}`}
                                 type={showPassword ? "text" : "password"}
                                 placeholder={"비밀번호를 입력해주세요!"}
@@ -188,7 +191,9 @@ const SignupPage = () => {
 
                         <div className="relative w-[300px]">
                             <input
-                                {...register("confirmPassword")}
+                                {...register("confirmPassword", {
+                                    onChange: () => trigger(['password', 'confirmPassword'])
+                                })}
                                 className={`border w-full p-[10px] pr-12 rounded-sm focus:border-[#807bff] ${errors?.confirmPassword ? "border-red-500 bg-red-200" : "border-gray-300"}`}
                                 type={showConfirmPassword ? "text" : "password"}
                                 placeholder={"비밀번호를 다시 한 번 입력해주세요!"}
