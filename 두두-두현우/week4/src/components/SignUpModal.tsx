@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import PasswordVisibleButton from "./PasswordVisibleButton";
+import { useNavigate } from "react-router-dom";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export default function SignUpModal({
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -39,7 +41,8 @@ export default function SignUpModal({
 
   const onSubmit = (data: SignUpFormValues) => {
     onSignup(data.email, data.password, data.confirmPassword);
-    handleClose();
+    reset();
+    navigate("/enter-name");
   };
 
   const handleClose = () => {
