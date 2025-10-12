@@ -53,7 +53,7 @@ const SignupPage = () => {
         if (!errors.nickname && values.nickname) {
             console.log(values);
             alert('회원가입이 완료되었습니다!');
-            navigate('/login');
+            navigate('/');
         }
     };
 
