@@ -73,18 +73,6 @@ const HomePage = () => {
                     </div>
                 </div>
             )}
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-blue-800 mb-4">로컬 스토리지 관리 기능</h2>
-                <div className="text-blue-700 space-y-2">
-                    <p>✅ useLocalStorage 커스텀 훅 구현</p>
-                    <p>✅ 회원가입 시 사용자 정보 및 토큰 저장</p>
-                    <p>✅ 로그인 시 토큰 업데이트 및 저장</p>
-                    <p>✅ 로그인 상태 확인 기능</p>
-                    <p>✅ 로그아웃 시 데이터 삭제</p>
-                    <p>✅ 토큰 만료 시간 관리</p>
-                </div>
-            </div>
         </div>
     );
 };

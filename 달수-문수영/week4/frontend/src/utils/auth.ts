@@ -1,4 +1,5 @@
-import { UserInfo, AuthToken, defaultUserInfo, defaultAuthToken } from '../hooks/useLocalStorage';
+import type { UserInfo, AuthToken } from '../hooks/useLocalStorage';
+import { defaultUserInfo, defaultAuthToken } from '../hooks/useLocalStorage';
 
 /**
  * 로컬 스토리지에서 사용자 정보를 가져옵니다
