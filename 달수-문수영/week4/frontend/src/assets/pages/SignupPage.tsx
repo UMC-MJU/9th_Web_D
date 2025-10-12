@@ -1,6 +1,7 @@
-import useForm from '../../hooks/useForm';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
-import { validateSignup, type UserSignupInformation } from '../../utils/validate';
+import { signupSchema, type SignupFormData } from '../../schemas/auth';
 import { useState } from 'react';
 
 const SignupPage = () => {
@@ -8,32 +9,33 @@ const SignupPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     
-    const { values, errors, touched, getInputProps } =
-        useForm<UserSignupInformation>({
-            initialValues: { email: "", password: "", confirmPassword: "", nickname: "" },
-            validate: validateSignup,
-        });
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        watch,
+        trigger,
+    } = useForm<SignupFormData>({
+        resolver: zodResolver(signupSchema),
+        mode: 'onChange',
+    });
 
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [confirmPasswordError, setConfirmPasswordError] = useState('');
+    const watchedValues = watch();
 
     const navigate = useNavigate();
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (step === 1) {
             // 이메일 유효성 검사
-            if (!errors.email && values.email) {
+            const isEmailValid = await trigger('email');
+            if (isEmailValid && watchedValues.email) {
                 setStep(2);
             }
         } else if (step === 2) {
             // 비밀번호 유효성 검사
-            if (!errors.password && values.password) {
-                // 비밀번호 확인 검사
-                if (values.password !== confirmPassword) {
-                    setConfirmPasswordError('비밀번호가 일치하지 않습니다!');
-                    return;
-                }
-                setStep(3); // 닉네임 단계로 이동
+            const isPasswordValid = await trigger(['password', 'confirmPassword']);
+            if (isPasswordValid && watchedValues.password && watchedValues.confirmPassword) {
+                setStep(3);
             }
         }
     };
@@ -48,33 +50,20 @@ const SignupPage = () => {
         }
     };
 
-    const handleSubmit = () => {
-        // 최종 회원가입 로직
-        if (!errors.nickname && values.nickname) {
-            console.log(values);
-            alert('회원가입이 완료되었습니다!');
-            navigate('/');
-        }
+    const onSubmit = (data: SignupFormData) => {
+        console.log(data);
+        alert('회원가입이 완료되었습니다!');
+        navigate('/');
     };
 
-    const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setConfirmPassword(value);
-        if (values.password && value !== values.password) {
-            setConfirmPasswordError('비밀번호가 일치하지 않습니다!');
-        } else {
-            setConfirmPasswordError('');
-        }
-    };
-    
     // 각 단계별 버튼 비활성화 조건
     const isDisabled = (currentStep: number): boolean => {
         if (currentStep === 1) {
-            return !values.email || !!errors.email;
+            return !watchedValues.email || !!errors.email;
         } else if (currentStep === 2) {
-            return !values.password || !!errors.password || !confirmPassword || !!confirmPasswordError;
+            return !watchedValues.password || !watchedValues.confirmPassword || !!errors.password || !!errors.confirmPassword;
         } else if (currentStep === 3) {
-            return !values.nickname || !!errors.nickname;
+            return !watchedValues.nickname || !!errors.nickname;
         }
         return true;
     };
@@ -108,14 +97,13 @@ const SignupPage = () => {
                             <span className="flex-1 h-px bg-gray-300" />
                         </div>
                         <input
-                            {...getInputProps("email")}
-                            name="email"
-                            className={`border w-[300px] p-[10px] rounded-sm focus:border-[#807bff] ${errors?.email && touched?.email ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                            {...register("email")}
+                            className={`border w-[300px] p-[10px] rounded-sm focus:border-[#807bff] ${errors?.email ? "border-red-500 bg-red-200" : "border-gray-300"}`}
                             type={"email"}
                             placeholder={"이메일"}
                         />
 
-                        {errors?.email && touched?.email && (<div className="text-red-500 text-sm">{errors.email}</div>)}
+                        {errors?.email && (<div className="text-red-500 text-sm">{errors.email.message}</div>)}
 
                         <button
                             type="button"
@@ -133,13 +121,13 @@ const SignupPage = () => {
                         {/* 이메일 정보 표시 */}
                         <div className="w-[300px] p-3 bg-gray-100 rounded-md flex items-center gap-2">
                             <span className="text-gray-600">📧</span>
-                            <span className="text-sm text-gray-700">{values.email}</span>
+                            <span className="text-sm text-gray-700">{watchedValues.email}</span>
                         </div>
 
                         <div className="relative w-[300px]">
                             <input
-                                {...getInputProps("password")}
-                                className={`border w-full p-[10px] pr-12 rounded-sm focus:border-[#807bff] ${errors?.password && touched?.password ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                                {...register("password")}
+                                className={`border w-full p-[10px] pr-12 rounded-sm focus:border-[#807bff] ${errors?.password ? "border-red-500 bg-red-200" : "border-gray-300"}`}
                                 type={showPassword ? "text" : "password"}
                                 placeholder={"비밀번호를 입력해주세요!"}
                             />
@@ -161,13 +149,12 @@ const SignupPage = () => {
                             </button>
                         </div>
 
-                        {errors?.password && touched?.password && (<div className="text-red-500 text-sm">{errors.password}</div>)}
+                        {errors?.password && (<div className="text-red-500 text-sm">{errors.password.message}</div>)}
 
                         <div className="relative w-[300px]">
                             <input
-                                value={confirmPassword}
-                                onChange={handleConfirmPasswordChange}
-                                className={`border w-full p-[10px] pr-12 rounded-sm focus:border-[#807bff] ${confirmPasswordError ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                                {...register("confirmPassword")}
+                                className={`border w-full p-[10px] pr-12 rounded-sm focus:border-[#807bff] ${errors?.confirmPassword ? "border-red-500 bg-red-200" : "border-gray-300"}`}
                                 type={showConfirmPassword ? "text" : "password"}
                                 placeholder={"비밀번호를 다시 한 번 입력해주세요!"}
                             />
@@ -189,7 +176,7 @@ const SignupPage = () => {
                             </button>
                         </div>
 
-                        {confirmPasswordError && (<div className="text-red-500 text-sm">{confirmPasswordError}</div>)}
+                        {errors?.confirmPassword && (<div className="text-red-500 text-sm">{errors.confirmPassword.message}</div>)}
 
                         <button
                             type="button"
@@ -212,17 +199,17 @@ const SignupPage = () => {
                         </div>
 
                         <input
-                            {...getInputProps("nickname")}
-                            className={`border w-[300px] p-[10px] rounded-sm focus:border-[#807bff] ${errors?.nickname && touched?.nickname ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                            {...register("nickname")}
+                            className={`border w-[300px] p-[10px] rounded-sm focus:border-[#807bff] ${errors?.nickname ? "border-red-500 bg-red-200" : "border-gray-300"}`}
                             type={"text"}
                             placeholder={"닉네임을 입력해주세요!"}
                         />
 
-                        {errors?.nickname && touched?.nickname && (<div className="text-red-500 text-sm">{errors.nickname}</div>)}
+                        {errors?.nickname && (<div className="text-red-500 text-sm">{errors.nickname.message}</div>)}
 
                         <button
                             type="button"
-                            onClick={handleSubmit}
+                            onClick={handleSubmit(onSubmit)}
                             disabled={isDisabled(3)}
                             className="w-full bg-pink-500 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-600 transition-colors cursor-pointer disabled:bg-pink-300">
                                 회원가입 완료
