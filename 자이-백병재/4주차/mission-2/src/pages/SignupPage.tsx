@@ -8,10 +8,12 @@ import { useNavigate } from 'react-router-dom';
 import SignUpInputEmail from '../components/SignUpInputEmail';
 import SignUpInputPw from '../components/SignUpInputPw';
 import SignUpInputName from '../components/SignUpInputName';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const SignupPage = () => {
     const [step, setStep] = useState(1);
     const navigate = useNavigate();
+    const { setItem } = useLocalStorage('signupSuccess');
 
     const { 
         register, 
@@ -38,6 +40,7 @@ const SignupPage = () => {
         const { confirmPassword, ...rest } = data;
         try {
             await postSignup(rest);
+            setItem(true); 
             navigate('/');
         } catch (error) {
             console.error("Signup failed:", error);
