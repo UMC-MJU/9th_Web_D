@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { loginSchema, type LoginFormData } from '../../schemas/auth';
+import { useLocalStorage, type UserInfo, type AuthToken, defaultUserInfo, defaultAuthToken } from '../../hooks/useLocalStorage';
 
 const LoginPage = () => {
     const {
@@ -17,8 +18,41 @@ const LoginPage = () => {
     const watchedValues = watch();
     const navigate = useNavigate();
 
+    // 로컬 스토리지 훅 사용
+    const [userInfo, setUserInfo] = useLocalStorage<UserInfo>('userInfo', defaultUserInfo);
+    const [, setAuthToken] = useLocalStorage<AuthToken>('authToken', defaultAuthToken);
+
     const onSubmit = (data: LoginFormData) => {
-        console.log(data);
+        console.log('로그인 데이터:', data);
+        
+        // 임시 토큰 생성 (실제로는 서버에서 받아야 함)
+        const mockToken = `mock_login_token_${Date.now()}`;
+        const mockRefreshToken = `mock_login_refresh_token_${Date.now()}`;
+        
+        // 사용자 정보 저장 (로그인 시에는 기존 정보를 업데이트)
+        const updatedUserInfo: UserInfo = {
+            ...userInfo,
+            email: data.email,
+            token: mockToken,
+            loginTime: Date.now(),
+        };
+        
+        // 토큰 정보 저장
+        const newAuthToken: AuthToken = {
+            accessToken: mockToken,
+            refreshToken: mockRefreshToken,
+            expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 24시간 후 만료
+        };
+        
+        // 로컬 스토리지에 저장
+        setUserInfo(updatedUserInfo);
+        setAuthToken(newAuthToken);
+        
+        console.log('로그인 정보 저장됨:', updatedUserInfo);
+        console.log('토큰 정보 저장됨:', newAuthToken);
+        
+        alert('로그인이 완료되었습니다!');
+        navigate('/');
     };
     
     //오류가 하나라도 있거나 입력값이 비어있으면 버튼을 비활성화

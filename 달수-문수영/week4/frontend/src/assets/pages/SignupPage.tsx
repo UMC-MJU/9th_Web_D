@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { signupSchema, type SignupFormData } from '../../schemas/auth';
 import { useState } from 'react';
+import { useLocalStorage, type UserInfo, type AuthToken, defaultUserInfo, defaultAuthToken } from '../../hooks/useLocalStorage';
 
 const SignupPage = () => {
     const [step, setStep] = useState(1);
@@ -23,6 +24,10 @@ const SignupPage = () => {
     const watchedValues = watch();
 
     const navigate = useNavigate();
+
+    // 로컬 스토리지 훅 사용
+    const [, setUserInfo] = useLocalStorage<UserInfo>('userInfo', defaultUserInfo);
+    const [, setAuthToken] = useLocalStorage<AuthToken>('authToken', defaultAuthToken);
 
     const handleNext = async () => {
         if (step === 1) {
@@ -51,7 +56,35 @@ const SignupPage = () => {
     };
 
     const onSubmit = (data: SignupFormData) => {
-        console.log(data);
+        console.log('회원가입 데이터:', data);
+        
+        // 임시 토큰 생성 (실제로는 서버에서 받아야 함)
+        const mockToken = `mock_token_${Date.now()}`;
+        const mockRefreshToken = `mock_refresh_token_${Date.now()}`;
+        
+        // 사용자 정보 저장
+        const newUserInfo: UserInfo = {
+            id: `user_${Date.now()}`,
+            email: data.email,
+            nickname: data.nickname,
+            token: mockToken,
+            loginTime: Date.now(),
+        };
+        
+        // 토큰 정보 저장
+        const newAuthToken: AuthToken = {
+            accessToken: mockToken,
+            refreshToken: mockRefreshToken,
+            expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 24시간 후 만료
+        };
+        
+        // 로컬 스토리지에 저장
+        setUserInfo(newUserInfo);
+        setAuthToken(newAuthToken);
+        
+        console.log('사용자 정보 저장됨:', newUserInfo);
+        console.log('토큰 정보 저장됨:', newAuthToken);
+        
         alert('회원가입이 완료되었습니다!');
         navigate('/');
     };
