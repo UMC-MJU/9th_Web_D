@@ -1,54 +1,43 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useMemo, useState } from 'react';
 import type { Movie, MovieResponse } from '../types/movie';
 import MoiveCard from '../components/MoiveCard';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useParams } from 'react-router-dom';
+import useCustomFetch from '../hooks/useCustomFetch';
 
 export default function MoviePage() {
-    const [movies, setMovies] = useState<Movie[]>([]);
-
-    ///1. 로딩 상태
-    const [isPending, setIsPending] = useState(false);
-    ///2. 에러 상태
-    const [isError, setIsError] = useState(false);
-    ///3.페이지
     const [page, setPage] = useState(1);
+    const {category} = useParams<{ category: string }>();
 
-    const {category} = useParams<{
-        category: string;
-    }>();
-    
-    useEffect(():void => {
-        const fetchMovies = async (): Promise<void> => {
-            setIsPending(true);
+    const fetcher = useMemo(() => (
+        async (signal: AbortSignal): Promise<Movie[]> => {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${category}?language=ko-KR&page=${page}`, {
+                headers: { Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}` },
+                signal,
+            });
+            if (!res.ok) throw new Error('Failed to fetch movies');
+            const json: MovieResponse = await res.json();
+            return json.results;
+        }
+    ), [category, page]);
 
-        try{       
-            const {data} = await axios.get<MovieResponse>(
-                    `https://api.themoviedb.org/3/movie/${category}?language=ko-KR&page=${page}`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${import.meta.env.VITE_TMDB_KEY}`
-                        },
-                    }
-                );
-
-                setMovies(data.results);
-            }  catch{
-                setIsError(true);
-            } finally {
-                setIsPending(false);
-            }
-
-        };
-
-        fetchMovies();
-    },[page, category]);
+    const { data: movies, isPending, isError } = useCustomFetch<Movie[]>({
+        fetcher,
+        deps: [category, page],
+        initialData: [],
+        enabled: Boolean(category),
+    });
 
     if(isError) {
         return(
-            <div>
-                <span className='text-red-500'>Error loading movies</span>
+            <div className='min-h-screen flex flex-col items-center justify-center gap-4 p-6'>
+                <div className='text-red-500 font-medium'>영화 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</div>
+                <button
+                    className='px-4 py-2 rounded bg-black text-white hover:bg-gray-800'
+                    onClick={() => location.reload()}
+                >
+                    다시 시도
+                </button>
             </div>
         )
     }

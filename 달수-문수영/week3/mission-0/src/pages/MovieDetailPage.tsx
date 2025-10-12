@@ -1,67 +1,60 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import type { MovieDetails, CreditsResponse } from '../types/movie';
+import useCustomFetch from '../hooks/useCustomFetch';
 
 export const MovieDetailPage = () => {
     const { movieId } = useParams<{ movieId: string }>();
-    const [details, setDetails] = useState<MovieDetails | null>(null);
-    const [credits, setCredits] = useState<CreditsResponse | null>(null);
-    const [isPending, setIsPending] = useState(false);
-    const [isError, setIsError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (!movieId) return;
-        const controller = new AbortController();
-        const fetchAll = async (): Promise<void> => {
-            setIsPending(true);
-            setIsError(null);
-            try {
-                const [detailsResult, creditsResult] = await Promise.allSettled([
-                    axios.get<MovieDetails>(`https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`, {
-                        headers: { Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}` },
-                        signal: controller.signal,
-                    }),
-                    axios.get<CreditsResponse>(`https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko-KR`, {
-                        headers: { Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}` },
-                        signal: controller.signal,
-                    }),
-                ]);
+    const detailsFetcher = useMemo(() => (
+        async (signal: AbortSignal): Promise<MovieDetails> => {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`, {
+                headers: { Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}` },
+                signal,
+            });
+            if (!res.ok) throw new Error('Failed to fetch details');
+            return res.json();
+        }
+    ), [movieId]);
 
-                if (detailsResult.status === 'fulfilled') {
-                    setDetails(detailsResult.value.data);
-                } else {
-                    const reason: any = detailsResult.reason;
-                    // Abort(StrictMode 더블 이펙트 등)로 취소된 경우는 에러로 표시하지 않음
-                    if (!(reason && (reason.name === 'CanceledError' || reason.code === 'ERR_CANCELED'))) {
-                        console.error(reason);
-                        setIsError('영화 상세 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
-                    }
-                }
+    const creditsFetcher = useMemo(() => (
+        async (signal: AbortSignal): Promise<CreditsResponse> => {
+            const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits?language=ko-KR`, {
+                headers: { Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}` },
+                signal,
+            });
+            if (!res.ok) throw new Error('Failed to fetch credits');
+            return res.json();
+        }
+    ), [movieId]);
 
-                if (creditsResult.status === 'fulfilled') {
-                    setCredits(creditsResult.value.data);
-                } else {
-                    console.warn('크레딧을 불러오지 못했습니다:', creditsResult.reason);
-                }
-            } catch (err: any) {
-                if (!((err instanceof DOMException && err.name === 'AbortError') || err?.code === 'ERR_CANCELED')) {
-                    console.error(err);
-                    setIsError('영화 상세 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
-                }
-            } finally {
-                setIsPending(false);
-            }
-        };
-        fetchAll();
-        return () => controller.abort();
-    }, [movieId]);
+    const { data: details, isPending: isPendingDetails, isError: isErrorDetails } = useCustomFetch<MovieDetails>({
+        fetcher: detailsFetcher,
+        deps: [movieId],
+        enabled: Boolean(movieId),
+    });
 
-    if (isPending) {
-        return <div className='p-6 text-center'>불러오는 중...</div>;
+    const { data: credits } = useCustomFetch<CreditsResponse>({
+        fetcher: creditsFetcher,
+        deps: [movieId],
+        enabled: Boolean(movieId),
+    });
+
+    if (isPendingDetails) {
+        return <div className='min-h-screen flex items-center justify-center'>불러오는 중...</div>;
     }
-    if (isError) {
-        return <div className='p-6 text-center text-red-500'>{isError}</div>;
+    if (isErrorDetails) {
+        return (
+            <div className='min-h-screen flex flex-col items-center justify-center gap-4 p-6'>
+                <div className='text-red-500 font-medium'>영화 상세 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</div>
+                <button
+                    className='px-4 py-2 rounded bg-black text-white hover:bg-gray-800'
+                    onClick={() => location.reload()}
+                >
+                    다시 시도
+                </button>
+            </div>
+        );
     }
     if (!details) {
         return <div className='p-6 text-center'>데이터가 없습니다.</div>;
@@ -70,22 +63,34 @@ export const MovieDetailPage = () => {
     const posterUrl = details.poster_path
         ? `https://image.tmdb.org/t/p/w300${details.poster_path}`
         : undefined;
+    const backdropUrl = details.backdrop_path
+        ? `https://image.tmdb.org/t/p/original${details.backdrop_path}`
+        : undefined;
 
     const topCast = (credits?.cast ?? []).slice(0, 10);
     const directorName = credits?.crew.find((m) => m.job === 'Director')?.name;
     const releaseYear = details.release_date?.slice(0, 4) ?? '-';
 
     return (
-        <div className='min-h-screen'>
+        <div className='min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-black text-gray-100'>
+            {/* Hero */}
+            <div className='relative h-56 sm:h-72 md:h-80 lg:h-96'>
+                {backdropUrl && (
+                    <img src={backdropUrl} alt='' className='absolute inset-0 w-full h-full object-cover opacity-40' />
+                )}
+                <div className='absolute inset-0 bg-gradient-to-b from-transparent to-black'></div>
+                <div className='relative h-full flex items-end max-w-5xl mx-auto px-6 pb-4'>
+                    <h1 className='text-3xl sm:text-4xl font-bold drop-shadow'>{details.title}</h1>
+                </div>
+            </div>
             {/* Card */}
-            <div className='max-w-5xl mx-auto px-6 mt-8'>
+            <div className='max-w-5xl mx-auto px-6 mt-6'>
                 <div className='rounded-xl border border-gray-800 bg-gray-900/70 backdrop-blur p-6 sm:p-8'>
                     <div className='flex flex-col sm:flex-row gap-6'>
                         {posterUrl && (
                             <img src={posterUrl} alt={`${details.title} 포스터`} className='w-44 sm:w-56 md:w-60 rounded-lg shadow' />
                         )}
                         <div className='flex-1'>
-                            <h1 className='text-2xl sm:text-3xl font-bold text-white leading-snug'>{details.title}</h1>
                             <div className='mt-2 flex items-center gap-3'>
                                 <span className='inline-flex items-center gap-1 text-amber-400 font-semibold'>★ {details.vote_average.toFixed(1)}</span>
                                 <span className='text-sm text-gray-400'>평점</span>
