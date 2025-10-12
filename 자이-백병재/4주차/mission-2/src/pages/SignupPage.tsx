@@ -1,26 +1,14 @@
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import SignUpInput from "../components/SignUpInput";
-
-const schema = z.object({
-    email: z.string().email({ message: "Invalid email address" }),
-    password: z.string().min(8, { message: "Password must be 8 characters or longer" })
-    .max(20, { message: "Password cannot exceed 20 characters" }),
-    confirmPassword: z.string().min(8).max(20),
-    name: z.string().min(1, { message: "Please enter your name" })
-})  .refine(data => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
-
-type UserSignupInformation = z.infer<typeof schema>;
+import { signupSchema } from "../schemas/signupSchema";
+import type { UserSignupInformation } from "../schemas/signupSchema";
 
 const SignupPage = () => {
 
     const {register, handleSubmit, formState: {errors, isSubmitting} } = useForm<UserSignupInformation>({
         defaultValues: { email: "", password: "", confirmPassword: "", name: "" },
-        resolver: zodResolver(schema),
+        resolver: zodResolver(signupSchema),
         mode: "onBlur",
     });
 
