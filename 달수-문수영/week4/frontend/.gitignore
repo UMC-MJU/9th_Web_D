@@ -22,3 +22,10 @@ build/
 *.njsproj
 *.sln
 *.sw?
+
+**/.vscode/
+**/.idea/
+*.code-workspace
+
+**/.DS_Store
+**/Thumb
