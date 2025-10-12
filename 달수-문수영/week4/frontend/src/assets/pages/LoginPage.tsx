@@ -1,4 +1,5 @@
 import useForm from '../../hooks/useForm';
+import { useNavigate } from 'react-router-dom';
 import { validateSignin, type UserSigninInformation } from '../../utils/validate';
 
 const LoginPage = () => {
@@ -7,6 +8,8 @@ const LoginPage = () => {
             initialValues: { email: "", password: "" },
             validate: validateSignin,
         });
+
+    const navigate = useNavigate();
 
     const handleSubmit = () => {
         console.log(values);
@@ -18,7 +21,15 @@ const LoginPage = () => {
         Object.values(values).some((value: string) => value === ""); //입력값이 비어있으면 true
 
     return (
-        <div className="flex flex-col items-center justify-center h-full gap-4">
+        <div className="relative flex flex-col items-center justify-center h-full gap-4">
+            <button
+                type="button"
+                aria-label="뒤로가기"
+                onClick={() => navigate(-1)}
+                className="absolute left-4 top-4 text-xl"
+            >
+                ←
+            </button>
             <div className="flex flex-col gap-3">
                 <input
                     {...getInputProps("email")}
