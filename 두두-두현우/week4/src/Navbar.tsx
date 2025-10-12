@@ -4,18 +4,23 @@ import SignUpModal from "./components/SignUpModal";
 
 interface NavbarProps {
   username: string;
+  isLoggedIn: boolean;
+  onLogin: (email: string, password: string) => void;
+  onLogout: () => void;
 }
 
-export default function Navbar({ username }: NavbarProps) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+export default function Navbar({
+  username,
+  isLoggedIn,
+  onLogin,
+  onLogout,
+}: NavbarProps) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleLogin = (email: string, password: string) => {
-    // 로그인 로직 구현
-    console.log("로그인:", email, password);
-    setIsLoggedIn(true);
+    onLogin(email, password);
     setIsLoginModalOpen(false);
   };
 
@@ -29,14 +34,10 @@ export default function Navbar({ username }: NavbarProps) {
     setIsSignupModalOpen(false);
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-  };
-
   const handleGoogleLogin = () => {
     // 구글 소셜 로그인 로직
     console.log("구글 로그인");
-    setIsLoggedIn(true);
+    onLogin("google_user@gmail.com", "temp_password");
     setIsLoginModalOpen(false);
   };
 
@@ -98,7 +99,7 @@ export default function Navbar({ username }: NavbarProps) {
                 {/* 로그인/로그아웃 버튼 */}
                 <NavButton
                   onClick={
-                    isLoggedIn ? handleLogout : () => setIsLoginModalOpen(true)
+                    isLoggedIn ? onLogout : () => setIsLoginModalOpen(true)
                   }
                   isVisible={isHovered}
                   delay="300"
