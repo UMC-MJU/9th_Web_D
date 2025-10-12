@@ -13,7 +13,13 @@ const SignupPage = () => {
     const [step, setStep] = useState(1);
     const navigate = useNavigate();
 
-    const { register, handleSubmit, formState: { errors, isSubmitting, isValid }, trigger } = useForm<UserSignupInformation>({
+    const { 
+        register, 
+        handleSubmit, 
+        formState: { errors, isSubmitting, isValid }, 
+        trigger, 
+        watch 
+    } = useForm<UserSignupInformation>({
         defaultValues: { email: "", password: "", confirmPassword: "", name: "" },
         resolver: zodResolver(signupSchema),
         mode: "onBlur",
@@ -21,16 +27,11 @@ const SignupPage = () => {
 
     const handleNextStep = async () => {
         let fieldsToValidate: (keyof UserSignupInformation)[] = [];
-        if (step === 1) {
-            fieldsToValidate = ['email'];
-        } else if (step === 2) {
-            fieldsToValidate = ['password', 'confirmPassword'];
-        }
+        if (step === 1) fieldsToValidate = ['email'];
+        else if (step === 2) fieldsToValidate = ['password', 'confirmPassword'];
 
         const isStepValid = await trigger(fieldsToValidate);
-        if (isStepValid) {
-            setStep(prev => prev + 1);
-        }
+        if (isStepValid) setStep(prev => prev + 1);
     };
 
     const onSubmit = async (data: UserSignupInformation) => {
@@ -46,12 +47,11 @@ const SignupPage = () => {
     const renderStep = () => {
         switch (step) {
             case 1:
-                return <SignUpInputEmail register={register} errors={errors} onNext={handleNextStep} />;
+                return <SignUpInputEmail register={register} errors={errors} onNext={handleNextStep} watch={watch} />;
             case 2:
-                return <SignUpInputPw register={register} errors={errors} onNext={handleNextStep} />;
+                return <SignUpInputPw register={register} errors={errors} onNext={handleNextStep} watch={watch} />;
             case 3:
-                return <SignUpInputName register={register} errors={errors} handleSubmit={handleSubmit}
-                 onSubmit={onSubmit} isSubmitting={isSubmitting} isValid={isValid} />;
+                return <SignUpInputName register={register} errors={errors} handleSubmit={handleSubmit} onSubmit={onSubmit} isSubmitting={isSubmitting} isValid={isValid} />;
             default:
                 return null;
         }
