@@ -2,6 +2,8 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import PasswordVisibleButton from "./PasswordVisibleButton";
 import { useNavigate } from "react-router-dom";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -9,11 +11,25 @@ interface SignUpModalProps {
   onSignup: (email: string, password: string, confirmPassword: string) => void;
 }
 
-type SignUpFormValues = {
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
+const signUpSchema = z
+  .object({
+    email: z
+      .string()
+      .min(1, { message: "이메일을 입력해주세요." })
+      .email({ message: "올바른 이메일 형식을 입력해주세요." }),
+    password: z
+      .string()
+      .min(8, { message: "비밀번호는 8자 이상이어야 합니다." }),
+    confirmPassword: z
+      .string()
+      .min(1, { message: "비밀번호를 다시 입력해주세요." }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "비밀번호가 일치하지 않습니다.",
+    path: ["confirmPassword"],
+  });
+
+type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 export default function SignUpModal({
   isOpen,
@@ -30,14 +46,10 @@ export default function SignUpModal({
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
-    clearErrors,
   } = useForm<SignUpFormValues>({
-    mode: "onBlur",
-    reValidateMode: "onBlur",
+    resolver: zodResolver(signUpSchema),
+    mode: "onChange",
   });
-
-  const passwordValue = watch("password");
 
   const onSubmit = (data: SignUpFormValues) => {
     onSignup(data.email, data.password, data.confirmPassword);
@@ -76,14 +88,7 @@ export default function SignUpModal({
           <div>
             <input
               type="email"
-              {...register("email", {
-                required: "이메일을 입력해주세요.",
-                pattern: {
-                  value: /^[A-Za-z0-9_.-]+@[A-Za-z0-9-]+\.[A-Za-z0-9-]+$/,
-                  message: "올바른 이메일 형식을 입력해주세요.",
-                },
-                onChange: () => clearErrors("email"),
-              })}
+              {...register("email")}
               className={`w-full px-4 py-3 backdrop-blur-md bg-black/20 border rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-300 ${
                 errors.email
                   ? "border-red-400 focus:ring-red-400/50"
@@ -103,14 +108,7 @@ export default function SignUpModal({
             <div className="relative">
               <input
                 type={isPasswordVisible ? "text" : "password"}
-                {...register("password", {
-                  required: "비밀번호를 입력해주세요.",
-                  minLength: {
-                    value: 8,
-                    message: "비밀번호는 8자 이상이어야 합니다.",
-                  },
-                  onChange: () => clearErrors("password"),
-                })}
+                {...register("password")}
                 className={`w-full px-4 pr-12 py-3 backdrop-blur-md bg-black/20 border rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-300 ${
                   errors.password
                     ? "border-red-400 focus:ring-red-400/50"
@@ -135,12 +133,7 @@ export default function SignUpModal({
             <div className="relative">
               <input
                 type={isConfirmPasswordVisible ? "text" : "password"}
-                {...register("confirmPassword", {
-                  required: "비밀번호를 다시 입력해주세요.",
-                  validate: (value) =>
-                    value === passwordValue || "비밀번호가 일치하지 않습니다.",
-                  onChange: () => clearErrors("confirmPassword"),
-                })}
+                {...register("confirmPassword")}
                 className={`w-full px-4 pr-12 py-3 backdrop-blur-md bg-black/20 border rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-300 ${
                   errors.confirmPassword
                     ? "border-red-400 focus:ring-red-400/50"
