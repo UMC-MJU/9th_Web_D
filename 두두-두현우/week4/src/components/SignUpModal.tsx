@@ -1,16 +1,16 @@
 import { useState } from "react";
 
-interface SignupModalProps {
+interface SignUpModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSignup: (email: string, password: string, confirmPassword: string) => void;
 }
 
-export default function SignupModal({
+export default function SignUpModal({
   isOpen,
   onClose,
   onSignup,
-}: SignupModalProps) {
+}: SignUpModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -30,8 +30,8 @@ export default function SignupModal({
       return;
     }
 
-    if (password.length < 6) {
-      setError("비밀번호는 최소 6자 이상이어야 합니다.");
+    if (password.length <= 8) {
+      setError("비밀번호는 최소 8자 이상이어야 합니다.");
       return;
     }
 
