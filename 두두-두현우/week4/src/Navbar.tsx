@@ -1,9 +1,11 @@
 import { useState } from "react";
 import LoginModal from "./components/LoginModal";
+import SignUpModal from "./components/SignUpModal";
 
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleLogin = (email: string, password: string) => {
@@ -11,6 +13,16 @@ export default function Navbar() {
     console.log("로그인:", email, password);
     setIsLoggedIn(true);
     setIsLoginModalOpen(false);
+  };
+
+  const handleSignup = (
+    email: string,
+    password: string,
+    confirmPassword: string
+  ) => {
+    // 회원가입 로직 구현
+    console.log("회원가입:", email, password, confirmPassword);
+    setIsSignupModalOpen(false);
   };
 
   const handleLogout = () => {
@@ -96,6 +108,14 @@ export default function Navbar() {
       </nav>
 
       {/* 회원가입 버튼 - 오른쪽 상단 */}
+      <div className="fixed top-6 right-6 z-50">
+        <button
+          onClick={() => setIsSignupModalOpen(true)}
+          className="backdrop-blur-md bg-white/20 border border-white/30 rounded-full shadow-lg px-6 py-3 text-white font-medium cursor-pointer whitespace-nowrap hover:bg-white/30 transition-all duration-300"
+        >
+          회원가입
+        </button>
+      </div>
 
       {/* 로그인 모달 */}
       <LoginModal
@@ -106,6 +126,11 @@ export default function Navbar() {
       />
 
       {/* 회원가입 모달 */}
+      <SignUpModal
+        isOpen={isSignupModalOpen}
+        onClose={() => setIsSignupModalOpen(false)}
+        onSignup={handleSignup}
+      />
     </>
   );
 }
