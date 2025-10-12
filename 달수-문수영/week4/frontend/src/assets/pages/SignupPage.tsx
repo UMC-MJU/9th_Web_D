@@ -19,7 +19,6 @@ const SignupPage = () => {
     } = useForm<SignupFormData>({
         resolver: zodResolver(signupSchema),
         mode: 'onChange',
-        reValidateMode: 'onChange',
     });
 
     const watchedValues = watch();
@@ -164,9 +163,7 @@ const SignupPage = () => {
 
                         <div className="relative w-[300px]">
                             <input
-                                {...register("password", {
-                                    onChange: () => trigger(['password', 'confirmPassword'])
-                                })}
+                                {...register("password")}
                                 className={`border w-full p-[10px] pr-12 rounded-sm focus:border-[#807bff] ${errors?.password ? "border-red-500 bg-red-200" : "border-gray-300"}`}
                                 type={showPassword ? "text" : "password"}
                                 placeholder={"비밀번호를 입력해주세요!"}
@@ -189,14 +186,12 @@ const SignupPage = () => {
                             </button>
                         </div>
 
-                        {errors?.password && (<div className="text-red-500 text-sm">{errors.password.message}</div>)}
+                        {errors?.password && watchedValues.password && (<div className="text-red-500 text-sm">{errors.password.message}</div>)}
 
                         <div className="relative w-[300px]">
                             <input
-                                {...register("confirmPassword", {
-                                    onChange: () => trigger(['password', 'confirmPassword'])
-                                })}
-                                className={`border w-full p-[10px] pr-12 rounded-sm focus:border-[#807bff] ${errors?.confirmPassword ? "border-red-500 bg-red-200" : "border-gray-300"}`}
+                                {...register("confirmPassword")}
+                                className={`border w-full p-[10px] pr-12 rounded-sm focus:border-[#807bff] ${watchedValues.confirmPassword && watchedValues.password !== watchedValues.confirmPassword ? "border-red-500 bg-red-200" : "border-gray-300"}`}
                                 type={showConfirmPassword ? "text" : "password"}
                                 placeholder={"비밀번호를 다시 한 번 입력해주세요!"}
                             />
@@ -218,7 +213,9 @@ const SignupPage = () => {
                             </button>
                         </div>
 
-                        {errors?.confirmPassword && (<div className="text-red-500 text-sm">{errors.confirmPassword.message}</div>)}
+                        {watchedValues.confirmPassword && watchedValues.password !== watchedValues.confirmPassword && (
+                            <div className="text-red-500 text-sm">비밀번호가 일치하지 않습니다!</div>
+                        )}
 
                         <button
                             type="button"
