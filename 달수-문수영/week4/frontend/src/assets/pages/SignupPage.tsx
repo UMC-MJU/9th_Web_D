@@ -103,16 +103,18 @@ const SignupPage = () => {
 
     return (
         <div className="relative flex flex-col items-center justify-center h-full gap-4">
-            <button
-                type="button"
-                aria-label="뒤로가기"
-                onClick={handleBack}
-                className="absolute left-4 top-4 text-xl"
-            >
-                ←
-            </button>
+            <div className="w-full max-w-[300px] flex items-center justify-start mb-4">
+                <button
+                    type="button"
+                    aria-label="뒤로가기"
+                    onClick={handleBack}
+                    className="text-xl mr-4"
+                >
+                    ←
+                </button>
+                <h1 className="text-base font-semibold">회원가입</h1>
+            </div>
             <div className="flex flex-col gap-3 items-center">
-                <h1 className="text-center text-base font-semibold">회원가입</h1>
                 
                 {step === 1 && (
                     // 1단계: 이메일 입력
@@ -244,7 +246,7 @@ const SignupPage = () => {
                             type="button"
                             onClick={handleSubmit(onSubmit)}
                             disabled={isDisabled(3)}
-                            className="w-full bg-pink-500 text-white py-3 rounded-md text-lg font-medium hover:bg-pink-600 transition-colors cursor-pointer disabled:bg-pink-300">
+                            className="w-full bg-blue-600 text-white py-3 rounded-md text-lg font-medium hover:bg-blue-700 transition-colors cursor-pointer disabled:bg-blue-300">
                                 회원가입 완료
                         </button>
                     </>

@@ -62,16 +62,18 @@ const LoginPage = () => {
 
     return (
         <div className="relative flex flex-col items-center justify-center h-full gap-4">
-            <button
-                type="button"
-                aria-label="뒤로가기"
-                onClick={() => navigate(-1)}
-                className="absolute left-4 top-4 text-xl"
-            >
-                ←
-            </button>
+            <div className="w-full max-w-[300px] flex items-center justify-start mb-4">
+                <button
+                    type="button"
+                    aria-label="뒤로가기"
+                    onClick={() => navigate(-1)}
+                    className="text-xl mr-4"
+                >
+                    ←
+                </button>
+                <h1 className="text-base font-semibold">로그인</h1>
+            </div>
             <div className="flex flex-col gap-3 items-center">
-                <h1 className="text-center text-base font-semibold">로그인</h1>
                 <button
                     type="button"
                     className="w-[300px] h-10 rounded bg-white text-black border border-gray-300 hover:bg-gray-100"
