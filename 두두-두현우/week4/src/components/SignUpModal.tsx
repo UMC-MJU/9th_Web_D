@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -6,47 +6,38 @@ interface SignUpModalProps {
   onSignup: (email: string, password: string, confirmPassword: string) => void;
 }
 
+type SignUpFormValues = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
 export default function SignUpModal({
   isOpen,
   onClose,
   onSignup,
 }: SignUpModalProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    watch,
+    clearErrors,
+  } = useForm<SignUpFormValues>({
+    mode: "onBlur",
+    reValidateMode: "onBlur",
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  const passwordValue = watch("password");
 
-    if (!email || !password || !confirmPassword) {
-      setError("모든 필드를 입력해주세요.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("비밀번호가 일치하지 않습니다.");
-      return;
-    }
-
-    if (password.length <= 8) {
-      setError("비밀번호는 최소 8자 이상이어야 합니다.");
-      return;
-    }
-
-    onSignup(email, password, confirmPassword);
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setError("");
+  const onSubmit = (data: SignUpFormValues) => {
+    onSignup(data.email, data.password, data.confirmPassword);
+    handleClose();
   };
 
   const handleClose = () => {
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setError("");
+    reset();
     onClose();
   };
 
@@ -72,45 +63,81 @@ export default function SignUpModal({
           <h2 className="text-2xl font-bold text-white mb-2">회원가입</h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="text-red-300 text-sm flex items-center justify-center space-x-1">
-              <i className="ri-error-warning-line text-xs"></i>
-              <span>{error}</span>
-            </div>
-          )}
-
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 backdrop-blur-md bg-black/20 border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent text-sm transition-all duration-300"
+              {...register("email", {
+                required: "이메일을 입력해주세요.",
+                pattern: {
+                  value: /^[A-Za-z0-9_.-]+@[A-Za-z0-9-]+\.[A-Za-z0-9-]+$/,
+                  message: "올바른 이메일 형식을 입력해주세요.",
+                },
+                onChange: () => clearErrors("email"),
+              })}
+              className={`w-full px-4 py-3 backdrop-blur-md bg-black/20 border rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-300 ${
+                errors.email
+                  ? "border-red-400 focus:ring-red-400/50"
+                  : "border-white/20 focus:ring-white/30"
+              }`}
               placeholder="이메일을 입력하세요"
-              required
             />
+            {errors.email && (
+              <div className="mt-2 text-red-300 text-sm flex items-center space-x-1">
+                <i className="ri-error-warning-line text-xs"></i>
+                <span>{errors.email.message}</span>
+              </div>
+            )}
           </div>
 
           <div>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 backdrop-blur-md bg-black/20 border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent text-sm transition-all duration-300"
-              placeholder="비밀번호를 입력하세요 (최소 6자)"
-              required
+              {...register("password", {
+                required: "비밀번호를 입력해주세요.",
+                minLength: {
+                  value: 8,
+                  message: "비밀번호는 8자 이상이어야 합니다.",
+                },
+                onChange: () => clearErrors("password"),
+              })}
+              className={`w-full px-4 py-3 backdrop-blur-md bg-black/20 border rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-300 ${
+                errors.password
+                  ? "border-red-400 focus:ring-red-400/50"
+                  : "border-white/20 focus:ring-white/30"
+              }`}
+              placeholder="비밀번호를 입력하세요 (최소 8자)"
             />
+            {errors.password && (
+              <div className="mt-2 text-red-300 text-sm flex items-center space-x-1">
+                <i className="ri-error-warning-line text-xs"></i>
+                <span>{errors.password.message}</span>
+              </div>
+            )}
           </div>
 
           <div>
             <input
               type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 backdrop-blur-md bg-black/20 border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent text-sm transition-all duration-300"
+              {...register("confirmPassword", {
+                required: "비밀번호를 다시 입력해주세요.",
+                validate: (value) =>
+                  value === passwordValue || "비밀번호가 일치하지 않습니다.",
+                onChange: () => clearErrors("confirmPassword"),
+              })}
+              className={`w-full px-4 py-3 backdrop-blur-md bg-black/20 border rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-300 ${
+                errors.confirmPassword
+                  ? "border-red-400 focus:ring-red-400/50"
+                  : "border-white/20 focus:ring-white/30"
+              }`}
               placeholder="비밀번호를 다시 입력하세요"
-              required
             />
+            {errors.confirmPassword && (
+              <div className="mt-2 text-red-300 text-sm flex items-center space-x-1">
+                <i className="ri-error-warning-line text-xs"></i>
+                <span>{errors.confirmPassword.message}</span>
+              </div>
+            )}
           </div>
 
           <button
