@@ -145,7 +145,7 @@ const SignupPage = () => {
                             type="button"
                             onClick={handleNext}
                             disabled={isDisabled(1)}
-                            className="w-full bg-blue-600 text-white py-3 rounded-md text-lg font-medium hover:bg-blue-700 transition-colors cursor-pointer disabled:bg-blue-300">
+                            className="w-full bg-black text-white py-3 rounded-md text-lg font-medium hover:bg-gray-800 transition-colors cursor-pointer disabled:bg-gray-400">
                                 다음
                         </button>
                     </>
@@ -156,7 +156,9 @@ const SignupPage = () => {
                     <>
                         {/* 이메일 정보 표시 */}
                         <div className="w-[300px] p-3 bg-gray-100 rounded-md flex items-center gap-2">
-                            <span className="text-gray-600">📧</span>
+                            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
                             <span className="text-sm text-gray-700">{watchedValues.email}</span>
                         </div>
 
@@ -251,7 +253,7 @@ const SignupPage = () => {
                             type="button"
                             onClick={handleSubmit(onSubmit)}
                             disabled={isDisabled(3)}
-                            className="w-full bg-blue-600 text-white py-3 rounded-md text-lg font-medium hover:bg-blue-700 transition-colors cursor-pointer disabled:bg-blue-300">
+                            className="w-full bg-black text-white py-3 rounded-md text-lg font-medium hover:bg-gray-800 transition-colors cursor-pointer disabled:bg-gray-400">
                                 회원가입 완료
                         </button>
                     </>
