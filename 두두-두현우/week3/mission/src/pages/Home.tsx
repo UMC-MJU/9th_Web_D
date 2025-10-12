@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMovies } from "../hooks/useMovies";
 import MovieCard from "../components/MovieCard";
 import Pagination from "../components/Pagination";
+import LoadingView from "../components/LoadingView";
 import ErrorPage from "./ErrorPage";
 
 const Home = () => {
@@ -13,14 +14,7 @@ const Home = () => {
     return <ErrorPage onGoHome={() => setCurrentPage(1)} />;
   }
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-white">
-        <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mb-5"></div>
-        <p className="text-lg">Loading movies...</p>
-      </div>
-    );
-  }
+  if (loading) return <LoadingView message="Loading movies..." />;
 
   if (error) {
     return (
