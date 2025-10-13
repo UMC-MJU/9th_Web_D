@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -8,10 +10,15 @@ interface LoginModalProps {
   onGoogleLogin: () => void;
 }
 
-type LoginFormValues = {
-  email: string;
-  password: string;
-};
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "이메일을 입력해주세요." })
+    .email({ message: "올바른 이메일 형식을 입력해주세요." }),
+  password: z.string().min(8, { message: "비밀번호는 8자 이상이어야 합니다." }),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginModal({
   isOpen,
@@ -26,41 +33,16 @@ export default function LoginModal({
 
   const {
     register,
-    handleSubmit: rhfHandleSubmit,
-    formState: { errors },
-    clearErrors,
-    watch,
+    handleSubmit,
+    formState: { errors, isValid },
     reset,
   } = useForm<LoginFormValues>({
-    mode: "onBlur",
-    reValidateMode: "onBlur",
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
     defaultValues: { email: "", password: "" },
   });
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[A-Za-z0-9_.-]+@[A-Za-z0-9-]+\.[A-Za-z0-9-]+$/;
-    return emailRegex.test(email);
-  };
-
-  // 로그인 버튼 활성화 조건 체크
-  const isFormValid = () => {
-    const { email, password } = watch();
-    return (
-      !!email &&
-      !!password &&
-      validateEmail(email) &&
-      password.length >= 8 &&
-      !errors.email &&
-      !errors.password
-    );
-  };
-
   const onSubmit = async ({ email, password }: LoginFormValues) => {
-    // 폼이 유효하지 않으면 제출하지 않음
-    if (!isFormValid()) {
-      return;
-    }
-
     setLoginError("");
     setLoginState("loading");
 
@@ -127,21 +109,12 @@ export default function LoginModal({
           <h2 className="text-2xl font-bold text-white mb-2">로그인</h2>
         </div>
 
-        <form onSubmit={rhfHandleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* 아이디 입력 */}
           <div>
             <input
               type="text"
-              {...register("email", {
-                validate: (value) =>
-                  !value ||
-                  validateEmail(value) ||
-                  "올바른 이메일 형식을 입력해주세요",
-                onChange: (e) => {
-                  const value = (e.target as HTMLInputElement).value;
-                  if (!value) clearErrors("email");
-                },
-              })}
+              {...register("email")}
               className={`w-full px-4 py-3 backdrop-blur-md bg-black/20 border rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-300 ${
                 errors.email
                   ? "border-red-400 focus:ring-red-400/50"
@@ -162,16 +135,7 @@ export default function LoginModal({
           <div>
             <input
               type="password"
-              {...register("password", {
-                validate: (value) =>
-                  !value ||
-                  value.length >= 8 ||
-                  "비밀번호는 8글자 이상이어야 합니다",
-                onChange: (e) => {
-                  const value = (e.target as HTMLInputElement).value;
-                  if (!value) clearErrors("password");
-                },
-              })}
+              {...register("password")}
               className={`w-full px-4 py-3 backdrop-blur-md bg-black/20 border rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:border-transparent text-sm transition-all duration-300 ${
                 errors.password
                   ? "border-red-400 focus:ring-red-400/50"
@@ -192,12 +156,10 @@ export default function LoginModal({
           <button
             type="submit"
             disabled={
-              !isFormValid() ||
-              loginState === "loading" ||
-              loginState === "success"
+              !isValid || loginState === "loading" || loginState === "success"
             }
             className={`w-full py-3 font-semibold rounded-2xl whitespace-nowrap transition-all duration-300 flex items-center justify-center space-x-2 ${
-              !isFormValid()
+              !isValid
                 ? "bg-white/30 text-white/50 cursor-not-allowed"
                 : loginState === "loading"
                 ? "bg-white text-black opacity-80 cursor-not-allowed"
