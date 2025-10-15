@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import useForm from "../forms/useForm";
+import useForm from "../hooks/useForm";
 import { validateSignup, type UserSignupInformation } from "../utils/validate";
 
 const LoginPage = () => {
