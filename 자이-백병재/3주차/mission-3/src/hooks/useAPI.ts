@@ -7,12 +7,11 @@ export default function useAPI<T>( pageNum : number = 1 ) {
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
     const { category, id } = useParams();
-    let api = '';
 
     useEffect(() : void => {
       const getMovieAPI = async () : Promise<void> => {
         setIsLoading(true);
-        
+        let api = '';
         if(id) api = `https://api.themoviedb.org/3/movie/${id}?language=en-US&`;
         else api = `https://api.themoviedb.org/3/movie/${category}?language=en-US&page=${pageNum}`;
 
