@@ -1,15 +1,15 @@
-import { useParams } from "react-router-dom";
 import useAPI from "../hooks/useAPI";
 import Render from "../components/Render";
 import MovieDetail from "../components/MovieDetail";
+import type { Detail } from "../types/detail";
 
 const DetailPage = () => {
-    const { id } = useParams();
+    const { movie, isLoading, isError }  = useAPI<Detail>();
+    const movies = movie ? movie[0] : null;
 
-    const { movie, isLoading, isError }  = useAPI(Number(id));
       return (
     <div>
-      <Render isLoading={isLoading} isError={isError} movie={movie[0]}
+      <Render isLoading={isLoading} isError={isError} movie={movies}
       SuccessComponent={MovieDetail} />
     </div>
   );
