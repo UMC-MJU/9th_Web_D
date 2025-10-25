@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 
 export default function useAPI<T>( pageNum : number = 1 ) {
-    const [movie, setMovie] = useState<T[] | null>();
+    const [movie, setMovie] = useState<T[] | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
     const { category, id } = useParams();
