@@ -18,7 +18,20 @@ export const postSignin = async (
 };
 
 export const getMyInfo = async () : Promise<ResponseMyInfoDto> => {
-    const { data } = await axios.get("http://localhost:8000/v1/users/me");
+    const token = localStorage.getItem("accessToken");
+
+    if (!token) {
+        throw new Error("Access token is not found in localStorage.");
+    }
+
+    // 요청 헤더(header)에 토큰을 설정하는 config 객체를 만듬.
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+
+    const { data } = await axios.get("http://localhost:8000/v1/users/me", config);
 
     return data;
 };
