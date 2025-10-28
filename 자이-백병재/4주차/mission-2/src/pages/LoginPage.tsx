@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import useForm from "../hooks/useForm";
 import { validateSignup, type UserSignupInformation } from "../utils/validate";
+import { getMyInfo, postSignin } from "../apis/auth";
 
 const LoginPage = () => {
     const { values, errors, touched, getInputProps } = useForm<UserSignupInformation>({
@@ -8,15 +9,30 @@ const LoginPage = () => {
         validate: validateSignup,
     });
 
+    const loginSubmit = async () => {
+        try {
+            const response = await postSignin(values);
+            localStorage.setItem("accessToken", response.data.accessToken);
+            const userInfo = await getMyInfo();
+            localStorage.setItem("userName", userInfo.data.name);
+
+            window.dispatchEvent(new Event('login')); // 이벤트 발생
+        } catch(error) {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("userName");
+            alert(`${error}`);
+        }
+    }
+
     const inputStyle = `
     border border-3 border-gray-200 focus:border-[#FFA900] focus:outline-none 
     rounded-lg w-xs h-10 p-2.5 text-white
-  `;
+    `;
 
     const buttonStyle = `
     flex rounded-lg w-xs h-10 p-2.5 items-center justify-center 
     font-bold text-lg focus:outline-none transition-colors text-black
-  `;
+    `;
 
     return (
         <div className="flex flex-col items-center justify-center h-full gap-3">
@@ -33,11 +49,21 @@ const LoginPage = () => {
                 placeholder={"password"}
                 />
 
-                <button className={`${buttonStyle} bg-[#FFA900] hover:bg-white disabled:bg-gray-500`}
-                type={"submit"} disabled={!(touched?.email && touched?.password)}
-                onClick={() => { if (errors?.email.length === 0 && errors?.password.length === 0) 
-                    {alert(`Welecome ${values.email}!`)}}}
-                >Login</button>
+                <NavLink 
+                to="/" 
+                className={`${buttonStyle} ${!(touched?.email && touched?.password) 
+                ? 'bg-gray-500 pointer-events-none opacity-70' : 'bg-[#FFA900] hover:bg-white'}`}
+                onClick={(e) => {
+                    if (!(touched?.email && touched?.password)) {
+                        e.preventDefault(); 
+                        return; 
+                    }
+                    loginSubmit();
+                }}
+                aria-disabled={!(touched?.email && touched?.password)} 
+                >
+                Login
+                </NavLink>
 
                 {(errors?.email || errors?.password) && (
                 <h2 className="text-[#FFA900] font-bold text-sm">Incorrect Email or Password</h2> )}
@@ -61,7 +87,6 @@ const LoginPage = () => {
                     Sign up
                     </NavLink>
                 </div>
-
             </div>
         </div>
     );
