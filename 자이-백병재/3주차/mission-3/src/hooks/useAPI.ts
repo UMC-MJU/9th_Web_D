@@ -1,20 +1,17 @@
 import { useEffect, useState } from "react";
-import type { Movie } from "../types/movie";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import type { Detail } from "../types/detail";
 
-export default function useAPI( pageNum : number = 1 ) {
-    const [movie, setMovie] = useState<Movie[] | Detail[]>([]);
+export default function useAPI<T>( pageNum : number = 1 ) {
+    const [movie, setMovie] = useState<T[] | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
     const { category, id } = useParams();
-    let api = '';
 
     useEffect(() : void => {
       const getMovieAPI = async () : Promise<void> => {
         setIsLoading(true);
-        
+        let api = '';
         if(id) api = `https://api.themoviedb.org/3/movie/${id}?language=en-US&`;
         else api = `https://api.themoviedb.org/3/movie/${category}?language=en-US&page=${pageNum}`;
 
