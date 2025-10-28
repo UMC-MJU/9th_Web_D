@@ -1,6 +1,79 @@
+import { useEffect, useState } from 'react';
+import { getUserInfo, getAuthToken, isLoggedIn, logout } from '../../utils/auth';
+import type { UserInfo, AuthToken } from '../../hooks/useLocalStorage';
+
 const HomePage = () => {
+    const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+    const [authToken, setAuthToken] = useState<AuthToken | null>(null);
+    const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+
+    useEffect(() => {
+        // 페이지 로드 시 로그인 상태 확인
+        const checkLoginStatus = () => {
+            const user = getUserInfo();
+            const token = getAuthToken();
+            const loggedIn = isLoggedIn();
+
+            setUserInfo(user);
+            setAuthToken(token);
+            setIsUserLoggedIn(loggedIn);
+        };
+
+        checkLoginStatus();
+    }, []);
+
+    const handleLogout = () => {
+        logout();
+        setUserInfo(null);
+        setAuthToken(null);
+        setIsUserLoggedIn(false);
+        alert('로그아웃되었습니다.');
+    };
+
     return (
-        <div className="p-4">HomePage</div>
+        <div className="p-8 max-w-2xl mx-auto">
+            <h1 className="text-3xl font-bold mb-6">홈페이지</h1>
+            
+            {isUserLoggedIn && userInfo && authToken ? (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                    <h2 className="text-xl font-semibold text-green-800 mb-4">로그인 상태</h2>
+                    <div className="space-y-2 text-green-700">
+                        <p><strong>이메일:</strong> {userInfo.email}</p>
+                        <p><strong>닉네임:</strong> {userInfo.nickname}</p>
+                        <p><strong>사용자 ID:</strong> {userInfo.id}</p>
+                        <p><strong>로그인 시간:</strong> {new Date(userInfo.loginTime).toLocaleString()}</p>
+                        <p><strong>토큰 만료:</strong> {new Date(authToken.expiresAt).toLocaleString()}</p>
+                    </div>
+                    <button
+                        onClick={handleLogout}
+                        className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                    >
+                        로그아웃
+                    </button>
+                </div>
+            ) : (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
+                    <h2 className="text-xl font-semibold text-gray-800 mb-4">로그인이 필요합니다</h2>
+                    <p className="text-gray-600 mb-4">
+                        로그인하거나 회원가입을 진행해주세요.
+                    </p>
+                    <div className="space-x-4">
+                        <a 
+                            href="/login" 
+                            className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
+                        >
+                            로그인
+                        </a>
+                        <a 
+                            href="/signup" 
+                            className="px-4 py-2 bg-white text-black border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                        >
+                            회원가입
+                        </a>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 };
 
