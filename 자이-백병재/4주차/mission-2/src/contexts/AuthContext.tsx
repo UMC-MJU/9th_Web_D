@@ -1,4 +1,4 @@
-import { createContext, useState, type PropsWithChildren } from "react";
+import { createContext, useContext, useState, type PropsWithChildren } from "react";
 import type { RequestSigninDto } from "../types/auth";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { Local_STORAGE_KEYS } from "../constants/key";
@@ -59,3 +59,11 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     </AuthContext.Provider>
     );
 }
+
+export const useAuth = () => {
+    const context =  useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
+};

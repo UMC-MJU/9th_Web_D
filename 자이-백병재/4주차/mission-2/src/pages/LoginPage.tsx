@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import useForm from "../hooks/useForm";
 import { validateSignup, type UserSignupInformation } from "../utils/validate";
-import { getMyInfo, postSignin } from "../apis/auth";
+import { useAuth } from "../contexts/AuthContext";
 
 const LoginPage = () => {
     const { values, errors, touched, getInputProps } = useForm<UserSignupInformation>({
@@ -9,19 +9,10 @@ const LoginPage = () => {
         validate: validateSignup,
     });
 
-    const loginSubmit = async () => {
-        try {
-            const response = await postSignin(values);
-            localStorage.setItem("accessToken", response.data.accessToken);
-            const userInfo = await getMyInfo();
-            localStorage.setItem("userName", userInfo.data.name);
+    const { login } = useAuth();
 
-            window.dispatchEvent(new Event('login')); // 이벤트 발생
-        } catch(error) {
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("userName");
-            alert(`${error}`);
-        }
+    const loginSubmit = async () => {
+        await login(values);
     }
 
     const inputStyle = `
