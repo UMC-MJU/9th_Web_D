@@ -1,5 +1,6 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 const NavBar = () => {
   const shadowClass = "[text-shadow:0_1px_4px_rgb(0_0_0_/_0.9)]";
@@ -11,8 +12,6 @@ const NavBar = () => {
   `;
   const activeLinkClass = "text-white font-semibold transform scale-120";
   const inactiveLinkClass = "text-white hover:scale-105 hover:opacity-80"; 
-  
-  const navigate = useNavigate();
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return !!localStorage.getItem("accessToken");
@@ -35,12 +34,11 @@ const NavBar = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken"); 
-    localStorage.removeItem("userName");
-    window.dispatchEvent(new Event('login')); 
-    navigate('/'); 
-  };
+  const { logout } = useAuth();
+  
+  const handleLogout = async () => {
+      await logout();
+  }
 
   return (
     <nav 

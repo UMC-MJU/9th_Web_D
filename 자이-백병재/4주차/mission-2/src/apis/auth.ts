@@ -17,6 +17,12 @@ export const postSignin = async (
     return data;
 };
 
+export const postSignout = async () => {
+    const { data } = await axios.post('/v1/auth/sign-out');
+
+    return data
+};
+
 export const getMyInfo = async () : Promise<ResponseMyInfoDto> => {
     const token = localStorage.getItem("accessToken");
 

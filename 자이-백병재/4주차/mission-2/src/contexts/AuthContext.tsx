@@ -2,7 +2,7 @@ import { createContext, useContext, useState, type PropsWithChildren } from "rea
 import type { RequestSigninDto } from "../types/auth";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { Local_STORAGE_KEYS } from "../constants/key";
-import { postSignin } from "../apis/auth";
+import { postSignin, postSignout } from "../apis/auth";
 
 interface AuthContextType {
     accessToken: string | null;
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     
     const logout = async () => {
         try {
-            
+            await postSignout();
         } catch (error) {
             console.error("Server logout failed:", error);
         } finally {
