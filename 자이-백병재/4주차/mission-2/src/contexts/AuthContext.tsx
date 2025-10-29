@@ -1,21 +1,23 @@
-import { createContext, useContext, useState, type PropsWithChildren } from "react";
-import type { RequestSigninDto } from "../types/auth";
+import { createContext, useContext, useEffect, useState, type PropsWithChildren } from "react";
+import type { RequestSigninDto, ResponseMyInfoDto } from "../types/auth";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { Local_STORAGE_KEYS } from "../constants/key";
-import { postSignin, postSignout } from "../apis/auth";
+import { getMyInfo, postSignin, postSignout } from "../apis/auth";
 
 interface AuthContextType {
     accessToken: string | null;
     refreshToken: string | null;
     login: (siginInData: RequestSigninDto) => Promise<void>;
     logout: () => Promise<void>;
+    userData: ResponseMyInfoDto | null;
 }
 
 export const AuthContext = createContext<AuthContextType>({
     accessToken: null,
     refreshToken: null,
     login: async () => {},
-    logout: async () => {}
+    logout: async () => {},
+    userData: null,
 });
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
@@ -31,19 +33,35 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         () => getStorageRefreshToken(),
     );
 
+    const [userData, setUserData] = useState<ResponseMyInfoDto | null>(null);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            if (accessToken) {
+                try {
+                    const response: ResponseMyInfoDto = await getMyInfo();
+                    setUserData(response);
+                } catch (error) {
+                    console.error("Failed to fetch user info on load:", error);
+                    logout(); 
+                }
+            }
+        };
+
+        fetchUserData();
+    }, [accessToken]);
+
     const login = async (siginInData: RequestSigninDto) => {
-        try {
-            const {data} = await postSignin(siginInData);
+        const {data} = await postSignin(siginInData);
             if(data) {
                 setStorageAccessToken(data.accessToken);
                 setStorageRefreshToken(data.refreshToken);
-                setAccessToken(data.accessToken);
+                setAccessToken(data.accessToken)
                 setRefreshToken(data.refreshToken);
-                window.location.replace("/");
+                const response : ResponseMyInfoDto = await getMyInfo();
+                setUserData(response);
+                console.log(response);
             }
-        } catch (error) {
-            alert(`${error}`);
-        }
     };
     
     const logout = async () => {
@@ -56,10 +74,11 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
             removeStorageRefreshToken();
             setAccessToken(null);
             setRefreshToken(null);
+            setUserData(null);
         }
     };
 
-    return (<AuthContext.Provider value={{ accessToken, refreshToken, login, logout }}>
+    return (<AuthContext.Provider value={{ accessToken, refreshToken, login, logout, userData }}>
         {children}
     </AuthContext.Provider>
     );

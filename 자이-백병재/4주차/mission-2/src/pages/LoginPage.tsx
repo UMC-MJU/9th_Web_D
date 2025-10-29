@@ -12,7 +12,12 @@ const LoginPage = () => {
     const { login } = useAuth();
     
     const loginSubmit = async () => {
-        await login(values);
+        try{
+            await login(values);
+            window.location.replace("/");
+        } catch (error) {
+            console.error("Login failed:", error);
+        }
     }
 
     const inputStyle = `

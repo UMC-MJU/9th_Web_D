@@ -24,10 +24,13 @@ export const postSignout = async () => {
 };
 
 export const getMyInfo = async () : Promise<ResponseMyInfoDto> => {
-    const token = localStorage.getItem("accessToken");
+    const tokenString = localStorage.getItem("accessToken");
+    let token: string | null = null;
 
-    if (!token) {
+    if (!tokenString) {
         throw new Error("Access token is not found in localStorage.");
+    } else {
+        token = JSON.parse(tokenString);
     }
 
     // 요청 헤더(header)에 토큰을 설정하는 config 객체를 만듬.

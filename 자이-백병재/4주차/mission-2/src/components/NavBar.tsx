@@ -1,5 +1,4 @@
 import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 const NavBar = () => {
@@ -13,12 +12,8 @@ const NavBar = () => {
   const activeLinkClass = "text-white font-semibold transform scale-120";
   const inactiveLinkClass = "text-white hover:scale-105 hover:opacity-80"; 
 
-  const { accessToken } = useAuth();
+  const { accessToken, userData } = useAuth();
   const isLoggedIn = !!accessToken;
-  
-  const [userName, setUserName] = useState(() => {
-    return localStorage.getItem("userName");
-  });
 
   const { logout } = useAuth();
   
@@ -48,7 +43,7 @@ const NavBar = () => {
           {isLoggedIn ? (
             <div className="flex items-center space-x-4">
               <span className={`text-white text-sm font-medium ${shadowClass}`}>
-                {userName ? `${userName}님` : ''}
+                {userData?.data?.name ? `${userData.data.name}님` : ``}
               </span>
               <button
                 onClick={handleLogout}
