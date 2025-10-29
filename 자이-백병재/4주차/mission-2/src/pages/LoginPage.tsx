@@ -1,7 +1,8 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import useForm from "../hooks/useForm";
 import { validateSignup, type UserSignupInformation } from "../utils/validate";
 import { useAuth } from "../contexts/AuthContext";
+import { useEffect } from "react";
 
 const LoginPage = () => {
     const { values, errors, touched, getInputProps } = useForm<UserSignupInformation>({
@@ -9,8 +10,14 @@ const LoginPage = () => {
         validate: validateSignup,
     });
 
-    const { login } = useAuth();
-    
+    const { login, accessToken } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect( () => {
+        if(accessToken)
+            navigate("/");
+    }, [navigate, accessToken])
+
     const loginSubmit = async () => {
         try{
             await login(values);
