@@ -10,7 +10,7 @@ const LoginPage = () => {
     });
 
     const { login } = useAuth();
-
+    
     const loginSubmit = async () => {
         await login(values);
     }
@@ -40,8 +40,7 @@ const LoginPage = () => {
                 placeholder={"password"}
                 />
 
-                <NavLink 
-                to="/" 
+                <button 
                 className={`${buttonStyle} ${!(touched?.email && touched?.password) 
                 ? 'bg-gray-500 pointer-events-none opacity-70' : 'bg-[#FFA900] hover:bg-white'}`}
                 onClick={(e) => {
@@ -54,7 +53,7 @@ const LoginPage = () => {
                 aria-disabled={!(touched?.email && touched?.password)} 
                 >
                 Login
-                </NavLink>
+                </button>
 
                 {(errors?.email || errors?.password) && (
                 <h2 className="text-[#FFA900] font-bold text-sm">Incorrect Email or Password</h2> )}

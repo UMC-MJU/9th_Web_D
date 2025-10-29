@@ -32,12 +32,17 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     );
 
     const login = async (siginInData: RequestSigninDto) => {
-        const {data} = await postSignin(siginInData);
-        if(data) {
-            setStorageAccessToken(data.accessToken);
-            setStorageRefreshToken(data.refreshToken);
-            setAccessToken(data.accessToken);
-            setRefreshToken(data.refreshToken);
+        try {
+            const {data} = await postSignin(siginInData);
+            if(data) {
+                setStorageAccessToken(data.accessToken);
+                setStorageRefreshToken(data.refreshToken);
+                setAccessToken(data.accessToken);
+                setRefreshToken(data.refreshToken);
+                window.location.replace("/");
+            }
+        } catch (error) {
+            alert(`${error}`);
         }
     };
     
@@ -63,7 +68,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 export const useAuth = () => {
     const context =  useContext(AuthContext);
     if (context === undefined) {
-        throw new Error("useAuth must be used within an AuthProvider");
+        alert("useAuth must be used within an AuthProvider");
     }
     return context;
 };
