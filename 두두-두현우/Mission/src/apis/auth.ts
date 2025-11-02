@@ -49,30 +49,3 @@ export interface ApiError {
   message: string;
   error?: string;
 }
-
-// 회원가입 데이터 타입
-export interface SignUpData {
-  name: string;
-  email: string;
-  password: string;
-  bio?: string;
-  avatar?: string;
-}
-
-// 로그인 Mutation 결과 타입
-export interface UseLoginMutationResult {
-  mutate: (email: string, password: string) => Promise<LoginResponse["data"]>;
-  isLoading: boolean;
-  isError: boolean;
-  error: string | null;
-  isSuccess: boolean;
-}
-
-// 회원가입 Mutation 결과 타입
-export interface UseSignUpMutationResult {
-  mutate: (data: SignUpData) => Promise<SignUpResponse["data"]>;
-  isLoading: boolean;
-  isError: boolean;
-  error: string | null;
-  isSuccess: boolean;
-}
