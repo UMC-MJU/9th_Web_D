@@ -1,8 +1,9 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { loginSchema, type LoginFormData } from '../../schemas/auth';
 import { useLocalStorage, type UserInfo, type AuthToken, defaultUserInfo, defaultAuthToken } from '../../hooks/useLocalStorage';
+
 
 const LoginPage = () => {
     const {
@@ -17,6 +18,8 @@ const LoginPage = () => {
 
     const watchedValues = watch();
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = (location.state as { from?: string } | null)?.from || '/';
 
     // 로컬 스토리지 훅 사용
     const [userInfo, setUserInfo] = useLocalStorage<UserInfo>('userInfo', defaultUserInfo);
@@ -52,7 +55,7 @@ const LoginPage = () => {
         console.log('토큰 정보 저장됨:', newAuthToken);
         
         alert('로그인이 완료되었습니다!');
-        navigate('/');
+        navigate(from, { replace: true });
     };
     
     //오류가 하나라도 있거나 입력값이 비어있으면 버튼을 비활성화
