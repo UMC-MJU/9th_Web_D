@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { loginSchema, type LoginFormData } from '../../schemas/auth';
 import { useLocalStorage, type UserInfo, type AuthToken, defaultUserInfo, defaultAuthToken } from '../../hooks/useLocalStorage';
 import { tokenStorage } from '../../lib/token';
+import { api } from '../../apis';
 
 
 const LoginPage = () => {
@@ -26,36 +27,40 @@ const LoginPage = () => {
     const [userInfo, setUserInfo] = useLocalStorage<UserInfo>('userInfo', defaultUserInfo);
     const [, setAuthToken] = useLocalStorage<AuthToken>('authToken', defaultAuthToken);
 
-    const onSubmit = (data: LoginFormData) => {
+    const onSubmit = async (data: LoginFormData) => {
         console.log('로그인 데이터:', data);
-        
-        // 임시 토큰 생성 (실제로는 서버에서 받아야 함)
-        const mockToken = `mock_login_token_${Date.now()}`;
-        const mockRefreshToken = `mock_login_refresh_token_${Date.now()}`;
-        tokenStorage.set(mockToken, mockRefreshToken);
-        
-        // 사용자 정보 저장 (로그인 시에는 기존 정보를 업데이트)
+
+        // 실제 로그인 API 호출
+        const res = await api.post('/auth/signin', {
+            email: data.email,
+            password: data.password,
+        });
+
+        // 토큰 저장 (인터셉터가 사용)
+        tokenStorage.set(res.data.accessToken, res.data.refreshToken);
+
+        // 화면 표기를 위해 만료 시간 파싱(JWT exp 사용)
+        const payload = JSON.parse(atob(res.data.accessToken.split('.')[1])) as { exp: number };
+        const expiresAtMs = payload.exp * 1000;
+
+        // 사용자 정보 저장 (로그인 시 기존 정보 업데이트)
         const updatedUserInfo: UserInfo = {
             ...userInfo,
             email: data.email,
-            token: mockToken,
+            token: res.data.accessToken,
             loginTime: Date.now(),
         };
-        
-        // 토큰 정보 저장
+
+        // 토큰 정보 저장(기존 훅 상태도 유지)
         const newAuthToken: AuthToken = {
-            accessToken: mockToken,
-            refreshToken: mockRefreshToken,
-            expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 24시간 후 만료
+            accessToken: res.data.accessToken,
+            refreshToken: res.data.refreshToken,
+            expiresAt: expiresAtMs,
         };
-        
-        // 로컬 스토리지에 저장
+
         setUserInfo(updatedUserInfo);
         setAuthToken(newAuthToken);
-        
-        console.log('로그인 정보 저장됨:', updatedUserInfo);
-        console.log('토큰 정보 저장됨:', newAuthToken);
-        
+
         alert('로그인이 완료되었습니다!');
         navigate(from, { replace: true });
     };
