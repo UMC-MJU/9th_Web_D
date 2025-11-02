@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Layout from "./Layout";
 import NameEnterModal from "./components/NameEnterModal";
@@ -10,6 +10,7 @@ import { STORAGE_KEYS } from "./constants";
 function App() {
   const [username, setUsername] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [signupData, setSignupData] = useState<{
     email: string;
     password: string;
@@ -17,9 +18,29 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // 초기 로드 시 localStorage에서 로그인 상태 복원
+  useEffect(() => {
+    const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+
+    if (accessToken) {
+      // TODO: 실제로는 토큰 유효성 검증 API 호출 필요
+      // 예: GET /v1/users/me 를 호출하여 사용자 정보 가져오기
+      setIsLoggedIn(true);
+
+      const savedUsername = localStorage.getItem(STORAGE_KEYS.USERNAME);
+      if (savedUsername) {
+        setUsername(savedUsername);
+      }
+    }
+
+    setIsLoading(false);
+  }, []);
+
   const handleLoginSuccess = (username: string) => {
     setUsername(username);
     setIsLoggedIn(true);
+    // username을 localStorage에 저장
+    localStorage.setItem(STORAGE_KEYS.USERNAME, username);
   };
 
   const handleSignUpStart = (email: string, password: string) => {
@@ -31,12 +52,15 @@ function App() {
     setUsername(username);
     setIsLoggedIn(true);
     setSignupData(null);
+    // username을 localStorage에 저장
+    localStorage.setItem(STORAGE_KEYS.USERNAME, username);
   };
 
   const handleLogout = () => {
-    // 로그아웃 시 토큰 삭제
+    // 로그아웃 시 토큰 및 사용자 정보 삭제
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USERNAME);
 
     // 홈으로 리다이렉트 (상태 변경 전에 먼저 이동)
     navigate("/");
@@ -53,6 +77,15 @@ function App() {
     onLogout: handleLogout,
     onSignUpStart: handleSignUpStart,
   };
+
+  // 초기 로딩 중에는 빈 화면 표시
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <Routes>
