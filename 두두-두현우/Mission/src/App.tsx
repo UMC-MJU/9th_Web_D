@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Layout from "./Layout";
 import NameEnterModal from "./components/NameEnterModal";
 import HomePage from "./pages/HomePage";
@@ -15,6 +15,7 @@ function App() {
     password: string;
   } | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const handleLoginSuccess = (username: string) => {
     setUsername(username);
@@ -38,6 +39,8 @@ function App() {
     // 로그아웃 시 토큰 삭제
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+    // 홈으로 리다이렉트
+    navigate("/");
   };
 
   const layoutProps = {
