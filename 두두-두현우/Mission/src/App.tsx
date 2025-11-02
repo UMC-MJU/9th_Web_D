@@ -36,6 +36,29 @@ function App() {
     setIsLoading(false);
   }, []);
 
+  // 구글 로그인 콜백 처리
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const accessToken = params.get("accessToken");
+    const refreshToken = params.get("refreshToken");
+    const name = params.get("name");
+
+    // 구글 로그인 성공 시 토큰이 URL 파라미터로 전달됨
+    if (accessToken && refreshToken && name) {
+      // 토큰을 localStorage에 저장
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+      localStorage.setItem(STORAGE_KEYS.USERNAME, name);
+
+      // 로그인 상태 업데이트
+      setUsername(name);
+      setIsLoggedIn(true);
+
+      // 홈으로 리다이렉트
+      navigate("/", { replace: true });
+    }
+  }, [location.search, navigate]);
+
   const handleLoginSuccess = (username: string) => {
     setUsername(username);
     setIsLoggedIn(true);
