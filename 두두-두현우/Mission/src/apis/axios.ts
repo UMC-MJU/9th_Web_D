@@ -1,6 +1,13 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { API_BASE_URL, STORAGE_KEYS } from "../constants";
 
+// 커스텀 요청 설정 타입
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+  _retryCount?: number;
+  skipAuthRefresh?: boolean;
+}
+
 // Axios 인스턴스 생성
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -8,6 +15,9 @@ export const axiosInstance = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// 최대 재시도 횟수
+const MAX_RETRY_COUNT = 1;
 
 // 토큰 갱신 중복 요청 방지를 위한 플래그
 let isRefreshing = false;
@@ -51,12 +61,24 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
+    const originalRequest = error.config as CustomAxiosRequestConfig;
 
-    // 401 Unauthorized 에러이고, 재시도하지 않은 요청인 경우
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // 재시도 횟수 초기화
+    if (!originalRequest._retryCount) {
+      originalRequest._retryCount = 0;
+    }
+
+    // skipAuthRefresh 플래그가 있는 요청은 재시도하지 않음 (무한 루프 방지)
+    if (originalRequest.skipAuthRefresh) {
+      return Promise.reject(error);
+    }
+
+    // 401 Unauthorized 에러이고, 재시도 횟수가 최대치를 넘지 않은 경우
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      originalRequest._retryCount < MAX_RETRY_COUNT
+    ) {
       if (isRefreshing) {
         // 이미 토큰 갱신 중이면 대기열에 추가
         return new Promise((resolve, reject) => {
@@ -74,21 +96,29 @@ axiosInstance.interceptors.response.use(
       }
 
       originalRequest._retry = true;
+      originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
       isRefreshing = true;
 
       const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
 
       if (!refreshToken) {
         // Refresh Token이 없으면 로그아웃
+        isRefreshing = false;
+        processQueue(new Error("Refresh Token이 없습니다."), null);
         handleLogout();
         return Promise.reject(error);
       }
 
       try {
         // Refresh Token으로 새로운 Access Token 발급 요청
-        const response = await axios.post(`${API_BASE_URL}/v1/auth/refresh`, {
-          refreshToken,
-        });
+        // skipAuthRefresh 플래그를 추가하여 이 요청은 인터셉터를 거치지 않도록 함
+        const response = await axios.post(
+          `${API_BASE_URL}/v1/auth/refresh`,
+          { refreshToken },
+          {
+            skipAuthRefresh: true,
+          } as CustomAxiosRequestConfig
+        );
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
           response.data.data;
@@ -107,17 +137,18 @@ axiosInstance.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         }
 
+        isRefreshing = false;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         // Refresh Token도 만료되었거나 오류 발생 시
+        isRefreshing = false;
         processQueue(refreshError as Error, null);
         handleLogout();
         return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
     }
 
+    // 401이 아니거나, 이미 재시도했거나, 재시도 횟수를 초과한 경우
     return Promise.reject(error);
   }
 );
