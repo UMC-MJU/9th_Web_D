@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema } from "../schemas/signupSchema";
 import type { UserSignupInformation } from "../schemas/signupSchema";
-import postSignup from "../apis/auth";
+import { postSignup } from "../apis/auth";
 import { useNavigate } from 'react-router-dom';
 import SignUpInputEmail from '../components/SignUpInputEmail';
 import SignUpInputPw from '../components/SignUpInputPw';
