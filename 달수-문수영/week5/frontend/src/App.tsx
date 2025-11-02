@@ -5,6 +5,8 @@ import NotFoundPage from './assets/pages/NotFoundPage';
 import LoginPage from './assets/pages/LoginPage';
 import HomeLayout from './assets/layouts/HomeLayout';
 import SignupPage from './assets/pages/SignupPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import MemberPage from './assets/pages/MemberPage';
 
 //1.홈페이지
 //2. 로그인 페이지
@@ -20,6 +22,11 @@ const router = createBrowserRouter([
       {index: true, element: <HomePage />},
       {path: 'login', element: <LoginPage />},
       {path: 'signup', element: <SignupPage />},
+	  { path: 'member', element: (
+		<ProtectedRoute>
+		  <MemberPage />
+		</ProtectedRoute>
+	  )},
     ],
 	},
 ]);
