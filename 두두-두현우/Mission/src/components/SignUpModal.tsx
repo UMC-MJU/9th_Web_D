@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 interface SignUpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSignup: (email: string, password: string, confirmPassword: string) => void;
+  onNextStep: (email: string, password: string) => void;
 }
 
 const signUpSchema = z
@@ -34,7 +34,7 @@ type SignUpFormValues = z.infer<typeof signUpSchema>;
 export default function SignUpModal({
   isOpen,
   onClose,
-  onSignup,
+  onNextStep,
 }: SignUpModalProps) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
@@ -52,7 +52,7 @@ export default function SignUpModal({
   });
 
   const onSubmit = (data: SignUpFormValues) => {
-    onSignup(data.email, data.password, data.confirmPassword);
+    onNextStep(data.email, data.password);
     reset();
     navigate("/enter-name");
   };

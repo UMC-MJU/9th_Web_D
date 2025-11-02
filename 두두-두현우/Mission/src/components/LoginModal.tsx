@@ -2,11 +2,20 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLoginMutation } from "../hooks/useLoginMutation";
+import {
+  TIMING,
+  ERROR_MESSAGES,
+  API_BASE_URL,
+  API_ENDPOINTS,
+  STORAGE_KEYS,
+} from "../constants";
+import { type LoginResponse, type ApiError } from "../apis/auth";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (email: string, password: string) => void;
+  onLoginSuccess: (username: string) => void;
   onGoogleLogin: () => void;
 }
 
@@ -23,13 +32,15 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function LoginModal({
   isOpen,
   onClose,
-  onLogin,
+  onLoginSuccess,
   onGoogleLogin,
 }: LoginModalProps) {
   const [loginState, setLoginState] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [loginError, setLoginError] = useState("");
+
+  const loginMutation = useLoginMutation();
 
   const {
     register,
@@ -42,41 +53,65 @@ export default function LoginModal({
     defaultValues: { email: "", password: "" },
   });
 
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<LoginResponse["data"]> => {
+    const response = await fetch(
+      `${API_BASE_URL}${API_ENDPOINTS.AUTH.SIGNIN}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw {
+        status: false,
+        statusCode: response.status,
+        message: data.message || ERROR_MESSAGES.LOGIN.FAILED,
+        error: data.error,
+      } as ApiError;
+    }
+
+    // 로그인 성공 시 토큰을 localStorage에 저장
+    if (data.data?.accessToken) {
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, data.data.accessToken);
+    }
+    if (data.data?.refreshToken) {
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, data.data.refreshToken);
+    }
+
+    return data.data;
+  };
+
   const onSubmit = async ({ email, password }: LoginFormValues) => {
     setLoginError("");
     setLoginState("loading");
 
     try {
-      // 1초 로딩 시간
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const userData = await loginMutation.mutate(() => login(email, password));
 
-      // 로그인 시도 (임시로 성공/실패를 랜덤하게 처리)
-      const isSuccess = Math.random() > 0.3; // 70% 성공률
+      setLoginState("success");
+      onLoginSuccess(userData.name);
 
-      if (isSuccess) {
-        setLoginState("success");
-        onLogin(email, password);
-
-        // 성공 애니메이션 후 0.3초 뒤 모달 닫기
-        setTimeout(() => {
-          handleClose();
-        }, 300);
-      } else {
-        setLoginState("error");
-        setLoginError("아이디 또는 비밀번호가 올바르지 않습니다");
-
-        // 에러 상태를 3초 후 초기화
-        setTimeout(() => {
-          setLoginState("idle");
-        }, 3000);
-      }
+      // 성공 애니메이션 후 모달 닫기
+      setTimeout(() => {
+        handleClose();
+      }, TIMING.MODAL_CLOSE_DELAY);
     } catch {
       setLoginState("error");
-      setLoginError("로그인 중 오류가 발생했습니다");
+      setLoginError(loginMutation.error || ERROR_MESSAGES.LOGIN.FAILED);
 
+      // 에러 상태 초기화
       setTimeout(() => {
         setLoginState("idle");
-      }, 3000);
+      }, TIMING.ERROR_RESET_DELAY);
     }
   };
 

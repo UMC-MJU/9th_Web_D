@@ -1,10 +1,16 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useSignUpMutation } from "../hooks/useSignUpMutation";
+import { ERROR_MESSAGES, API_BASE_URL, API_ENDPOINTS } from "../constants";
+import { type SignUpResponse, type ApiError } from "../apis/auth";
 
 interface NameEnterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onNameSubmit: (name: string) => void;
+  email: string;
+  password: string;
+  onSignUpSuccess: (username: string) => void;
 }
 
 type NameFormValues = {
@@ -14,8 +20,15 @@ type NameFormValues = {
 export default function NameEnterModal({
   isOpen,
   onClose,
-  onNameSubmit,
+  email,
+  password,
+  onSignUpSuccess,
 }: NameEnterModalProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const signUpMutation = useSignUpMutation();
+
   const {
     register,
     handleSubmit,
@@ -24,13 +37,55 @@ export default function NameEnterModal({
   } = useForm<NameFormValues>();
   const navigate = useNavigate();
 
-  const onSubmit = (data: NameFormValues) => {
-    onNameSubmit(data.name);
-    handleClose();
+  const signUp = async (
+    name: string,
+    email: string,
+    password: string
+  ): Promise<SignUpResponse["data"]> => {
+    const response = await fetch(
+      `${API_BASE_URL}${API_ENDPOINTS.AUTH.SIGNUP}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      }
+    );
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw {
+        status: false,
+        statusCode: response.status,
+        message: responseData.message || ERROR_MESSAGES.SIGNUP.FAILED,
+        error: responseData.error,
+      } as ApiError;
+    }
+
+    return responseData.data;
+  };
+
+  const onSubmit = async (data: NameFormValues) => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      await signUpMutation.mutate(() => signUp(data.name, email, password));
+
+      onSignUpSuccess(data.name);
+      handleClose();
+    } catch {
+      setError(signUpMutation.error || ERROR_MESSAGES.SIGNUP.FAILED);
+      setIsLoading(false);
+    }
   };
 
   const handleClose = () => {
     reset();
+    setError("");
+    setIsLoading(false);
     onClose();
     navigate("/");
   };
@@ -70,6 +125,7 @@ export default function NameEnterModal({
                   : "border-white/20 focus:ring-white/30"
               }`}
               placeholder="이름"
+              disabled={isLoading}
             />
             {errors.name && (
               <div className="mt-2 text-red-300 text-sm flex items-center space-x-1">
@@ -79,11 +135,23 @@ export default function NameEnterModal({
             )}
           </div>
 
+          {error && (
+            <div className="text-red-300 text-sm flex items-center justify-center space-x-1">
+              <i className="ri-error-warning-line text-xs"></i>
+              <span>{error}</span>
+            </div>
+          )}
+
           <button
             type="submit"
-            className="w-full py-3 bg-white text-black font-semibold rounded-2xl whitespace-nowrap hover:bg-white/90 transition-all duration-300 cursor-pointer"
+            disabled={isLoading}
+            className={`w-full py-3 font-semibold rounded-2xl whitespace-nowrap transition-all duration-300 ${
+              isLoading
+                ? "bg-white/50 text-black/50 cursor-not-allowed"
+                : "bg-white text-black hover:bg-white/90 cursor-pointer"
+            }`}
           >
-            환영합니다!
+            {isLoading ? "가입 중..." : "환영합니다!"}
           </button>
         </form>
       </div>
