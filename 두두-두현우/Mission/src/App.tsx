@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Layout from "./Layout";
 import NameEnterModal from "./components/NameEnterModal";
-import MyPage from "./pages/MyPage";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -33,19 +32,11 @@ function App() {
         onLogin={handleLogin}
         onLogout={handleLogout}
       >
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <div className="flex items-center justify-center min-h-screen">
-                <h1 className="text-4xl font-bold text-white">
-                  {username ? `Welcome, ${username}!` : "Welcome"}
-                </h1>
-              </div>
-            }
-          />
-          <Route path="/mypage" element={<MyPage />} />
-        </Routes>
+        <div className="flex items-center justify-center min-h-screen">
+          <h1 className="text-4xl font-bold text-white">
+            {username ? `Welcome, ${username}!` : "Welcome"}
+          </h1>
+        </div>
       </Layout>
       <Routes>
         <Route

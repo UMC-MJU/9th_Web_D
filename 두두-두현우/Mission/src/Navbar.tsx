@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import LoginModal from "./components/LoginModal";
 import SignUpModal from "./components/SignUpModal";
 
@@ -16,7 +15,6 @@ export default function Navbar({
   onLogin,
   onLogout,
 }: NavbarProps) {
-  const navigate = useNavigate();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -82,7 +80,7 @@ export default function Navbar({
               >
                 {/* 홈 버튼 */}
                 <NavButton
-                  onClick={() => navigate("/")}
+                  onClick={() => console.log("홈")}
                   isVisible={isHovered}
                   delay="100"
                 >
@@ -91,7 +89,7 @@ export default function Navbar({
 
                 {/* 마이페이지 버튼 */}
                 <NavButton
-                  onClick={() => navigate("/mypage")}
+                  onClick={() => console.log("마이페이지")}
                   isVisible={isHovered}
                   delay="200"
                 >
