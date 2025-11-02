@@ -6,11 +6,12 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateLayout from './layouts/privateLayout';
+import ErrorPage from './pages/ErrorPage';
 
 const publicRouter = [{
   path: "/",
     element: <MainLayout />,
-    errorElement: <>Error</>,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <MainPage /> },
       { path: "login", element: <LoginPage /> },
