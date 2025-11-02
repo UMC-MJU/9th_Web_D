@@ -35,18 +35,11 @@ export default function NotFound() {
           이동되었을 수 있습니다
         </p>
 
-        {/* 아이콘 */}
-        <div className="mb-8">
-          <div className="w-16 h-16 mx-auto bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-bounce">
-            <i className="ri-error-warning-line text-2xl text-white"></i>
-          </div>
-        </div>
-
         {/* 버튼들 */}
         <div className="space-y-4">
           <button
             onClick={handleGoHome}
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg whitespace-nowrap"
+            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg whitespace-nowrap cursor-pointer"
           >
             <i className="ri-home-line mr-2"></i>
             홈으로 돌아가기
@@ -54,7 +47,7 @@ export default function NotFound() {
 
           <button
             onClick={handleGoBack}
-            className="w-full bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg border border-white/20 transition-all duration-300 hover:border-white/40 whitespace-nowrap"
+            className="w-full bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-lg border border-white/20 transition-all duration-300 hover:border-white/40 whitespace-nowrap cursor-pointer"
           >
             <i className="ri-arrow-left-line mr-2"></i>
             이전 페이지로
