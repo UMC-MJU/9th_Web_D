@@ -1,12 +1,23 @@
-import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface MyPageProps {
   isLoggedIn: boolean;
 }
 
 const MyPage = ({ isLoggedIn }: MyPageProps) => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // 로그인하지 않은 상태에서 접근 시 404로 리다이렉트
+    if (!isLoggedIn) {
+      navigate("/404", { replace: true });
+    }
+  }, [isLoggedIn, navigate]);
+
+  // 로그인 상태가 아니면 빈 화면 (useEffect에서 리다이렉트 처리)
   if (!isLoggedIn) {
-    return <Navigate to="/404" replace />;
+    return null;
   }
 
   return (

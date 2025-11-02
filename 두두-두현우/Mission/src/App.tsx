@@ -34,13 +34,16 @@ function App() {
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername("");
     // 로그아웃 시 토큰 삭제
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-    // 홈으로 리다이렉트
+
+    // 홈으로 리다이렉트 (상태 변경 전에 먼저 이동)
     navigate("/");
+
+    // 상태 업데이트
+    setIsLoggedIn(false);
+    setUsername("");
   };
 
   const layoutProps = {
