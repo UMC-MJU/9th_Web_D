@@ -6,5 +6,6 @@ export const API_ENDPOINTS = {
   AUTH: {
     SIGNIN: "/v1/auth/signin",
     SIGNUP: "/v1/auth/signup",
+    REFRESH: "/v1/auth/refresh",
   },
 } as const;

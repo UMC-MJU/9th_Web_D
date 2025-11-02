@@ -114,7 +114,7 @@ axiosInstance.interceptors.response.use(
         // skipAuthRefresh 플래그를 추가하여 이 요청은 인터셉터를 거치지 않도록 함
         const response = await axios.post(
           `${API_BASE_URL}/v1/auth/refresh`,
-          { refreshToken },
+          { refresh: refreshToken },
           {
             skipAuthRefresh: true,
           } as CustomAxiosRequestConfig
