@@ -30,31 +30,41 @@ const LoginPage = () => {
     const onSubmit = async (data: LoginFormData) => {
         console.log('로그인 데이터:', data);
 
-        // 실제 로그인 API 호출
-        const res = await api.post('/auth/signin', {
-            email: data.email,
-            password: data.password,
-        });
+        let res;
+        try {
+            // 실제 로그인 API 호출
+            res = await api.post('/auth/signin', {
+                email: data.email,
+                password: data.password,
+            });
+        } catch (e: any) {
+            const msg = e?.response?.data?.message ?? '로그인에 실패했습니다.';
+            alert(Array.isArray(msg) ? msg[0] : msg);
+            return;
+        }
+
+        // 백엔드 공통 응답 래핑: { status, statusCode, message, data: { accessToken, refreshToken, ... } }
+        const { accessToken, refreshToken } = res.data.data;
 
         // 토큰 저장 (인터셉터가 사용)
-        tokenStorage.set(res.data.accessToken, res.data.refreshToken);
+        tokenStorage.set(accessToken, refreshToken);
 
         // 화면 표기를 위해 만료 시간 파싱(JWT exp 사용)
-        const payload = JSON.parse(atob(res.data.accessToken.split('.')[1])) as { exp: number };
+        const payload = JSON.parse(atob(accessToken.split('.')[1])) as { exp: number };
         const expiresAtMs = payload.exp * 1000;
 
         // 사용자 정보 저장 (로그인 시 기존 정보 업데이트)
         const updatedUserInfo: UserInfo = {
             ...userInfo,
             email: data.email,
-            token: res.data.accessToken,
+            token: accessToken,
             loginTime: Date.now(),
         };
 
         // 토큰 정보 저장(기존 훅 상태도 유지)
         const newAuthToken: AuthToken = {
-            accessToken: res.data.accessToken,
-            refreshToken: res.data.refreshToken,
+            accessToken,
+            refreshToken,
             expiresAt: expiresAtMs,
         };
 
@@ -65,10 +75,9 @@ const LoginPage = () => {
         navigate(from, { replace: true });
     };
     
-    //오류가 하나라도 있거나 입력값이 비어있으면 버튼을 비활성화
+    // 간단한 비활성 조건: 값 비어있음 또는 유효성 에러 존재
     const isDisabled: boolean =
-        Object.values(errors || {}).some((error: any) => error?.message?.length > 0) || //오류가 있으면 true
-        Object.values(watchedValues).some((value: string) => value === ""); //입력값이 비어있으면 true
+        !watchedValues.email || !watchedValues.password || Object.keys(errors || {}).length > 0;
 
     return (
         <div className="relative flex flex-col items-center justify-center h-full gap-4">
@@ -83,7 +92,7 @@ const LoginPage = () => {
                 </button>
                 <h1 className="text-base font-semibold">로그인</h1>
             </div>
-            <div className="flex flex-col gap-3 items-center">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 items-center">
                 <button
                     type="button"
                     className="w-[300px] h-10 rounded bg-white text-black border border-gray-300 hover:bg-gray-100"
@@ -115,13 +124,12 @@ const LoginPage = () => {
                 {errors?.password && (<div className="text-red-500 text-sm">{errors.password.message}</div>)}
 
                 <button
-                    type="button"
-                    onClick={handleSubmit(onSubmit)}
+                    type="submit"
                     disabled={isDisabled}
                     className="w-full bg-black text-white py-3 rounded-md text-lg font-medium hover:bg-gray-800 transition-colors cursor-pointer disabled:bg-gray-400">
                         로그인
                 </button>
-            </div>
+            </form>
             
             <div className="text-center text-sm text-gray-600">
                 계정이 없으신가요?{' '}
