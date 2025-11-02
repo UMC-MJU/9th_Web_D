@@ -1,43 +1,31 @@
 import { useState } from "react";
 import LoginModal from "./components/LoginModal";
 import SignUpModal from "./components/SignUpModal";
-
-interface NavbarProps {
-  username: string;
-  isLoggedIn: boolean;
-  onLogin: (email: string, password: string) => void;
-  onLogout: () => void;
-}
+import type { AuthHandlers } from "./apis/auth";
 
 export default function Navbar({
   username,
   isLoggedIn,
-  onLogin,
+  onLoginSuccess,
   onLogout,
-}: NavbarProps) {
+  onSignUpStart,
+}: AuthHandlers) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleLogin = (email: string, password: string) => {
-    onLogin(email, password);
-    setIsLoginModalOpen(false);
+  const handleLoginSuccess = (username: string) => {
+    onLoginSuccess(username);
   };
 
-  const handleSignup = (
-    email: string,
-    password: string,
-    confirmPassword: string
-  ) => {
-    // 회원가입 로직 구현
-    console.log("회원가입:", email, password, confirmPassword);
+  const handleSignupNextStep = (email: string, password: string) => {
+    onSignUpStart(email, password);
     setIsSignupModalOpen(false);
   };
 
   const handleGoogleLogin = () => {
-    // 구글 소셜 로그인 로직
+    // 구글 소셜 로그인 로직 (TODO: 구글 OAuth 구현)
     console.log("구글 로그인");
-    onLogin("google_user@gmail.com", "temp_password");
     setIsLoginModalOpen(false);
   };
 
@@ -128,7 +116,7 @@ export default function Navbar({
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
-        onLogin={handleLogin}
+        onLoginSuccess={handleLoginSuccess}
         onGoogleLogin={handleGoogleLogin}
       />
 
@@ -136,7 +124,7 @@ export default function Navbar({
       <SignUpModal
         isOpen={isSignupModalOpen}
         onClose={() => setIsSignupModalOpen(false)}
-        onSignup={handleSignup}
+        onNextStep={handleSignupNextStep}
       />
     </>
   );

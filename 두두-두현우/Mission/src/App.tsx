@@ -2,26 +2,39 @@ import { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Layout from "./Layout";
 import NameEnterModal from "./components/NameEnterModal";
+import { STORAGE_KEYS } from "./constants";
 
 function App() {
   const [username, setUsername] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [signupData, setSignupData] = useState<{
+    email: string;
+    password: string;
+  } | null>(null);
   const location = useLocation();
 
-  const handleNameSubmit = (name: string) => {
-    setUsername(name);
+  const handleLoginSuccess = (username: string) => {
+    setUsername(username);
     setIsLoggedIn(true);
   };
 
-  const handleLogin = (email: string, password: string) => {
-    console.log("로그인 정보:", email, password);
-    // 실제 앱에서는 여기서 인증 처리를 합니다.
+  const handleSignUpStart = (email: string, password: string) => {
+    setSignupData({ email, password });
+    // SignUpModal에서 이미 /enter-name으로 라우팅됨
+  };
+
+  const handleSignUpSuccess = (username: string) => {
+    setUsername(username);
     setIsLoggedIn(true);
+    setSignupData(null);
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUsername("");
+    // 로그아웃 시 토큰 삭제
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
   };
 
   return (
@@ -29,8 +42,9 @@ function App() {
       <Layout
         username={username}
         isLoggedIn={isLoggedIn}
-        onLogin={handleLogin}
+        onLoginSuccess={handleLoginSuccess}
         onLogout={handleLogout}
+        onSignUpStart={handleSignUpStart}
       >
         <div className="flex items-center justify-center min-h-screen">
           <h1 className="text-4xl font-bold text-white">
@@ -42,11 +56,15 @@ function App() {
         <Route
           path="/enter-name"
           element={
-            <NameEnterModal
-              isOpen={location.pathname === "/enter-name"}
-              onClose={() => {}}
-              onNameSubmit={handleNameSubmit}
-            />
+            signupData ? (
+              <NameEnterModal
+                isOpen={location.pathname === "/enter-name"}
+                onClose={() => {}}
+                email={signupData.email}
+                password={signupData.password}
+                onSignUpSuccess={handleSignUpSuccess}
+              />
+            ) : null
           }
         />
       </Routes>

@@ -1,29 +1,15 @@
 import type { ReactNode } from "react";
 import Navbar from "./Navbar";
+import type { AuthHandlers } from "./apis/auth";
 
-interface LayoutProps {
+interface LayoutProps extends AuthHandlers {
   children: ReactNode;
-  username: string;
-  isLoggedIn: boolean;
-  onLogin: (email: string, password: string) => void;
-  onLogout: () => void;
 }
 
-export default function Layout({
-  children,
-  username,
-  isLoggedIn,
-  onLogin,
-  onLogout,
-}: LayoutProps) {
+export default function Layout({ children, ...authHandlers }: LayoutProps) {
   return (
     <div className="min-h-screen">
-      <Navbar
-        username={username}
-        isLoggedIn={isLoggedIn}
-        onLogin={onLogin}
-        onLogout={onLogout}
-      />
+      <Navbar {...authHandlers} />
       <main>{children}</main>
     </div>
   );
