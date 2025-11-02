@@ -4,7 +4,7 @@ import axios from 'axios';
 export const postSignup = async (
     body: RequestSignupDto,
 ): Promise<ResponseSignupDto> => {
-    const { data } = await axios.post("http://localhost:8000/v1/auth/signup", body);
+    const { data } = await axios.post(import.meta.env.VITE_SERVER_API_URL + "/v1/auth/signup", body);
 
     return data;
 };
@@ -12,7 +12,7 @@ export const postSignup = async (
 export const postSignin = async (
     body: RequestSigninDto,
 ): Promise<ResponseSigninDto> => {
-    const { data } = await axios.post("http://localhost:8000/v1/auth/signin", body);
+    const { data } = await axios.post(import.meta.env.VITE_SERVER_API_URL + "h/v1/auth/signin", body);
 
     return data;
 };
@@ -40,7 +40,7 @@ export const getMyInfo = async () : Promise<ResponseMyInfoDto> => {
         }
     };
 
-    const { data } = await axios.get("http://localhost:8000/v1/users/me", config);
+    const { data } = await axios.get(import.meta.env.VITE_SERVER_API_URL + "/v1/users/me", config);
 
     return data;
 };
