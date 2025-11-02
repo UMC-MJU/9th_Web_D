@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { loginSchema, type LoginFormData } from '../../schemas/auth';
 import { useLocalStorage, type UserInfo, type AuthToken, defaultUserInfo, defaultAuthToken } from '../../hooks/useLocalStorage';
+import { tokenStorage } from '../../lib/token';
 
 
 const LoginPage = () => {
@@ -31,6 +32,7 @@ const LoginPage = () => {
         // 임시 토큰 생성 (실제로는 서버에서 받아야 함)
         const mockToken = `mock_login_token_${Date.now()}`;
         const mockRefreshToken = `mock_login_refresh_token_${Date.now()}`;
+        tokenStorage.set(mockToken, mockRefreshToken);
         
         // 사용자 정보 저장 (로그인 시에는 기존 정보를 업데이트)
         const updatedUserInfo: UserInfo = {
