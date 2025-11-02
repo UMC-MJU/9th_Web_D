@@ -49,3 +49,12 @@ export interface ApiError {
   message: string;
   error?: string;
 }
+
+// 인증 관련 공통 Props 타입
+export interface AuthHandlers {
+  username: string;
+  isLoggedIn: boolean;
+  onLoginSuccess: (username: string) => void;
+  onLogout: () => void;
+  onSignUpStart: (email: string, password: string) => void;
+}
