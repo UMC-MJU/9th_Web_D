@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Layout from "./Layout";
 import NameEnterModal from "./components/NameEnterModal";
+import MyPage from "./pages/MyPage";
 import { STORAGE_KEYS } from "./constants";
 
 function App() {
@@ -53,6 +54,7 @@ function App() {
         </div>
       </Layout>
       <Routes>
+        <Route path="/me" element={<MyPage />} />
         <Route
           path="/enter-name"
           element={
