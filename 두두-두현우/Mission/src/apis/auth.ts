@@ -42,6 +42,24 @@ export interface LoginResponse {
   };
 }
 
+// 토큰 재발급 요청 타입
+export interface RefreshTokenRequest {
+  refresh: string;
+}
+
+// 토큰 재발급 응답 타입
+export interface RefreshTokenResponse {
+  status: boolean;
+  statusCode: number;
+  message: string;
+  data: {
+    id: number;
+    name: string;
+    accessToken: string;
+    refreshToken: string;
+  };
+}
+
 // 에러 응답 타입
 export interface ApiError {
   status: boolean;

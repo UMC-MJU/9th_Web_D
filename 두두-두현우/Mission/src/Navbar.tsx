@@ -26,9 +26,8 @@ export default function Navbar({
   };
 
   const handleGoogleLogin = () => {
-    // 구글 소셜 로그인 로직 (TODO: 구글 OAuth 구현)
-    console.log("구글 로그인");
-    setIsLoginModalOpen(false);
+    // 구글 소셜 로그인: 백엔드 구글 로그인 URL로 리다이렉트
+    window.location.href = "http://localhost:8000/v1/auth/google/login";
   };
 
   return (
