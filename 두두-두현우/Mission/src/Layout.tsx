@@ -1,16 +1,14 @@
-import type { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import type { AuthHandlers } from "./apis/auth";
 
-interface LayoutProps extends AuthHandlers {
-  children: ReactNode;
-}
-
-export default function Layout({ children, ...authHandlers }: LayoutProps) {
+export default function Layout(authHandlers: AuthHandlers) {
   return (
     <div className="min-h-screen">
       <Navbar {...authHandlers} />
-      <main>{children}</main>
+      <main>
+        <Outlet />
+      </main>
     </div>
   );
 }

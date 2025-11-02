@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Layout from "./Layout";
 import NameEnterModal from "./components/NameEnterModal";
+import HomePage from "./pages/HomePage";
 import MyPage from "./pages/MyPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import { STORAGE_KEYS } from "./constants";
 
 function App() {
@@ -38,39 +40,42 @@ function App() {
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
   };
 
+  const layoutProps = {
+    username,
+    isLoggedIn,
+    onLoginSuccess: handleLoginSuccess,
+    onLogout: handleLogout,
+    onSignUpStart: handleSignUpStart,
+  };
+
   return (
-    <>
-      <Layout
-        username={username}
-        isLoggedIn={isLoggedIn}
-        onLoginSuccess={handleLoginSuccess}
-        onLogout={handleLogout}
-        onSignUpStart={handleSignUpStart}
-      >
-        <div className="flex items-center justify-center min-h-screen">
-          <h1 className="text-4xl font-bold text-white">
-            {username ? `Welcome, ${username}!` : "Welcome"}
-          </h1>
-        </div>
-      </Layout>
-      <Routes>
-        <Route path="/me" element={<MyPage />} />
-        <Route
-          path="/enter-name"
-          element={
-            signupData ? (
-              <NameEnterModal
-                isOpen={location.pathname === "/enter-name"}
-                onClose={() => {}}
-                email={signupData.email}
-                password={signupData.password}
-                onSignUpSuccess={handleSignUpSuccess}
-              />
-            ) : null
-          }
-        />
-      </Routes>
-    </>
+    <Routes>
+      {/* Layout이 필요한 페이지들 */}
+      <Route element={<Layout {...layoutProps} />}>
+        <Route path="/" element={<HomePage username={username} />} />
+        <Route path="/me" element={<MyPage isLoggedIn={isLoggedIn} />} />
+      </Route>
+
+      {/* Layout이 필요없는 페이지들 */}
+      <Route path="/404" element={<NotFoundPage />} />
+      <Route
+        path="/enter-name"
+        element={
+          signupData ? (
+            <NameEnterModal
+              isOpen={location.pathname === "/enter-name"}
+              onClose={() => {}}
+              email={signupData.email}
+              password={signupData.password}
+              onSignUpSuccess={handleSignUpSuccess}
+            />
+          ) : null
+        }
+      />
+
+      {/* 존재하지 않는 모든 경로 → 404 페이지 */}
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   );
 }
 
