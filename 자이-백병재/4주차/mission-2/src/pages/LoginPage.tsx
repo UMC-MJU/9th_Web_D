@@ -27,6 +27,10 @@ const LoginPage = () => {
         }
     }
 
+    const googleSubmit = () => {
+        window.location.href = import.meta.env.VITE_SERVER_API_URL + "/v1/auth/google/login";
+    }
+
     const inputStyle = `
     border border-3 border-gray-200 focus:border-[#FFA900] focus:outline-none 
     rounded-lg w-xs h-10 p-2.5 text-white
@@ -76,8 +80,11 @@ const LoginPage = () => {
                     <div className="flex-grow h-px bg-white"></div>
                 </div>
 
-                <button className={`${buttonStyle} bg-white hover:bg-[#FFA900]`} 
-                type={"submit"}>Google</button>
+                <button className={`${buttonStyle} bg-white hover:bg-[#dddddd]`} 
+                type={"submit"} onClick={googleSubmit}>
+                    <img src="/images/google.svg" alt="Google Logo"
+                    style={{ width: '100px', height: 'auto' }}/>
+                </button>
 
                 <div className="flex justify-center items-center">
                     <p className="text-sm text-white">Don't have an account?</p>
