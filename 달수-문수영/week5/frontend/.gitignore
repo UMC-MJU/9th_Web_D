@@ -1,0 +1,31 @@
+# Logs
+logs
+*.log
+pnpm-debug.log*
+
+# Dependencies / builds
+node_modules/
+dist/
+dist-ssr/
+build/
+
+# Local overrides
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+**/.vscode/
+**/.idea/
+*.code-workspace
+
+**/.DS_Store
+**/Thumb
