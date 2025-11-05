@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+const RETRY_TIME = 1000;                // 재시도 초기 대기시간
 
 // 파라매터 타입 정의
 interface UseCustomQueryParams<T> {
@@ -27,10 +29,12 @@ export const useCustomQuery = <T,>({
     const [isError, setIsError] = useState<boolean>(false);       // 에러 여부
     const [error, setError] = useState<Error | null>(null);       // 에러 값
 
+    const retryTimeoutRef = useRef<number | null>(null);          // retry 횟수
+
     useEffect(() => {
     // 데이터를 가져오는 함수 정의
-    const fetchData = async () => {
-        
+    const fetchData = async (currentRetry = 0) => {
+
         const currentTime = new Date().getTime();                           // 현재 시간 가져오기
         const cachedItem = localStorage.getItem(JSON.stringify(queryKey));  // 가지고 있는 아이템 확인
 
@@ -67,21 +71,34 @@ export const useCustomQuery = <T,>({
                 data: result,
                 lastFetchedTime: new Date().getTime(),
             }
-            localStorage.setItem(JSON.stringify(queryKey), JSON.stringify(newCacheData))
-
+            localStorage.setItem(JSON.stringify(queryKey), JSON.stringify(newCacheData));
+            setIsPending(false);
         } catch (err) {
+
+            if(currentRetry < retry) {
+                const retryDelay = Math.min(RETRY_TIME * Math.pow(2, currentRetry), 10000);  // 제곱으로 늘어남
+                retryTimeoutRef.current = setTimeout(() => {
+                    fetchData(currentRetry + 1);
+                }, retryDelay);
+            } else {
             // 실패 시 에러 저장
             setIsError(true);
             setError(err as Error);
-        } finally {
-            // 로딩 종료
             setIsPending(false);
+            }
         }
     };
 
     // 함수 실행
     fetchData();
 
+    // 메모리 청소
+    return () => {
+        if(retryTimeoutRef.current !== null) {
+            clearTimeout(retryTimeoutRef.current);
+            retryTimeoutRef.current = null;
+        }
+    }
   }, [JSON.stringify(queryKey), queryFn]); // queryKey가 바뀌면 다시 실행
 
   return { data, isPending, isError, error };
