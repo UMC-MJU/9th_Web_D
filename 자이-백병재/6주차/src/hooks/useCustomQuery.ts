@@ -14,7 +14,7 @@ interface UseCustomQueryParams<T> {
 // 로컬스토리지 저장할 데이터 구조
 interface CacheEntry<T> {
     data: T;
-    lastFetchedTime: number;    // staleTime과 비교용
+    lastFetchedTime: number;    // staleTime, gcTime과 비교용
 }
 
 export const useCustomQuery = <T,>({ 
@@ -41,13 +41,20 @@ export const useCustomQuery = <T,>({
         if(cachedItem) {
             try{
                 const cachedData: CacheEntry<T> = JSON.parse(cachedItem);   // 데이터 파싱
+                const dataAge = currentTime - cachedData.lastFetchedTime;
 
-                setData(cachedData.data); // 만료시에도 마지막 데이터를 사용
+                if(dataAge > gcTime) {
+                    // gcTime보다 오래됬으면 데이터를 다시 가져옴
+                    localStorage.removeItem(JSON.stringify(queryKey));
+                } else {
+                    // 신선도 체크
+                    setData(cachedData.data); // 만료시에도 마지막 데이터를 사용
 
-                if(currentTime - cachedData.lastFetchedTime < staleTime) {  // 신선할 경우 종료
-                    setIsPending(false);
-                    return;
-                }
+                    if(currentTime - cachedData.lastFetchedTime < staleTime) {  // 신선할 경우 종료
+                        setIsPending(false);
+                        return;
+                    }
+            }
             } catch(err) {
                 localStorage.removeItem(JSON.stringify(queryKey));
                 setError(err as Error);
