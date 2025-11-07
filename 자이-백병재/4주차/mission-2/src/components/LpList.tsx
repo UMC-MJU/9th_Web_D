@@ -4,10 +4,11 @@ import LpCard from "./LpCard";
 
 export function LpList() {
     const [search, setSearch] = useState("");
-
+    const [order, setOrder] = useState('desc');
     const { data, isLoading, isError } = useGetLp({
         search: search,
-        limit: 36
+        limit: 36,
+        order: order,
     });
 
     const lpListArray = data?.data?.data;
@@ -37,6 +38,30 @@ export function LpList() {
                                focus:placeholder-gray-500"
                 />
             </div>
+
+            {/* 정렬 */}
+                <div className="col-span-full flex justify-end gap-2 mb-4 mr-10">
+                    <button
+                        onClick={() => setOrder('desc')}
+                        className={`px-3 py-1 text-sm rounded-md transition-colors
+                            ${order === 'desc' 
+                                ? 'bg-[#FFA900] text-white' 
+                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                            }`}
+                    >
+                        최신순
+                    </button>
+                    <button
+                        onClick={() => setOrder('asc')} 
+                        className={`px-3 py-1 text-sm rounded-md transition-colors
+                            ${order === 'asc' 
+                                ? 'bg-[#FFA900] text-white' 
+                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                            }`}
+                    >
+                        오래된순
+                    </button>
+                </div>
 
             {/* 로딩 및 에러 */}
             {isLoading && <div className="text-white text-center p-10">로딩 중...</div>}
