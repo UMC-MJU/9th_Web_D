@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage";
+import LpList from "../components/LpList";
 
 const MainPage = () => {
     const { getItem, removeItem } = useLocalStorage('signupSuccess');
@@ -14,7 +15,7 @@ const MainPage = () => {
     }, []);
 
     return (
-        <h1>Main</h1>
+        <LpList />
     );
 };
 
