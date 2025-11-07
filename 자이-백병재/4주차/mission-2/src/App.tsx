@@ -8,6 +8,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import PrivateLayout from './layouts/privateLayout';
 import ErrorPage from './pages/ErrorPage';
 import PlayPage from './pages/PlayPage';
+import GoogleLoginPage from './pages/GoogleLoginPage';
 
 const publicRouter = [{
   path: "/",
@@ -17,6 +18,7 @@ const publicRouter = [{
       { index: true, element: <MainPage /> },
       { path: "login", element: <LoginPage /> },
       { path: "signup", element: <SignupPage /> },
+      { path: "v1/auth/google/callback", element: <GoogleLoginPage />},
     ],
   }]
 
