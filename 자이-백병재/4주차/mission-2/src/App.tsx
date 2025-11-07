@@ -9,6 +9,8 @@ import PrivateLayout from './layouts/privateLayout';
 import ErrorPage from './pages/ErrorPage';
 import PlayPage from './pages/PlayPage';
 import GoogleLoginPage from './pages/GoogleLoginPage';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const publicRouter = [{
   path: "/",
@@ -32,11 +34,16 @@ const publicRouter = [{
 
 const router = createBrowserRouter([...publicRouter, ...privateRouter]);
 
+const queryClient = new QueryClient();
+
 function App() {
  return (
-   <AuthProvider>
-    <RouterProvider router={router} />
-  </AuthProvider>
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+    <ReactQueryDevtools initialIsOpen={false} />
+  </QueryClientProvider>
  )
 }
 
