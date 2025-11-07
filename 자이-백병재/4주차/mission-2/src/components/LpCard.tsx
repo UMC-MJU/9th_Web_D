@@ -15,6 +15,7 @@ type LpItem = {
 
 interface LpProps { 
     lp: LpItem;
+    setSearch: (keyWord: string) => void;
 }
 
 function formatDate(dateString: Date) {
@@ -28,44 +29,54 @@ function formatDate(dateString: Date) {
   return `${year}.${month}.${day}`;
 }
 
-function LpCard({ lp }: LpProps) {
+function LpCard({ lp, setSearch }: LpProps, ) {
   
-  // 날짜
-  const formattedDate = formatDate(lp.createdAt); 
+    // 날짜
+    const formattedDate = formatDate(lp.createdAt); 
 
-  // 2. 태그 데이터 처리
-  const tagNames = (lp.tags && lp.tags.length > 0) 
-    ? lp.tags.map(tag => tag.name).join(' · ')
-    : null; // 태그가 없으면 null
+    const tagsArray = lp.tags || [];
 
-  return (
-    <div className="group relative rounded-lg overflow-hidden aspect-square">
+    return (
+        <div className="group relative rounded-lg overflow-hidden aspect-square">
       
-      {/* 이미지 */}
-      <img
-        src={lp.thumbnail}
-        alt={lp.title}
-        className="group-hover:blur-md group-hover:brightness-25 rounded-lg w-full h-full object-cover transition-all duration-200"
-      />
+        {/* 이미지 */}
+        <img
+            src={lp.thumbnail}
+            alt={lp.title}
+            className="group-hover:blur-md group-hover:brightness-25 rounded-lg w-full h-full object-cover transition-all duration-200"
+        />
       
-      {/* 2. 호버 시 나타나는 정보 */}
-      <div className="absolute p-4 inset-0 flex flex-col justify-end 
-                      opacity-0 group-hover:opacity-100 transition-all duration-200 text-white bg-gradient-to-t from-black/80 to-transparent">
+        {/* 2. 호버 시 나타나는 정보 */}
+        <div className="absolute p-4 inset-0 flex flex-col justify-end 
+                        opacity-0 group-hover:opacity-100 transition-all duration-200 text-white bg-gradient-to-t from-black/80 to-transparent">
         
-        {/* Likes / Date */}
-        <div className="text-sm md:text-md lg:text-lg flex justify-between w-full">
-          <span>
-            ♥ {lp.likes.length}
-          </span>
-          <span className="text-gray-300"> 
-            {formattedDate}
-          </span>
-        </div>
+            {/* Likes / Date */}
+            <div className="text-sm md:text-md lg:text-lg flex justify-between w-full">
+            <span>
+                ♥ {lp.likes.length}
+            </span>
+            <span className="text-gray-300"> 
+                {formattedDate}
+            </span>
+            </div>
 
-        {/* Tags  */}
-        <p className="text-xs text-gray-300 line-clamp-1 mt-1">
-          {tagNames ? tagNames : '\u00A0'}
-        </p>
+        {/* Tags */}
+        <div className="flex flex-wrap gap-1 mt-1 h-5 overflow-hidden">
+            {tagsArray.length > 0 ? (
+                tagsArray.map((tag) => (
+                <button
+                    key={tag.id}
+                    onClick={(e) => setSearch(tag.name)}
+                    className="px-2 py-0.5 bg-blue-500/70 text-white text-xs rounded-full hover:bg-blue-400 focus:outline-none"
+                >
+                    {tag.name}
+                </button>
+                ))
+            ) : (
+                // 태그가 없을 때 공간을 유지하기 위한 공백
+                <span className="text-xs">&nbsp;</span> 
+            )}
+            </div>
 
         {/* Title */}
         <h3 className="font-bold line-clamp-2 mt-1">{lp.title}</h3>

@@ -1,12 +1,65 @@
+import { useState } from 'react'; // 1. (필수) useState를 import 해야 합니다.
 import useGetLp from "../hooks/queries/useGetLp";
 import LpCard from "./LpCard";
 
 export function LpList() {
-    const { data } = useGetLp({});
+    const [search, setSearch] = useState("");
 
-    return <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 m-5">
-    {data?.data?.data.map((lp)=><LpCard lp={lp} />)}</div>
+    const { data, isLoading, isError } = useGetLp({
+        search: search,
+        limit: 36
+    });
 
+    const lpListArray = data?.data?.data;
+
+    return (
+        // 전체를 감싸는 div
+        <div className="w-full min-h-screen"> 
+            
+            {/* 검색창 UI */}
+            <div className={`p-2 transition-all duration-300 ease-in-out
+                             fixed top-0 left-1/2 transform -translate-x-1/2 
+                             w-11/12 md:w-1/2 lg:w-1/3 z-100`}> 
+                <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="앨범명, 아티스트, 태그 등으로 검색..."
+                    className="w-full p-3 text-lg text-white rounded-lg outline-none 
+                               transition-all duration-300 ease-in-out
+                               
+                               bg-black/50
+                               border-2 border-gray-400 
+                                placeholder-transparent
+
+                               focus:bg-gray-700 
+                               focus:border-[#FFA900]
+                               focus:placeholder-gray-500"
+                />
+            </div>
+
+            {/* 로딩 및 에러 */}
+            {isLoading && <div className="text-white text-center p-10">로딩 중...</div>}
+            {isError && <div className="text-red-500 text-center p-10">데이터 로드 중 에러가 발생했습니다.</div>}
+
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 m-5">
+                {lpListArray?.map((lp) => (
+                    <LpCard 
+                        key={lp.id} 
+                        lp={lp} 
+                        setSearch={setSearch} // LpCard의 태그 버튼으로 검색할 경우
+                    />
+                ))}
+            </div>
+
+            {/* 검색 결과가 없음 */}
+            {!isLoading && lpListArray?.length === 0 && (
+                <div className="text-gray-400 text-center p-10">
+                    "{search}"에 대한 검색 결과가 없습니다.
+                </div>
+            )}
+        </div>
+    );
 }
 
 export default LpList;
