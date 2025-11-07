@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import type { Likes, Tags } from "../types/lp";
+import formatDate from "../utils/formatDate";
 
 type LpItem = {
     id: number;
@@ -17,17 +18,6 @@ type LpItem = {
 interface LpProps { 
     lp: LpItem;
     setSearch: (keyWord: string) => void;
-}
-
-function formatDate(dateString: Date) {
-  if (!dateString) return ''; // 날짜가 없으면 빈칸 반환
-  
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  
-  return `${year}.${month}.${day}`;
 }
 
 function LpCard({ lp, setSearch }: LpProps, ) {

@@ -2,12 +2,7 @@ import { useParams } from 'react-router-dom';
 import useGetLpDetail from '../hooks/queries/useGetLpDetail'; 
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
-
-function formatDate(date: Date) { 
-  if (!date) return '';
-  const d = new Date(date);
-  return `${d.getFullYear()}.${(d.getMonth() + 1).toString().padStart(2, '0')}.${d.getDate().toString().padStart(2, '0')}`;
-}
+import formatDate from '../utils/formatDate';
 
 export function LpDetailPage() {
   const { lpid } = useParams(); 
