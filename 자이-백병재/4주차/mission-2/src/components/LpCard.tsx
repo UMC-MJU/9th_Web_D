@@ -1,3 +1,4 @@
+import { NavLink } from "react-router-dom";
 import type { Likes, Tags } from "../types/lp";
 
 type LpItem = {
@@ -37,7 +38,7 @@ function LpCard({ lp, setSearch }: LpProps, ) {
     const tagsArray = lp.tags || [];
 
     return (
-        <div className="group relative rounded-lg overflow-hidden aspect-square">
+        <NavLink className="group relative rounded-lg overflow-hidden aspect-square" to={`/lp/${lp.id}`}>
       
         {/* 이미지 */}
         <img
@@ -82,7 +83,7 @@ function LpCard({ lp, setSearch }: LpProps, ) {
         <h3 className="font-bold line-clamp-2 mt-1">{lp.title}</h3>
 
       </div>
-    </div>
+    </NavLink>
   );
 }
 

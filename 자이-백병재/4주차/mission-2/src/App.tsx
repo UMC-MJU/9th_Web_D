@@ -11,6 +11,7 @@ import PlayPage from './pages/PlayPage';
 import GoogleLoginPage from './pages/GoogleLoginPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import LpDetailPage from './pages/LpDetailPage';
 
 const publicRouter = [{
   path: "/",
@@ -29,6 +30,7 @@ const publicRouter = [{
   element: <PrivateLayout />,
       children: [
       { path: "play", element: <PlayPage /> },
+      { path: "lp/:lpid", element: <LpDetailPage />}
     ],
   }]
 

@@ -1,3 +1,4 @@
+import type { ResponseMyInfoDto } from "./auth";
 
 export type CursorBasedResponse<T> = { 
     status: boolean;
@@ -26,7 +27,7 @@ export type Likes = {
     lpId: number;
 }
 
-export type ResponseLpListDTO = CursorBasedResponse<{
+export type ResponseLpDTO = CursorBasedResponse<{
     data: {
         id: number;
         title: string;
@@ -38,5 +39,21 @@ export type ResponseLpListDTO = CursorBasedResponse<{
         updatedAt: Date;
         tags: Tags[];
         likes: Likes[];
-    }[];
+    };
+}>;
+
+export type ResponseLpDetailDTO = CursorBasedResponse<{
+    data: {
+        id: number;
+        title: string;
+        content: string;
+        thumbnail: string;
+        published: boolean;
+        authorId: number;
+        createdAt: Date;
+        updatedAt: Date;
+        author?: ResponseMyInfoDto;
+    };
+    tags: Tags[];
+    likes: Likes[];
 }>;

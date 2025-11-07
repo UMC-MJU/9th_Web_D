@@ -1,11 +1,11 @@
 import { useState } from 'react'; // 1. (필수) useState를 import 해야 합니다.
-import useGetLp from "../hooks/queries/useGetLp";
 import LpCard from "./LpCard";
+import useGetLpList from '../hooks/queries/useGetLpList';
 
 export function LpList() {
     const [search, setSearch] = useState("");
     const [order, setOrder] = useState('desc');
-    const { data, isLoading, isError } = useGetLp({
+    const { data, isLoading, isError } = useGetLpList({
         search: search,
         limit: 36,
         order: order,

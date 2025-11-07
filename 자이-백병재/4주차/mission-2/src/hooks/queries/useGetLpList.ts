@@ -3,7 +3,7 @@ import type { PaginationDTO } from "../../types/lp";
 import { getLpList } from "../../apis/lp";
 import { QUERY_KEY } from "../../constants/key";
 
-function useGetLp({ cursor, search, order, limit }: PaginationDTO) {
+function useGetLpList({ cursor, search, order, limit }: PaginationDTO) {
     return useQuery({
         queryKey:[QUERY_KEY, search, order, limit],
         queryFn: () => getLpList({
@@ -15,4 +15,4 @@ function useGetLp({ cursor, search, order, limit }: PaginationDTO) {
     });
 }
 
-export default useGetLp;
+export default useGetLpList;
