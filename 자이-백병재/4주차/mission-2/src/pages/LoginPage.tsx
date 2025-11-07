@@ -1,10 +1,13 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import useForm from "../hooks/useForm";
 import { validateSignup, type UserSignupInformation } from "../utils/validate";
 import { useAuth } from "../contexts/AuthContext";
 import { useEffect } from "react";
 
 const LoginPage = () => {
+    const location = useLocation();
+    const from = location.state?.from?.pathname || '/';
+
     const { values, errors, touched, getInputProps } = useForm<UserSignupInformation>({
         initValue: { email: "", password: "" },
         validate: validateSignup,
@@ -15,13 +18,13 @@ const LoginPage = () => {
 
     useEffect( () => {
         if(accessToken)
-            navigate("/");
+            navigate(from);
     }, [navigate, accessToken])
 
     const loginSubmit = async () => {
         try{
             await login(values);
-            window.location.replace("/");
+            navigate(from);
         } catch (error) {
             console.error("Login failed:", error);
         }
