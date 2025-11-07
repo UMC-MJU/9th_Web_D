@@ -1,6 +1,8 @@
 import { useState } from 'react'; // 1. (필수) useState를 import 해야 합니다.
 import LpCard from "./LpCard";
 import useGetLpList from '../hooks/queries/useGetLpList';
+import LoadingSpinner from './LoadingSpinner';
+import ErrorPage from '../pages/ErrorPage';
 
 export function LpList() {
     const [search, setSearch] = useState("");
@@ -64,8 +66,8 @@ export function LpList() {
                 </div>
 
             {/* 로딩 및 에러 */}
-            {isLoading && <div className="text-white text-center p-10">로딩 중...</div>}
-            {isError && <div className="text-red-500 text-center p-10">데이터 로드 중 에러가 발생했습니다.</div>}
+            {isLoading && <LoadingSpinner />}
+            {isError && <ErrorPage />}
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 m-5">
                 {lpListArray?.map((lp) => (

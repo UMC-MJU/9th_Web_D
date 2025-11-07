@@ -1,8 +1,8 @@
 import { useParams } from 'react-router-dom';
 import useGetLpDetail from '../hooks/queries/useGetLpDetail'; 
+import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorPage from './ErrorPage';
 
-const LoadingSpinner = () => <div className="text-white text-center p-20">로딩 중...</div>;
-const ErrorDisplay = ({ message }: { message: string }) => <div className="text-red-500 text-center p-20">{message}</div>;
 function formatDate(date: Date) { 
   if (!date) return '';
   const d = new Date(date);
@@ -17,20 +17,15 @@ export function LpDetailPage() {
     data: response, 
     isLoading, 
     isError,
-    error 
   } = useGetLpDetail(numericLpId);
 
   const lp = response?.data; 
 
-  // --- (로딩/에러 가드) ---
   if (isLoading) {
     return <LoadingSpinner />;
   }
-  if (isError) {
-    return <ErrorDisplay message={error?.message || '...'} />;
-  }
-  if (!lp) {
-    return <ErrorDisplay message="LP 정보를 찾을 수 없습니다." />;
+  if (isError || !lp) {
+    return <ErrorPage />;
   }
 
   return (
