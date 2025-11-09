@@ -1,4 +1,4 @@
-import type { CommentParms, CommentResponseDto } from '../types/comment';
+import type { CommentParms, CommentResponseDto, CreateCommentParams, CreateCommentRequest } from '../types/comment';
 import type { CursorBasedResponse } from './../types/lp';
 import { axiosInstance } from './axios';
 
@@ -10,3 +10,13 @@ export const getCommentList = async(CommentParms: CommentParms): Promise<CursorB
 
     return data;
 }
+
+export const createComment = async({lpId, content}: CreateCommentParams): Promise<CommentResponseDto> => {
+    const requestBody: CreateCommentRequest = { content };
+
+  const response = await axiosInstance.post(`/v1/lps/${lpId}/comments`,
+    requestBody
+  );
+
+  return response.data;
+} ;

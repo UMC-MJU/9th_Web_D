@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import type { CommentResponseDto } from '../types/comment';
-import { useGetInfiniteCommentList } from '../hooks/queries/useGetInfinityCommentList';
-import CommentSkeleton from './CommentSkeleton';
+import { useGetInfiniteCommentList } from '../hooks/queries/useGetInfinityCommentList'; 
+import { useCreateComment } from '../hooks/queries/useCreateComment';
 
 export function CommentList({ id }: { id: number }) {
   const [order, setOrder] = useState<'desc' | 'asc'>('desc');
   const [newComment, setNewComment] = useState('');
-
-
+  
   const {
     data: comments,
     hasNextPage,
@@ -16,12 +15,13 @@ export function CommentList({ id }: { id: number }) {
     isFetching,
     fetchNextPage,
     isError,
-    refetch,
   } = useGetInfiniteCommentList({
     lpId: id,
-    limit: 3,
+    limit: 30,
     order: order,
   });
+
+  const createCommentMutation = useCreateComment(id); // useMutation의 결과 반환(mutate 함수와 isPending 상태)
 
   const { ref, inView } = useInView();
 
@@ -31,26 +31,35 @@ export function CommentList({ id }: { id: number }) {
     }
   }, [inView, isFetching, hasNextPage, fetchNextPage]);
 
+  // '등록' 버튼 클릭 시 실행되는 함수
   const handleCommentSubmit = (e: React.FormEvent) => {
-    e.preventDefault(); // 폼 기본 동작(새로고침) 방지
-    if (!newComment.trim()) return; // 비어있는 내용이면 등록하지 않음
-    
-    console.log('등록할 댓글:', newComment);
+    e.preventDefault(); 
+    if (!newComment.trim()) return; 
 
-    setNewComment('');
-    refetch();
+    // 여기서 실제 api 보냄
+    createCommentMutation.mutate(
+      { lpId: id, content: newComment },
+      {
+        onSuccess: () => {
+          setNewComment(''); // 성공 시 입력창 비우기
+        },
+      }
+    );
   };
 
-  // 로딩 상태
+  // 로딩 상태 (목록 가져오기)
   if (isPending) {
     return (
       <div className="w-full space-y-4">
-        <CommentSkeleton />
+        <div className="p-4 bg-gray-800 rounded-lg shadow animate-pulse">
+          <div className="h-4 bg-gray-700 rounded w-1/4 mb-3"></div>
+          <div className="h-5 bg-gray-700 rounded w-full"></div>
+        </div>
       </div>
     );
   }
 
-  // 에러 상태
+  // 에러 상태 (목록 가져오기)
   if (isError) {
     return (
       <div className="w-full flex justify-center items-center py-10">
@@ -65,6 +74,7 @@ export function CommentList({ id }: { id: number }) {
 
   return (
     <div className="w-full">
+      {/* 댓글 헤더 */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-white">댓글</h2>
       </div>
@@ -74,21 +84,22 @@ export function CommentList({ id }: { id: number }) {
         <textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          className="w-full p-3 bg-gray-700 text-gray-300 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#FFA900]"
+          className="w-full p-3 bg-gray-700 text-gray-300 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#FFA900] disabled:opacity-50"
           rows={3}
           placeholder="댓글을 입력하세요..."
         />
         <div className="flex justify-end mt-2">
           <button
             type="submit"
-            className="px-4 py-2 bg-[#FFA900] text-white text-sm font-semibold rounded-lg hover:bg-opacity-80 transition-colors disabled:opacity-50"
-            disabled={!newComment.trim()}
+            className="px-4 py-2 bg-[#FFA900] text-white text-sm font-semibold rounded-lg hover:bg-opacity-80 transition-colors disabled:opacity-50" 
+            disabled={!newComment.trim() || createCommentMutation.isPending} 
           >
-            등록
+            {createCommentMutation.isPending ? '등록 중...' : '등록'}
           </button>
         </div>
       </form>
 
+      {/* 정렬 버튼 */}
       <div className="col-span-full flex justify-end gap-2 mb-4">
         <button
           onClick={() => setOrder('desc')}
@@ -114,6 +125,7 @@ export function CommentList({ id }: { id: number }) {
         </button>
       </div>
 
+      {/* 댓글 목록 */}
       <div className="flex flex-col gap-4">
         {allComments.map((comment) => (
           <div 
@@ -124,7 +136,6 @@ export function CommentList({ id }: { id: number }) {
               <span className="font-semibold text-white">
                 {comment.author?.name || '익명'}
               </span>
-              
               <span className="text-sm text-gray-400">
                 {new Date(comment.createdAt).toLocaleDateString()}
               </span>
@@ -138,7 +149,10 @@ export function CommentList({ id }: { id: number }) {
         
         {/* 다음 페이지 로딩 스켈레톤 */}
         {isFetching && !isPending && (
-          <CommentSkeleton />
+          <div className="p-4 bg-gray-800 rounded-lg shadow animate-pulse">
+            <div className="h-4 bg-gray-700 rounded w-1/4 mb-3"></div>
+            <div className="h-5 bg-gray-700 rounded w-full"></div>
+          </div>
         )}
       </div>
 

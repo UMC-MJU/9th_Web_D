@@ -16,3 +16,12 @@ export type CommentParms = {
     limit?: number;
     order?: "asc" | "desc";
 }
+
+export type CreateCommentParams = {
+  lpId: number;
+  content: string;
+};
+
+export type CreateCommentRequest = {
+  content: string;
+};
