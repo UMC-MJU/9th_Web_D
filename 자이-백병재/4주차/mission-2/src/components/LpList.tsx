@@ -4,6 +4,7 @@ import LoadingSpinner from './LoadingSpinner';
 import ErrorPage from '../pages/ErrorPage';
 import { useGetInfiniteLpList } from '../hooks/queries/useGetInfinityLpList';
 import {useInView} from 'react-intersection-observer';
+import LpListSkeleton from './LpListSkeleton';
 
 export function LpList() {
     const [search, setSearch] = useState("");
@@ -17,7 +18,7 @@ export function LpList() {
         isError
      } = useGetInfiniteLpList({
         search: search,
-        limit: 36,
+        limit: 30,
         order: order,
     });
 
@@ -92,6 +93,7 @@ export function LpList() {
                         setSearch={setSearch} // LpCard의 태그 버튼으로 검색할 경우
                     />
                 ))}
+                {isFetching && <LpListSkeleton count={12}/>}
             </div>
 
             <div ref={ref} className="h-20" />
