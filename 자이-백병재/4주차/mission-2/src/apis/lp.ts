@@ -1,8 +1,8 @@
-import type { PaginationDTO, ResponseLpDetailDTO, ResponseLpDTO } from './../types/lp';
+import type { CursorBasedResponse, PaginationDTO, ResponseLpDetailDTO, ResponseLpDTO } from './../types/lp';
 import { axiosInstance } from './axios';
 
 
-export const getLpList = async(paginationDTO: PaginationDTO): Promise<ResponseLpDTO[]> => {
+export const getLpList = async(paginationDTO: PaginationDTO): Promise<CursorBasedResponse<ResponseLpDTO[]>> => {
     const { data } = await axiosInstance.get(`/v1/lps`, {
         params: paginationDTO,
     })
