@@ -13,5 +13,6 @@ export const API_ENDPOINTS = {
   LP: {
     LIST: "/v1/lps",
     DETAIL: (id: number | string) => `/v1/lps/${id}`,
+    COMMENTS: (id: number | string) => `/v1/lps/${id}/comments`,
   },
 } as const;
