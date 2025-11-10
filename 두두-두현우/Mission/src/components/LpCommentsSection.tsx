@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { KeyboardEvent } from "react";
 import {
   createLpComment,
   fetchLpComments,
@@ -125,6 +126,17 @@ export default function LpCommentsSection({
     }
   };
 
+  const handleCommentKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      if (!canSubmitComment || isSubmittingComment) {
+        return;
+      }
+
+      event.preventDefault();
+      void handleCommentSubmit();
+    }
+  };
+
   const handleLoadMoreComments = async () => {
     if (commentCursor === null || !commentHasNext) {
       return;
@@ -217,6 +229,7 @@ export default function LpCommentsSection({
               setCommentError(null);
             }
           }}
+          onKeyDown={handleCommentKeyDown}
           placeholder={
             canSubmitComment
               ? "댓글을 입력해주세요."
