@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int       @id @default(autoincrement())
+  name               String
+  email              String    @unique
+  bio                String?
+  avatar             String?
+  password           String?
+  hashedRefreshToken String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  lps                Lp[]
+  comments           Comment[]
+  likes              Like[]
+}
+
+model Lp {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  thumbnail String?
+  published Boolean
+  authorId  Int
+  author    User      @relation(fields: [authorId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  comments  Comment[]
+
+  tags  Tag[]  @relation("LpTags")
+  likes Like[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  lpId      Int
+  lp        Lp       @relation(fields: [lpId], references: [id], onDelete: Cascade)
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  lps  Lp[]   @relation("LpTags")
+}
+
+model Like {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  lpId   Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lp     Lp   @relation(fields: [lpId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lpId])
+}
