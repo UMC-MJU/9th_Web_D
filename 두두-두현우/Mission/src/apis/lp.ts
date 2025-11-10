@@ -6,6 +6,22 @@ export interface LpTag {
   name: string;
 }
 
+export interface LpLike {
+  id: number;
+  userId: number;
+  lpId: number;
+}
+
+export interface LpAuthor {
+  id: number;
+  name: string;
+  email: string;
+  bio: string | null;
+  avatar: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Lp {
   id: number;
   title: string;
@@ -16,7 +32,12 @@ export interface Lp {
   createdAt: string;
   updatedAt: string;
   tags: LpTag[];
-  likes: unknown[];
+  likes: LpLike[];
+  author?: LpAuthor;
+}
+
+export interface LpDetail extends Lp {
+  author: LpAuthor;
 }
 
 export interface LpListResponse {
@@ -55,6 +76,27 @@ export const fetchLpList = async (
     `${API_ENDPOINTS.LP.LIST}?${searchParams.toString()}`,
     {
       signal,
+    }
+  );
+
+  return data;
+};
+
+export interface LpDetailResponse {
+  status: boolean;
+  message: string;
+  statusCode: number;
+  data: LpDetail;
+}
+
+export const fetchLpDetail = async (
+  id: number | string,
+  options?: { signal?: AbortSignal }
+): Promise<LpDetailResponse> => {
+  const { data } = await axiosInstance.get<LpDetailResponse>(
+    API_ENDPOINTS.LP.DETAIL(id),
+    {
+      signal: options?.signal,
     }
   );
 

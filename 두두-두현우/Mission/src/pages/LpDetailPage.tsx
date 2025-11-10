@@ -1,0 +1,205 @@
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { fetchLpDetail, type LpDetail } from "../apis/lp";
+
+const fallbackThumbnail =
+  "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80";
+
+type DetailStatus = "idle" | "loading" | "success" | "error";
+
+export default function LpDetailPage() {
+  const { lpId } = useParams<{ lpId: string }>();
+  const navigate = useNavigate();
+  const [lp, setLp] = useState<LpDetail | null>(null);
+  const [status, setStatus] = useState<DetailStatus>("idle");
+  const [error, setError] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+
+  useEffect(() => {
+    if (!lpId) {
+      setStatus("error");
+      setError("잘못된 LP 정보입니다.");
+      return;
+    }
+
+    const controller = new AbortController();
+    let isMounted = true;
+
+    const loadDetail = async () => {
+      try {
+        setStatus("loading");
+        setError(null);
+        const response = await fetchLpDetail(lpId, {
+          signal: controller.signal,
+        });
+
+        if (!isMounted) {
+          return;
+        }
+
+        setLp(response.data);
+        setStatus("success");
+      } catch (detailError) {
+        if (!isMounted || controller.signal.aborted) {
+          return;
+        }
+
+        console.error("Failed to fetch LP detail:", detailError);
+        setError("LP 상세 정보를 불러오지 못했습니다.");
+        setStatus("error");
+      }
+    };
+
+    void loadDetail();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [lpId]);
+
+  const likeCount = useMemo(() => {
+    if (!lp) {
+      return 0;
+    }
+
+    const baseCount = Array.isArray(lp.likes) ? lp.likes.length : 0;
+    return isLiked ? baseCount + 1 : baseCount;
+  }, [lp, isLiked]);
+
+  const displayTags = useMemo(() => {
+    if (!lp || !lp.tags?.length) {
+      return ["태그 없음"];
+    }
+
+    return lp.tags.map((tag) => `#${tag.name}`);
+  }, [lp]);
+
+  const togglePlay = () => {
+    setIsPlaying((prev) => !prev);
+  };
+
+  const toggleLike = () => {
+    setIsLiked((prev) => !prev);
+  };
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  if (status === "loading" || status === "idle") {
+    return (
+      <div className="min-h-screen bg-[#010102] text-white">
+        <div className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-6">
+          <p className="text-white/70">LP 정보를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "error" || !lp) {
+    return (
+      <div className="min-h-screen bg-[#010102] text-white">
+        <div className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-6 text-center">
+          <p className="text-red-400">
+            {error ?? "LP 정보를 찾을 수 없습니다."}
+          </p>
+          <button
+            type="button"
+            onClick={handleBack}
+            className="mt-6 rounded-full bg-white/10 px-5 py-2 text-sm text-white transition hover:bg-white/20"
+          >
+            뒤로가기
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const thumbnail = lp.thumbnail || fallbackThumbnail;
+
+  return (
+    <div className="min-h-screen bg-[#010102] text-white">
+      <div className="mx-auto flex min-h-screen max-w-4xl flex-col px-6 py-12">
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="text-sm text-white/70 transition hover:text-white"
+          >
+            ← 목록으로
+          </button>
+        </div>
+
+        <div className="mt-10 flex flex-1 flex-col items-center">
+          <h1 className="text-3xl font-semibold text-white">{lp.title}</h1>
+          <p className="mt-2 text-sm text-white/60">
+            {lp.author?.name ? `by ${lp.author.name}` : "작성자 정보 없음"}
+          </p>
+
+          <div className="relative mt-10 flex w-full flex-col items-center">
+            <div
+              className={`relative h-72 w-72 rounded-full border border-white/5 bg-black/60 shadow-[0_30px_90px_rgba(0,0,0,0.55)] transition-transform duration-700 ease-out ${
+                isPlaying ? "animate-spin" : ""
+              }`}
+              style={{
+                backgroundImage: `url(${thumbnail})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                animationDuration: "6s",
+              }}
+            >
+              <div className="absolute inset-0 rounded-full border border-white/10" />
+              <button
+                type="button"
+                onClick={togglePlay}
+                aria-label={isPlaying ? "일시정지" : "재생"}
+                className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-sm font-semibold text-black shadow-lg transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/60"
+              >
+                {isPlaying ? "Ⅱ" : "▶"}
+              </button>
+            </div>
+          </div>
+
+          <p className="mt-10 text-center text-sm text-white/70">
+            {lp.content || "LP 설명이 제공되지 않았습니다."}
+          </p>
+
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            {displayTags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full bg-white/10 px-4 py-1 text-xs text-white/80"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-10 flex items-center gap-3 text-white/70">
+            <button
+              type="button"
+              onClick={toggleLike}
+              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm transition ${
+                isLiked
+                  ? "bg-rose-500 text-white"
+                  : "bg-white/10 hover:bg-white/20"
+              }`}
+            >
+              <span aria-hidden>❤️</span>
+              <span>{likeCount}</span>
+            </button>
+            <span className="text-xs text-white/50">
+              {new Date(lp.createdAt).toLocaleDateString("ko-KR", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

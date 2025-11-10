@@ -5,6 +5,7 @@ import NameEnterModal from "./components/NameEnterModal";
 import HomePage from "./pages/HomePage";
 import MyPage from "./pages/MyPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import LpDetailPage from "./pages/LpDetailPage";
 import { STORAGE_KEYS } from "./constants";
 
 function App() {
@@ -116,6 +117,7 @@ function App() {
       <Route element={<Layout {...layoutProps} />}>
         <Route path="/" element={<HomePage username={username} />} />
         <Route path="/me" element={<MyPage isLoggedIn={isLoggedIn} />} />
+        <Route path="/lps/:lpId" element={<LpDetailPage />} />
       </Route>
 
       {/* Layout이 필요없는 페이지들 */}

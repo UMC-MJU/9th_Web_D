@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchLpList, type Lp } from "../apis/lp";
 
 interface HomePageProps {
@@ -114,6 +115,7 @@ const truncateText = (text: string, maxLength = 80) => {
 };
 
 export default function HomePage({ username }: HomePageProps) {
+  const navigate = useNavigate();
   const [lps, setLps] = useState<Lp[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -204,6 +206,10 @@ export default function HomePage({ username }: HomePageProps) {
     setRetryKey((prev) => prev + 1);
   };
 
+  const handleLpClick = (lpId: number) => {
+    navigate(`/lps/${lpId}`);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-8 py-10">
@@ -247,7 +253,16 @@ export default function HomePage({ username }: HomePageProps) {
                   return (
                     <div
                       key={lp.id}
-                      className="absolute left-1/2 transition-all duration-500 ease-out"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => handleLpClick(lp.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          handleLpClick(lp.id);
+                        }
+                      }}
+                      className="absolute left-1/2 cursor-pointer transition-all duration-500 ease-out focus:outline-none"
                       style={{
                         transform: `translate(-50%, 50%) translateX(${style.translateX}rem) translateY(${style.translateY}rem) scale(${style.scale})`,
                         zIndex: style.zIndex,
