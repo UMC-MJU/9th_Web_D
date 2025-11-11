@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../apis';
+import { Link } from 'react-router-dom';
 
 type Order = 'asc' | 'desc';
 
@@ -84,20 +85,26 @@ export default function LpsList() {
       ) : (
         <ul className="divide-y border rounded">
           {list.map((lp) => (
-            <li key={lp.id} className="p-3 flex items-center gap-3">
-              {lp.thumbnail && (
-                <img
-                  src={lp.thumbnail}
-                  alt=""
-                  className="w-12 h-12 object-cover rounded"
-                />
-              )}
-              <div className="min-w-0">
-                <div className="font-medium truncate">{lp.title}</div>
-                <div className="text-xs text-gray-500">
-                  {new Date(lp.createdAt).toLocaleString()}
+            <li key={lp.id} className="p-0">
+              <Link
+                to={`/lp/${lp.id}`}
+                className="p-3 flex items-center gap-3 hover:bg-gray-50 transition-colors block"
+                aria-label={`${lp.title} 상세 보기`}
+              >
+                {lp.thumbnail && (
+                  <img
+                    src={lp.thumbnail}
+                    alt=""
+                    className="w-12 h-12 object-cover rounded"
+                  />
+                )}
+                <div className="min-w-0">
+                  <div className="font-medium truncate">{lp.title}</div>
+                  <div className="text-xs text-gray-500">
+                    {new Date(lp.createdAt).toLocaleString()}
+                  </div>
                 </div>
-              </div>
+              </Link>
             </li>
           ))}
           {list.length === 0 && (

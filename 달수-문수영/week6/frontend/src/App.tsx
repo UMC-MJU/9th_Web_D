@@ -10,6 +10,8 @@ import MemberPage from './assets/pages/MemberPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import LpsList from './components/LpsList';
+import MovieDetailPage from './assets/pages/MovieDetailPage';
+import LpDetailPage from './assets/pages/LpDetailPage';
 
 const queryClient = new QueryClient();
 
@@ -34,6 +36,8 @@ const router = createBrowserRouter([
 	  )},
       {path: 'infinite-posts', element: <LpsList />},
       {path: 'lps', element: <LpsList />},
+      {path: 'lp/:lpid', element: <LpDetailPage />},
+      {path: 'movies/:id', element: <MovieDetailPage />},
     ],
 	},
 ]);
