@@ -33,6 +33,7 @@ const router = createBrowserRouter([
 		  <MemberPage />
 		</ProtectedRoute>
 	  )},
+      {path: 'infinite-posts', element: <InfinitePostsJsonPlaceholder />},
     ],
 	},
 ]);
