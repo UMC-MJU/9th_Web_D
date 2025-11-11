@@ -10,6 +10,7 @@ interface MovieDetail {
 	release_date?: string;
 	runtime?: number;
 	vote_average?: number;
+	vote_count?: number;
 	genres?: { id: number; name: string }[];
 }
 
@@ -48,67 +49,91 @@ export default function MovieDetailPage() {
 		return (
 			<div className="p-6 max-w-5xl mx-auto">
 				<div className="h-48 rounded-xl bg-gray-200 animate-pulse mb-6" />
-				<div className="grid grid-cols-1 md:grid-cols-[200px,1fr] gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
 					<div className="aspect-[2/3] bg-gray-200 rounded animate-pulse" />
 					<div className="space-y-3">
-						<div className="h-7 bg-gray-200 rounded w-2/3 animate-pulse" />
-						<div className="h-4 bg-gray-200 rounded w-1/3 animate-pulse" />
-						<div className="h-20 bg-gray-200 rounded w-full animate-pulse" />
+						<div className="h-8 bg-gray-200 rounded w-3/4 animate-pulse" />
+						<div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse" />
+						<div className="h-28 bg-gray-200 rounded w-full animate-pulse" />
 					</div>
 				</div>
 			</div>
 		);
 	}
 
-	const posterUrl = data.poster_path ? `https://image.tmdb.org/t/p/w300${data.poster_path}` : '';
-	const backdropUrl = data.backdrop_path ? `https://image.tmdb.org/t/p/w780${data.backdrop_path}` : '';
+	const posterUrl = data.poster_path ? `https://image.tmdb.org/t/p/w342${data.poster_path}` : '';
+	const backdropUrl = data.backdrop_path ? `https://image.tmdb.org/t/p/w1280${data.backdrop_path}` : '';
 
 	return (
 		<div className="p-6 max-w-5xl mx-auto">
-			{/* Backdrop */}
+			{/* Hero / Backdrop */}
 			{backdropUrl && (
 				<div
-					className="h-48 rounded-xl bg-cover bg-center mb-6"
+					className="h-56 md:h-64 rounded-2xl bg-cover bg-center mb-6"
 					style={{ backgroundImage: `url(${backdropUrl})` }}
 					aria-hidden="true"
 				/>
 			)}
-			<div className="grid grid-cols-1 md:grid-cols-[220px,1fr] gap-6">
-				{posterUrl ? (
-					<img src={posterUrl} alt={data.title} className="w-full md:w-[220px] aspect-[2/3] object-cover rounded-xl shadow" />
-				) : (
-					<div className="w-full md:w-[220px] aspect-[2/3] rounded-xl bg-gray-200" />
-				)}
-				<div>
-					<h1 className="text-2xl font-bold">{data.title}</h1>
-					<div className="text-sm text-gray-600 mt-1 flex flex-wrap items-center gap-2">
-						<span>{data.release_date?.slice(0, 4) ?? 'N/A'}</span>
-						{typeof data.runtime === 'number' && (
-							<>
-								<span aria-hidden="true">·</span>
-								<span>{data.runtime}분</span>
-							</>
-						)}
-						{typeof data.vote_average === 'number' && (
-							<>
-								<span aria-hidden="true">·</span>
-								<span>★ {data.vote_average.toFixed(1)}</span>
-							</>
-						)}
-					</div>
-					{data.genres && data.genres.length > 0 && (
-						<div className="mt-2 text-sm text-gray-700">
-							장르: {data.genres.map((g) => g.name).join(', ')}
-						</div>
+
+			<article className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
+				{/* Aside: Thumbnail */}
+				<aside>
+					{posterUrl ? (
+						<img
+							src={posterUrl}
+							alt={data.title}
+							className="w-full md:w-[240px] aspect-[2/3] object-cover rounded-xl shadow"
+						/>
+					) : (
+						<div className="w-full md:w-[240px] aspect-[2/3] rounded-xl bg-gray-200" />
 					)}
-					<p className="mt-4 text-gray-800 leading-relaxed">{data.overview || '설명이 없습니다.'}</p>
+				</aside>
+
+				{/* Main: Title + Meta + Content */}
+				<section className="min-w-0">
+					<header className="mb-3">
+						<h1 className="text-2xl font-bold">{data.title}</h1>
+						<ul className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+							<li className="px-2 py-1 rounded-full border text-gray-600">
+								업로드일: {data.release_date ?? 'N/A'}
+							</li>
+							<li className="px-2 py-1 rounded-full border text-gray-600">
+								평점: ★ {typeof data.vote_average === 'number' ? data.vote_average.toFixed(1) : '0.0'}
+							</li>
+							{typeof data.vote_count === 'number' && (
+								<li className="px-2 py-1 rounded-full border text-gray-600">
+									좋아요: {data.vote_count.toLocaleString()}
+								</li>
+							)}
+							{typeof data.runtime === 'number' && (
+								<li className="px-2 py-1 rounded-full border text-gray-600">
+									러닝타임: {data.runtime}분
+								</li>
+							)}
+						</ul>
+						{data.genres && data.genres.length > 0 && (
+							<div className="mt-2 text-sm text-gray-700">
+								장르: {data.genres.map((g) => g.name).join(', ')}
+							</div>
+						)}
+					</header>
+
+					<section aria-labelledby="section-overview" className="mt-4">
+						<h2 id="section-overview" className="text-base font-semibold mb-2">
+							본문
+						</h2>
+						<div className="rounded-xl border p-4 text-gray-800 leading-relaxed bg-white">
+							{data.overview || '설명이 없습니다.'}
+						</div>
+					</section>
+
 					<div className="mt-6">
 						<Link to="/" className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100">
 							뒤로 가기
 						</Link>
 					</div>
-				</div>
-			</div>
+				</section>
+			</article>
 		</div>
 	);
 }
