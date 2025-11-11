@@ -1,11 +1,39 @@
 import { Outlet, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { isLoggedIn } from '../../utils/auth';
 
 const HomeLayout = () => {
+    const [loggedIn, setLoggedIn] = useState<boolean>(isLoggedIn());
+
+    useEffect(() => {
+        const onStorage = () => setLoggedIn(isLoggedIn());
+        window.addEventListener('storage', onStorage);
+        return () => window.removeEventListener('storage', onStorage);
+    }, []);
+
     return(
         <div className='h-dvh flex flex-col'>
             <nav className='h-14 flex items-center justify-between px-4 border-b border-gray-200'>
                 <div className='flex items-center gap-4'>
                     <Link to='/' className='font-medium'>Home</Link>
+                </div>
+                <div className='flex items-center gap-2'>
+                    {!loggedIn && (
+                        <>
+                            <Link
+                                to='/login'
+                                className='px-3 py-1 text-sm rounded bg-black text-white hover:bg-gray-800 transition-colors'
+                            >
+                                로그인
+                            </Link>
+                            <Link
+                                to='/signup'
+                                className='px-3 py-1 text-sm rounded border border-gray-300 hover:bg-gray-100 transition-colors'
+                            >
+                                회원가입
+                            </Link>
+                        </>
+                    )}
                 </div>
             </nav>
             <div className='flex flex-1 min-h-0'>
