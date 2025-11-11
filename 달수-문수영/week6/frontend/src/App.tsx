@@ -12,6 +12,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import LpsList from './components/LpsList';
 import MovieDetailPage from './assets/pages/MovieDetailPage';
 import LpDetailPage from './assets/pages/LpDetailPage';
+import InfinitePostsAutoJsonPlaceholder from './components/InfinitePostsAutoJsonPlaceholder';
 
 const queryClient = new QueryClient();
 
@@ -35,8 +36,12 @@ const router = createBrowserRouter([
 		</ProtectedRoute>
 	  )},
       {path: 'infinite-posts', element: <LpsList />},
-      {path: 'lps', element: <LpsList />},
-      {path: 'lp/:lpid', element: <LpDetailPage />},
+      {path: 'lps', element: <InfinitePostsAutoJsonPlaceholder />},
+      { path: 'lp/:lpid', element: (
+        <ProtectedRoute>
+          <LpDetailPage />
+        </ProtectedRoute>
+      )},
       {path: 'movies/:id', element: <MovieDetailPage />},
     ],
 	},

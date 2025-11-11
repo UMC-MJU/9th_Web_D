@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import MovieCard, { type TmdbMovie } from '../../components/MovieCard';
 import QueryState from '../../components/QueryState';
+import { useState, useMemo } from 'react';
 
 function PopularMoviesGrid() {
+	const [order, setOrder] = useState<'desc' | 'asc'>('desc');
 	const { data, isLoading, isError, refetch, isFetching, error } = useQuery({
 		queryKey: ['tmdb', 'popular'],
 		queryFn: async () => {
@@ -25,6 +27,15 @@ function PopularMoviesGrid() {
 	});
 
 	const movies = data ?? [];
+	const sortedMovies = useMemo(() => {
+		const copy = [...movies];
+		copy.sort((a, b) => {
+			const aDate = a.release_date ? new Date(a.release_date).getTime() : 0;
+			const bDate = b.release_date ? new Date(b.release_date).getTime() : 0;
+			return order === 'desc' ? bDate - aDate : aDate - bDate;
+		});
+		return copy;
+	}, [movies, order]);
 
 	return (
 		<QueryState
@@ -41,8 +52,28 @@ function PopularMoviesGrid() {
 			}
 		>
 			<>
+				<div className="mb-3 flex items-center justify-between">
+					<div className="inline-flex rounded border overflow-hidden">
+						<button
+							type="button"
+							aria-pressed={order === 'desc'}
+							onClick={() => setOrder('desc')}
+							className={`px-3 py-1 text-sm ${order === 'desc' ? 'bg-black text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+						>
+							최신순
+						</button>
+						<button
+							type="button"
+							aria-pressed={order === 'asc'}
+							onClick={() => setOrder('asc')}
+							className={`px-3 py-1 text-sm border-l ${order === 'asc' ? 'bg-black text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+						>
+							오래된순
+						</button>
+					</div>
+				</div>
 				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-					{movies.map((m) => (
+					{sortedMovies.map((m) => (
 						<MovieCard key={m.id} movie={m} />
 					))}
 				</div>
