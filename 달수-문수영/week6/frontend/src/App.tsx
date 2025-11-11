@@ -9,6 +9,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import MemberPage from './assets/pages/MemberPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import InfinitePostsJsonPlaceholder from './components/InfinitePostsJsonPlaceholder';
 
 
 const queryClient = new QueryClient();
