@@ -29,6 +29,9 @@ export default function LpsList() {
       const payload: LpListPayload = res.data?.data;
       return payload;
     },
+    // 캐시 정책: 30초 동안은 fresh, 5분 후 가비지 컬렉션
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 
   const list = data?.data ?? [];
