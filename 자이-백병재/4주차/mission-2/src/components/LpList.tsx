@@ -1,19 +1,34 @@
-import { useState } from 'react'; // 1. (필수) useState를 import 해야 합니다.
+import { useEffect, useState } from 'react'; 
 import LpCard from "./LpCard";
-import useGetLpList from '../hooks/queries/useGetLpList';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorPage from '../pages/ErrorPage';
+import { useGetInfiniteLpList } from '../hooks/queries/useGetInfinityLpList';
+import {useInView} from 'react-intersection-observer';
+import LpListSkeleton from './LpListSkeleton';
 
 export function LpList() {
     const [search, setSearch] = useState("");
-    const [order, setOrder] = useState('desc');
-    const { data, isLoading, isError } = useGetLpList({
+    const [order, setOrder] = useState<'desc'|'asc'>('desc');
+    const { 
+        data: lps,
+        hasNextPage,
+        isPending,
+        isFetching,
+        fetchNextPage,
+        isError
+     } = useGetInfiniteLpList({
         search: search,
-        limit: 36,
+        limit: 30,
         order: order,
     });
 
-    const lpListArray = data?.data?.data;
+    const { ref, inView } = useInView();
+
+    useEffect(() => {
+        if (inView && !isFetching && hasNextPage) {
+        fetchNextPage();
+    }
+    }, [inView, isFetching, hasNextPage, fetchNextPage]);
 
     return (
         // 전체를 감싸는 div
@@ -66,21 +81,25 @@ export function LpList() {
                 </div>
 
             {/* 로딩 및 에러 */}
-            {isLoading && <LoadingSpinner />}
+            {isPending && <LoadingSpinner />}
             {isError && <ErrorPage />}
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 m-5">
-                {lpListArray?.map((lp) => (
+                {lps?.pages?.map((page) => page.data.data)?.flat()
+                ?.map((lp) => (
                     <LpCard 
                         key={lp.id} 
                         lp={lp} 
                         setSearch={setSearch} // LpCard의 태그 버튼으로 검색할 경우
                     />
                 ))}
+                {isFetching && <LpListSkeleton count={12}/>}
             </div>
 
+            <div ref={ref} className="h-20" />
+
             {/* 검색 결과가 없음 */}
-            {!isLoading && lpListArray?.length === 0 && (
+            {!isPending && lps?.pages[0]?.data.data.length === 0 && (
                 <div className="text-gray-400 text-center p-10">
                     "{search}"에 대한 검색 결과가 없습니다.
                 </div>

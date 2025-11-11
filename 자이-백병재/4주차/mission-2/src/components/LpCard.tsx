@@ -37,7 +37,7 @@ function LpCard({ lp, setSearch }: LpProps, ) {
             className="group-hover:blur-md group-hover:brightness-25 rounded-lg w-full h-full object-cover transition-all duration-200"
         />
       
-        {/* 2. 호버 시 나타나는 정보 */}
+        {/* 호버 시 나타나는 정보 */}
         <div className="absolute p-4 inset-0 flex flex-col justify-end 
                         opacity-0 group-hover:opacity-100 transition-all duration-200 text-white bg-gradient-to-t from-black/80 to-transparent">
         

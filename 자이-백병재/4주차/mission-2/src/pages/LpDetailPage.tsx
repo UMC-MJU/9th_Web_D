@@ -3,11 +3,12 @@ import useGetLpDetail from '../hooks/queries/useGetLpDetail';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
 import formatDate from '../utils/formatDate';
+import CommentList from '../components/CommentList';
 
 export function LpDetailPage() {
   const { lpid } = useParams(); 
   const numericLpId = Number(lpid); 
-
+  
   const { 
     data: response, 
     isLoading, 
@@ -92,7 +93,7 @@ export function LpDetailPage() {
               )}
             </div>
           </div>
-
+              <CommentList id={numericLpId} />
         </div>
       </div>
     </div>
