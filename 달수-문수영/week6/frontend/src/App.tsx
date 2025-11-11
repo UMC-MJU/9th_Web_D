@@ -9,8 +9,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import MemberPage from './assets/pages/MemberPage';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import InfinitePostsJsonPlaceholder from './components/InfinitePostsJsonPlaceholder';
-
+import InfinitePostsAutoJsonPlaceholder from './components/InfinitePostsAutoJsonPlaceholder';
 
 const queryClient = new QueryClient();
 
@@ -33,7 +32,7 @@ const router = createBrowserRouter([
 		  <MemberPage />
 		</ProtectedRoute>
 	  )},
-      {path: 'infinite-posts', element: <InfinitePostsJsonPlaceholder />},
+      {path: 'infinite-posts', element: <InfinitePostsAutoJsonPlaceholder />},
     ],
 	},
 ]);
