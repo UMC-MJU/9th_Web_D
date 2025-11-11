@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../apis';
 import { Link } from 'react-router-dom';
+import QueryState from './QueryState';
 
 type Order = 'asc' | 'desc';
 
@@ -55,34 +56,25 @@ export default function LpsList() {
         </div>
       </div>
 
-      {isLoading ? (
-        <ul className="divide-y border rounded animate-pulse">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <li key={i} className="p-3 flex items-center gap-3">
-              <div className="w-12 h-12 rounded bg-gray-200" />
-              <div className="flex-1 min-w-0">
-                <div className="h-4 bg-gray-200 rounded w-2/3 mb-2" />
-                <div className="h-3 bg-gray-200 rounded w-1/3" />
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : error ? (
-        <div className="p-4 border rounded bg-red-50 text-red-700 flex items-center justify-between gap-4">
-          <div>
-            목록을 불러오지 못했습니다.
-            <span className="ml-1 text-red-500 text-xs">
-              {(error as any)?.message ? `(${(error as any).message})` : ''}
-            </span>
-          </div>
-          <button
-            onClick={() => refetch()}
-            className="px-3 py-1 text-sm rounded bg-black text-white hover:bg-gray-800 transition-colors"
-          >
-            재시도
-          </button>
-        </div>
-      ) : (
+      <QueryState
+        isLoading={isLoading}
+        isError={Boolean(error)}
+        onRetry={() => refetch()}
+        errorMessage={(error as any)?.message}
+        skeleton={
+          <ul className="divide-y border rounded animate-pulse">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <li key={i} className="p-3 flex items-center gap-3">
+                <div className="w-12 h-12 rounded bg-gray-200" />
+                <div className="flex-1 min-w-0">
+                  <div className="h-4 bg-gray-200 rounded w-2/3 mb-2" />
+                  <div className="h-3 bg-gray-200 rounded w-1/3" />
+                </div>
+              </li>
+            ))}
+          </ul>
+        }
+      >
         <ul className="divide-y border rounded">
           {list.map((lp) => (
             <li key={lp.id} className="p-0">
@@ -111,7 +103,7 @@ export default function LpsList() {
             <li className="p-4 text-sm text-gray-500">표시할 항목이 없습니다.</li>
           )}
         </ul>
-      )}
+      </QueryState>
 
       <div className="mt-3 text-xs text-gray-500">
         {isFetching ? '갱신 중...' : ''}

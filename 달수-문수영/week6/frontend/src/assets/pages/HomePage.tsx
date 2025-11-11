@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import MovieCard, { type TmdbMovie } from '../../components/MovieCard';
+import QueryState from '../../components/QueryState';
 
 function PopularMoviesGrid() {
 	const { data, isLoading, isError, refetch, isFetching, error } = useQuery({
@@ -23,41 +24,31 @@ function PopularMoviesGrid() {
 		gcTime: 5 * 60 * 1000,
 	});
 
-	if (isError) {
-		return (
-			<div className="p-4 border rounded bg-red-50 text-red-700 flex items-center justify-between gap-4">
-				<div>
-					영화 목록을 불러오지 못했습니다.
-					<span className="ml-2 text-xs text-red-500">{(error as Error | undefined)?.message}</span>
-				</div>
-				<button onClick={() => refetch()} className="px-3 py-1 text-sm rounded bg-black text-white hover:bg-gray-800 transition-colors">
-					재시도
-				</button>
-			</div>
-		);
-	}
-
-	if (isLoading) {
-		return (
-			<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-				{Array.from({ length: 12 }).map((_, i) => (
-					<div key={i} className="rounded-xl overflow-hidden shadow bg-gray-200 aspect-[2/3] animate-pulse" />
-				))}
-			</div>
-		);
-	}
-
 	const movies = data ?? [];
 
 	return (
-		<>
-			<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-				{movies.map((m) => (
-					<MovieCard key={m.id} movie={m} />
-				))}
-			</div>
-			<div className="mt-2 text-xs text-gray-500">{isFetching ? '갱신 중...' : ''}</div>
-		</>
+		<QueryState
+			isLoading={isLoading}
+			isError={isError}
+			onRetry={() => refetch()}
+			errorMessage={(error as Error | undefined)?.message}
+			skeleton={
+				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+					{Array.from({ length: 12 }).map((_, i) => (
+						<div key={i} className="rounded-xl overflow-hidden shadow bg-gray-200 aspect-[2/3] animate-pulse" />
+					))}
+				</div>
+			}
+		>
+			<>
+				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+					{movies.map((m) => (
+						<MovieCard key={m.id} movie={m} />
+					))}
+				</div>
+				<div className="mt-2 text-xs text-gray-500">{isFetching ? '갱신 중...' : ''}</div>
+			</>
+		</QueryState>
 	);
 }
 

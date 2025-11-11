@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import QueryState from '../../components/QueryState';
 
 interface MovieDetail {
 	id: number;
@@ -34,35 +35,35 @@ export default function MovieDetailPage() {
 		gcTime: 10 * 60 * 1000,
 	});
 
-	if (isError) {
-		return (
-			<div className="p-6">
-				<div className="p-4 border rounded bg-red-50 text-red-700 flex items-center justify-between gap-4">
-					<div>영화 상세를 불러오지 못했습니다.</div>
-					<button onClick={() => refetch()} className="px-3 py-1 text-sm rounded bg-black text-white hover:bg-gray-800 transition-colors">
-						재시도
-					</button>
-				</div>
-			</div>
-		);
-	}
-
-	if (isLoading || !data) {
+	// 로딩/에러/데이터 없음 처리(공통 컴포넌트로 통일)
+	if (isLoading || isError || !data) {
 		return (
 			<div className="p-6 max-w-5xl mx-auto">
-				<div className="h-48 rounded-xl bg-gray-200 animate-pulse mb-6" />
-				<div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
-					<div className="aspect-[2/3] bg-gray-200 rounded animate-pulse" />
-					<div className="space-y-3">
-						<div className="h-8 bg-gray-200 rounded w-3/4 animate-pulse" />
-						<div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse" />
-						<div className="h-28 bg-gray-200 rounded w-full animate-pulse" />
-					</div>
-				</div>
+				<QueryState
+					isLoading={isLoading || !data}
+					isError={isError}
+					onRetry={() => refetch()}
+					skeleton={
+						<>
+							<div className="h-56 md:h-64 rounded-2xl bg-gray-200 animate-pulse mb-6" />
+							<div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
+								<div className="aspect-[2/3] bg-gray-200 rounded animate-pulse" />
+								<div className="space-y-3">
+									<div className="h-8 bg-gray-200 rounded w-3/4 animate-pulse" />
+									<div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse" />
+									<div className="h-28 bg-gray-200 rounded w-full animate-pulse" />
+								</div>
+							</div>
+						</>
+					}
+				>
+					{/* children not used in skeleton/error path */}
+				</QueryState>
 			</div>
 		);
 	}
 
+	// 여기부터는 data가 반드시 존재
 	const posterUrl = data.poster_path ? `https://image.tmdb.org/t/p/w342${data.poster_path}` : '';
 	const backdropUrl = data.backdrop_path ? `https://image.tmdb.org/t/p/w1280${data.backdrop_path}` : '';
 
