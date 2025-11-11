@@ -1,15 +1,26 @@
 import { Outlet, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { isLoggedIn } from '../../utils/auth';
+import { isLoggedIn, getCurrentUserNickname, logout } from '../../utils/auth';
 
 const HomeLayout = () => {
     const [loggedIn, setLoggedIn] = useState<boolean>(isLoggedIn());
 
     useEffect(() => {
-        const onStorage = () => setLoggedIn(isLoggedIn());
-        window.addEventListener('storage', onStorage);
-        return () => window.removeEventListener('storage', onStorage);
+        const onChange = () => setLoggedIn(isLoggedIn());
+        window.addEventListener('storage', onChange);
+        window.addEventListener('auth-changed', onChange);
+        return () => {
+            window.removeEventListener('storage', onChange);
+            window.removeEventListener('auth-changed', onChange);
+        };
     }, []);
+
+    const handleLogout = () => {
+        logout();
+        setLoggedIn(false);
+    };
+
+    const nickname = loggedIn ? getCurrentUserNickname() : '';
 
     return(
         <div className='h-dvh flex flex-col'>
@@ -18,7 +29,19 @@ const HomeLayout = () => {
                     <Link to='/' className='font-medium'>Home</Link>
                 </div>
                 <div className='flex items-center gap-2'>
-                    {!loggedIn && (
+                    {loggedIn ? (
+                        <div className='flex items-center gap-3 text-sm'>
+                            <span className='text-gray-700'>
+                                {nickname ? `${nickname}님 반갑습니다.` : '반갑습니다.'}
+                            </span>
+                            <button
+                                onClick={handleLogout}
+                                className='px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 transition-colors'
+                            >
+                                로그아웃
+                            </button>
+                        </div>
+                    ) : (
                         <>
                             <Link
                                 to='/login'

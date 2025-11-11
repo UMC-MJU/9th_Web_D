@@ -26,6 +26,10 @@ function setStorageValue<T>(key: string, value: T): void {
   
   try {
     localStorage.setItem(key, JSON.stringify(value));
+    // Same-tab listeners won't receive 'storage' events; emit a custom event.
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('auth-changed'));
+    }
   } catch (error) {
     console.error(`Error setting localStorage key "${key}":`, error);
   }
@@ -39,6 +43,9 @@ function removeStorageValue(key: string): void {
   
   try {
     localStorage.removeItem(key);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('auth-changed'));
+    }
   } catch (error) {
     console.error(`Error removing localStorage key "${key}":`, error);
   }
