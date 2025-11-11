@@ -13,6 +13,7 @@ import LpsList from './components/LpsList';
 import MovieDetailPage from './assets/pages/MovieDetailPage';
 import LpDetailPage from './assets/pages/LpDetailPage';
 import InfinitePostsAutoJsonPlaceholder from './components/InfinitePostsAutoJsonPlaceholder';
+import InfiniteLpsList from './components/InfiniteLpsList';
 
 const queryClient = new QueryClient();
 
@@ -36,7 +37,7 @@ const router = createBrowserRouter([
 		</ProtectedRoute>
 	  )},
       {path: 'infinite-posts', element: <LpsList />},
-      {path: 'lps', element: <InfinitePostsAutoJsonPlaceholder />},
+      {path: 'lps', element: <InfiniteLpsList />},
       { path: 'lp/:lpid', element: (
         <ProtectedRoute>
           <LpDetailPage />
