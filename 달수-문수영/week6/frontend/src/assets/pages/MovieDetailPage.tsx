@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 interface MovieDetail {
 	id: number;
@@ -16,6 +17,7 @@ interface MovieDetail {
 
 export default function MovieDetailPage() {
 	const { id } = useParams<{ id: string }>();
+	const [liked, setLiked] = useState(false);
 
 	const { data, isLoading, isError, refetch } = useQuery({
 		enabled: Boolean(id),
@@ -91,9 +93,10 @@ export default function MovieDetailPage() {
 
 				{/* Main: Title + Meta + Content */}
 				<section className="min-w-0">
-					<header className="mb-3">
-						<h1 className="text-2xl font-bold">{data.title}</h1>
-						<ul className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+					<header className="mb-3 flex items-start justify-between gap-3">
+						<div className="min-w-0">
+							<h1 className="text-2xl font-bold">{data.title}</h1>
+							<ul className="mt-2 flex flex-wrap items-center gap-2 text-xs">
 							<li className="px-2 py-1 rounded-full border text-gray-600">
 								업로드일: {data.release_date ?? 'N/A'}
 							</li>
@@ -102,7 +105,7 @@ export default function MovieDetailPage() {
 							</li>
 							{typeof data.vote_count === 'number' && (
 								<li className="px-2 py-1 rounded-full border text-gray-600">
-									좋아요: {data.vote_count.toLocaleString()}
+									좋아요: {(data.vote_count + (liked ? 1 : 0)).toLocaleString()}
 								</li>
 							)}
 							{typeof data.runtime === 'number' && (
@@ -110,12 +113,39 @@ export default function MovieDetailPage() {
 									러닝타임: {data.runtime}분
 								</li>
 							)}
-						</ul>
-						{data.genres && data.genres.length > 0 && (
-							<div className="mt-2 text-sm text-gray-700">
-								장르: {data.genres.map((g) => g.name).join(', ')}
-							</div>
-						)}
+							</ul>
+							{data.genres && data.genres.length > 0 && (
+								<div className="mt-2 text-sm text-gray-700">
+									장르: {data.genres.map((g) => g.name).join(', ')}
+								</div>
+							)}
+						</div>
+
+						{/* Action buttons */}
+						<div className="shrink-0 flex items-center gap-2">
+							<button
+								type="button"
+								className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 text-sm"
+								onClick={() => alert('수정 기능은 데모에서 비활성화되어 있습니다.')}
+							>
+								수정
+							</button>
+							<button
+								type="button"
+								className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 text-sm"
+								onClick={() => confirm('정말 삭제하시겠습니까?') && alert('삭제 기능은 데모에서 비활성화되어 있습니다.')}
+							>
+								삭제
+							</button>
+							<button
+								type="button"
+								aria-pressed={liked}
+								className={`px-3 py-1 rounded text-sm ${liked ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-black text-white hover:bg-gray-800'}`}
+								onClick={() => setLiked((v) => !v)}
+							>
+								{liked ? '좋아요 취소' : '좋아요'}
+							</button>
+						</div>
 					</header>
 
 					<section aria-labelledby="section-overview" className="mt-4">
