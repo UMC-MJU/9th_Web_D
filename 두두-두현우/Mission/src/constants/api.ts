@@ -10,4 +10,8 @@ export const API_ENDPOINTS = {
     GOOGLE_LOGIN: "/v1/auth/google/login",
     GOOGLE_CALLBACK: "/v1/auth/google/callback",
   },
+  LP: {
+    LIST: "/v1/lps",
+    DETAIL: (id: number | string) => `/v1/lps/${id}`,
+  },
 } as const;
