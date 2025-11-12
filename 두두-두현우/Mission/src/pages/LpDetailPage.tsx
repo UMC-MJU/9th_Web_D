@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchLpDetail, type LpDetail } from "../apis/lp";
+import LpCommentsSection from "../components/LpCommentsSection";
 
 const fallbackThumbnail =
   "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80";
@@ -10,11 +11,19 @@ type DetailStatus = "idle" | "loading" | "success" | "error";
 export default function LpDetailPage() {
   const { lpId } = useParams<{ lpId: string }>();
   const navigate = useNavigate();
+  const isMountedRef = useRef(true);
   const [lp, setLp] = useState<LpDetail | null>(null);
   const [status, setStatus] = useState<DetailStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!lpId) {
@@ -24,7 +33,6 @@ export default function LpDetailPage() {
     }
 
     const controller = new AbortController();
-    let isMounted = true;
 
     const loadDetail = async () => {
       try {
@@ -34,18 +42,22 @@ export default function LpDetailPage() {
           signal: controller.signal,
         });
 
-        if (!isMounted) {
+        if (!isMountedRef.current) {
           return;
         }
 
         setLp(response.data);
         setStatus("success");
       } catch (detailError) {
-        if (!isMounted || controller.signal.aborted) {
+        if (controller.signal.aborted) {
           return;
         }
 
         console.error("Failed to fetch LP detail:", detailError);
+        if (!isMountedRef.current) {
+          return;
+        }
+
         setError("LP 상세 정보를 불러오지 못했습니다.");
         setStatus("error");
       }
@@ -54,7 +66,6 @@ export default function LpDetailPage() {
     void loadDetail();
 
     return () => {
-      isMounted = false;
       controller.abort();
     };
   }, [lpId]);
@@ -67,14 +78,6 @@ export default function LpDetailPage() {
     const baseCount = Array.isArray(lp.likes) ? lp.likes.length : 0;
     return isLiked ? baseCount + 1 : baseCount;
   }, [lp, isLiked]);
-
-  const displayTags = useMemo(() => {
-    if (!lp || !lp.tags?.length) {
-      return ["태그 없음"];
-    }
-
-    return lp.tags.map((tag) => `#${tag.name}`);
-  }, [lp]);
 
   const togglePlay = () => {
     setIsPlaying((prev) => !prev);
@@ -167,14 +170,20 @@ export default function LpDetailPage() {
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            {displayTags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full bg-white/10 px-4 py-1 text-xs text-white/80"
-              >
-                {tag}
+            {(lp.tags ?? []).length === 0 ? (
+              <span className="rounded-full bg-white/10 px-4 py-1 text-xs text-white/80">
+                태그 없음
               </span>
-            ))}
+            ) : (
+              lp.tags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="rounded-full bg-white/10 px-4 py-1 text-xs text-white/80"
+                >
+                  #{tag.name}
+                </span>
+              ))
+            )}
           </div>
 
           <div className="mt-10 flex items-center gap-3 text-white/70">
@@ -198,6 +207,8 @@ export default function LpDetailPage() {
               })}
             </span>
           </div>
+
+          <LpCommentsSection lpId={lp.id} />
         </div>
       </div>
     </div>
