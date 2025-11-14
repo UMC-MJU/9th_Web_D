@@ -1,4 +1,4 @@
-import type { CommentParms, CommentResponseDto, CreateCommentParams, CreateCommentRequest, FixCommentRequest, FixCommentParams } from '../types/comment';
+import type { CommentParms, CommentResponseDto, CreateCommentParams, CreateCommentRequest, FixCommentRequest, FixCommentParams, DeleteCommentParams, DeleteCommentResponse } from '../types/comment';
 import type { CursorBasedResponse } from './../types/lp';
 import { axiosInstance } from './axios';
 
@@ -27,6 +27,13 @@ export const fixComment = async({lpId, commentId, content}: FixCommentParams): P
   const response = await axiosInstance.patch(`/v1/lps/${lpId}/comments/${commentId}`,
     requestBody
   );
+
+  return response.data.data;
+}
+
+export const deleteComment = async({lpId, commentId}: DeleteCommentParams): Promise<DeleteCommentResponse> => {
+
+  const response = await axiosInstance.delete(`/v1/lps/${lpId}/comments/${commentId}`);
 
   return response.data.data;
 }

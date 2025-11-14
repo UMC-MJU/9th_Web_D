@@ -4,7 +4,7 @@ import type { CommentResponseDto } from '../types/comment';
 import { useGetInfiniteCommentList } from '../hooks/queries/useGetInfinityCommentList';
 import { useCreateComment } from '../hooks/queries/useCreateComment';
 import { useAuth } from '../contexts/AuthContext';
-import { useFixComment } from '../hooks/queries/useFixComment';
+import { useDeleteComment, useFixComment } from '../hooks/queries/useFixComment';
 
 export function CommentList({ id }: { id: number }) {
   const [order, setOrder] = useState<'desc' | 'asc'>('desc');
@@ -18,6 +18,7 @@ export function CommentList({ id }: { id: number }) {
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editText, setEditText] = useState('');
   const { mutate: fixCommentMutate } = useFixComment(id);
+  const { mutate: deleteCommentMutate } = useDeleteComment(id);
 
   // "바깥 클릭" 감지 로직
   useEffect(() => {
@@ -216,8 +217,7 @@ export function CommentList({ id }: { id: number }) {
                           </button>
                           <button
                             onClick={() => {
-                              // TODO: 삭제 로직
-                              alert(`삭제: ${comment.id}`);
+                              deleteCommentMutate({lpId: id, commentId: comment.id});
                               setOpenMenuId(null);
                             }}
                             className="w-full text-left px-4 py-2 text-sm text-red-400 rounded-b-lg hover:bg-gray-600"
