@@ -25,3 +25,9 @@ export type CreateCommentParams = {
 export type CreateCommentRequest = {
   content: string;
 };
+
+export type FixCommentParams = {
+  lpId: number;
+  commentId: number;
+  content: string;
+}
