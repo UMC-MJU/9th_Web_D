@@ -3,11 +3,49 @@ import { useInView } from 'react-intersection-observer';
 import type { CommentResponseDto } from '../types/comment';
 import { useGetInfiniteCommentList } from '../hooks/queries/useGetInfinityCommentList'; 
 import { useCreateComment } from '../hooks/queries/useCreateComment';
+import { useAuth } from '../contexts/AuthContext';
 
 export function CommentList({ id }: { id: number }) {
   const [order, setOrder] = useState<'desc' | 'asc'>('desc');
   const [newComment, setNewComment] = useState('');
   
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const { userData } = useAuth();
+  const currentUserId = userData?.data.id;
+
+  // --- "바깥 클릭" 감지 로직 ---
+  useEffect(() => {
+    // 메뉴가 닫혀있으면 이벤트 리스너를 추가할 필요가 없음
+    if (openMenuId === null) {
+      return;
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      // 클릭된 요소가 현재 열린 메뉴의 트리거 버튼인지 확인
+      const triggerClicked = (event.target as Element).closest(
+        `[menuTrigger='${openMenuId}']`
+      );
+      
+      // 클릭된 요소가 현재 열린 메뉴의 드롭다운 내부인지 확인
+      const menuClicked = (event.target as Element).closest(
+        `[menuTrigger='${openMenuId}']`
+      );
+
+      // 만약 클릭한 곳이 트리거 버튼도 아니고, 메뉴 내부도 아니라면
+      if (!triggerClicked && !menuClicked) {
+        setOpenMenuId(null); // 메뉴를 닫음
+      }
+    };
+
+    // mousedown 이벤트 리스너 등록
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // 컴포넌트가 언마운트되거나 openMenuId가 바뀔 때 리스너 제거
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openMenuId]); // openMenuId가 변경될 때마다 이 훅을 다시 실행
+
   const {
     data: comments,
     hasNextPage,
@@ -72,6 +110,8 @@ export function CommentList({ id }: { id: number }) {
   const allComments: CommentResponseDto[] =
     comments?.pages?.map((page) => page.data.data)?.flat() || [];
 
+  
+  
   return (
     <div className="w-full">
       {/* 댓글 헤더 */}
@@ -136,9 +176,51 @@ export function CommentList({ id }: { id: number }) {
               <span className="font-semibold text-white">
                 {comment.author?.name || '익명'}
               </span>
-              <span className="text-sm text-gray-400">
-                {new Date(comment.createdAt).toLocaleDateString()}
-              </span>
+              <div className="relative">
+                <span className="text-sm text-gray-400 pr-0.5">
+                  {new Date(comment.createdAt).toLocaleDateString()}
+                </span>
+                {/* "..." 버튼 (작성자일 경우에만 표시) */}
+                {currentUserId === comment.author?.id && (
+                    <button
+                      onClick={() => setOpenMenuId(prevId => (prevId === comment.id ? null : comment.id))}
+                      className="p-1 rounded-full text-gray-400 hover:bg-gray-700"
+                    >
+                      {/* 세 점 아이콘 (SVG) */}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="1"></circle>
+                        <circle cx="19" cy="12" r="1"></circle>
+                        <circle cx="5" cy="12" r="1"></circle>
+                      </svg>
+                    </button>
+                  )}
+                  
+                  {/* --- 수정/삭제 드롭다운 메뉴 --- */}
+                  {currentUserId === comment.author?.id && openMenuId === comment.id && (
+                    <div menuTrigger={comment.id} 
+                    className="absolute top-full right-0 mt-2 w-32 bg-gray-700 rounded-lg shadow-lg z-10">
+                      <button
+                        onClick={() => {
+                          alert(`수정: ${comment.id}`);
+                          setOpenMenuId(null);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-white rounded-t-lg hover:bg-gray-600"
+                      >
+                        수정
+                      </button>
+                      <button
+                        onClick={() => {
+                          // TODO: 삭제 로직 구현 (useDeleteComment 훅 필요)
+                          alert(`삭제: ${comment.id}`);
+                          setOpenMenuId(null); // 메뉴 닫기
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-red-400 rounded-b-lg hover:bg-gray-600"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  )}
+              </div>
             </div>
             
             <hr className="border-gray-700 my-2" />
