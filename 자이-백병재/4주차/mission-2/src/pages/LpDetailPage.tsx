@@ -4,7 +4,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
 import formatDate from '../utils/formatDate';
 import CommentList from '../components/CommentList';
-import { useLike } from '../hooks/queries/useLike';
+import { useLike, useDisLike } from '../hooks/queries/useLike';
+import { useAuth } from '../contexts/AuthContext';
 
 export function LpDetailPage() {
   const { lpid } = useParams(); 
@@ -18,7 +19,20 @@ export function LpDetailPage() {
 
   const lp = response?.data; 
 
-  const { mutate } = useLike(numericLpId);
+  const { mutate: likeMutate } = useLike(numericLpId);
+  const { mutate: disLikeMutate } = useDisLike(numericLpId);
+  const { accessToken, userData } = useAuth();
+  const isLoggedIn = !!accessToken;
+  const handleLike = () => {
+    if(isLoggedIn) {
+      if(lp.likes.some((like: Likes) => like.userId === userData?.data.id)) {
+        disLikeMutate(numericLpId);
+      } else {
+        likeMutate(numericLpId);
+      }
+    }
+  }
+
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -57,7 +71,7 @@ export function LpDetailPage() {
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-300">좋아요:</span>
-                <button onClick={() => mutate()} className="text-pink-400 cursor-pointer">♥{lp.likes.length}</button>
+                <button onClick={() => handleLike()} className="text-pink-400 cursor-pointer">♥{lp.likes.length}</button>
               </div>
             </div>
           </div>

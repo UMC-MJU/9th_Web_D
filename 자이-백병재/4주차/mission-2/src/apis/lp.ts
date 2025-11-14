@@ -20,3 +20,9 @@ export const like = async(lpId: number): Promise<ResponseLikes> => {
     
     return response.data;
 } ;
+
+export const disLike = async(lpId: number): Promise<ResponseLikes> => {
+    const response = await axiosInstance.delete(`/v1/lps/${lpId}/likes`);
+    
+    return response.data;
+} ;
