@@ -69,7 +69,7 @@ function LpCard({ lp, setSearch }: LpProps) {
             />
             
             <div className="absolute p-4 inset-0 flex flex-col justify-end 
-                            opacity-0 group-hover:opacity-100 transition-all duration-200 text-white bg-gradient-to-t from-black/80 to-transparent">
+                            opacity-0 group-hover:opacity-100 transition-all duration-200 text-white bg-linear-to-t from-black/80 to-transparent">
             
                 {/* Likes / Date */}
                 <div className="text-sm md:text-md lg:text-lg flex justify-between w-full">

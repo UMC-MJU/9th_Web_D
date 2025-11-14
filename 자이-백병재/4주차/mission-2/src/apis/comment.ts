@@ -1,4 +1,4 @@
-import type { CommentParms, CommentResponseDto, CreateCommentParams, CreateCommentRequest, FixCommentRequest, FixCommentParams, DeleteCommentParams, DeleteCommentResponse } from '../types/comment';
+import type { CommentParms, CommentResponseDto, CreateCommentParams, CreateCommentRequest, FixCommentParams, DeleteCommentParams, DeleteCommentResponse } from '../types/comment';
 import type { CursorBasedResponse } from './../types/lp';
 import { axiosInstance } from './axios';
 

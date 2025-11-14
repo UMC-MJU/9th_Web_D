@@ -1,4 +1,3 @@
-import { DeleteCommentResponse } from './../../../../../달수-문수영/week5/backend/src/comment/dto/comment-response.dto';
 import type { ResponseMyInfoDto } from "./auth"
 
 // 댓글 목록 리턴타입
