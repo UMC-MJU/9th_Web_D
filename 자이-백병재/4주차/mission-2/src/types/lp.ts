@@ -59,3 +59,15 @@ export type ResponseLpDetailDTO = CursorBasedResponse<{
     tags: Tags[];
     likes: Likes[];
 }>;
+
+
+export type ResponseLikes = {
+    status: boolean;
+    statusCode: number;
+    message: string;
+    data: {
+      id: number;
+      userId: number;
+      lpId: number;
+    };
+  }

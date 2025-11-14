@@ -4,6 +4,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorPage from './ErrorPage';
 import formatDate from '../utils/formatDate';
 import CommentList from '../components/CommentList';
+import { useLike } from '../hooks/queries/useLike';
 
 export function LpDetailPage() {
   const { lpid } = useParams(); 
@@ -16,6 +17,8 @@ export function LpDetailPage() {
   } = useGetLpDetail(numericLpId);
 
   const lp = response?.data; 
+
+  const { mutate } = useLike(numericLpId);
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -54,7 +57,7 @@ export function LpDetailPage() {
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-300">좋아요:</span>
-                <span className="text-pink-400">♥ {lp.likes.length}</span>
+                <button onClick={() => mutate()} className="text-pink-400 cursor-pointer">♥{lp.likes.length}</button>
               </div>
             </div>
           </div>
