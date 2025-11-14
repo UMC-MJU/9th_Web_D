@@ -71,3 +71,29 @@ export type ResponseLikes = {
       lpId: number;
     };
   }
+
+  export type CreateLpParams = {
+    title: string,
+    content: string,
+    thumbnail: string | null,
+    tags: string[],
+}  
+  
+export type CreateLpBody = {
+    title: string,
+    content: string,
+    thumbnail: string | null,
+    tags: string[],
+    published: true
+}  
+
+export type CreateLpResponse = {
+    id: number;
+    title: string;
+    content: string;
+    thumbnail: string;
+    published: boolean;
+    authorId: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
