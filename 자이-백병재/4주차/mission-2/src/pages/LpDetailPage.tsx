@@ -6,6 +6,7 @@ import formatDate from '../utils/formatDate';
 import CommentList from '../components/CommentList';
 import { useLike, useDisLike } from '../hooks/queries/useLike';
 import { useAuth } from '../contexts/AuthContext';
+import type { Likes } from '../types/lp';
 
 export function LpDetailPage() {
   const { lpid } = useParams(); 
@@ -23,9 +24,13 @@ export function LpDetailPage() {
   const { mutate: disLikeMutate } = useDisLike(numericLpId);
   const { accessToken, userData } = useAuth();
   const isLoggedIn = !!accessToken;
+
+  const isLiked = isLoggedIn && lp && lp.likes.some((like: Likes) => like.userId === userData?.data.id);
+  const likeColor = isLiked ? 'text-pink-400' : 'text-gray-400';
+
   const handleLike = () => {
     if(isLoggedIn) {
-      if(lp.likes.some((like: Likes) => like.userId === userData?.data.id)) {
+      if(isLiked) {
         disLikeMutate(numericLpId);
       } else {
         likeMutate(numericLpId);
@@ -71,13 +76,13 @@ export function LpDetailPage() {
               </div>
               <div className="flex justify-between">
                 <span className="font-semibold text-gray-300">좋아요:</span>
-                <button onClick={() => handleLike()} className="text-pink-400 cursor-pointer">♥{lp.likes.length}</button>
+                <button onClick={() => handleLike()} className={`${likeColor} cursor-pointer hover:text-pink-300`}>♥ {lp.likes.length}</button>
               </div>
             </div>
           </div>
         </div>
 
-        {/*  오른쪽 컬럼 (설명 + 태그) */}
+        {/* 오른쪽 컬럼 (설명 + 태그) */}
         <div className="md:col-span-2 flex flex-col gap-8">
           
           {/* "LP 소개" 섹션 */}
@@ -110,11 +115,11 @@ export function LpDetailPage() {
               )}
             </div>
           </div>
-              <CommentList id={numericLpId} />
+            <CommentList id={numericLpId} />
         </div>
       </div>
     </div>
   );
 }
 
-export default LpDetailPage;
+export default LpDetailPage; 
