@@ -9,6 +9,7 @@ import LpListSkeleton from './LpListSkeleton';
 export function LpList() {
     const [search, setSearch] = useState("");
     const [order, setOrder] = useState<'desc'|'asc'>('desc');
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
     const { 
         data: lps,
         hasNextPage,
@@ -91,6 +92,8 @@ export function LpList() {
                         key={lp.id} 
                         lp={lp} 
                         setSearch={setSearch} // LpCard의 태그 버튼으로 검색할 경우
+                        openMenuId={openMenuId}
+                        setOpenMenuId={setOpenMenuId}
                     />
                 ))}
                 {isFetching && <LpListSkeleton count={12}/>}

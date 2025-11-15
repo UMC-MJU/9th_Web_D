@@ -3,6 +3,8 @@ import type { Likes, Tags } from "../types/lp";
 import formatDate from "../utils/formatDate";
 import { useDisLike, useLike } from "../hooks/queries/useLike";
 import { useAuth } from "../contexts/AuthContext";
+import DropdownMenu from "./DropDownMenu";
+import type { Dispatch, SetStateAction } from "react";
 
 type LpItem = {
     id: number;
@@ -17,12 +19,15 @@ type LpItem = {
     likes: Likes[];
 }
 
-interface LpProps { 
+interface LpProps {
     lp: LpItem;
     setSearch: (keyWord: string) => void;
-}
+    // `DropdownMenu`를 제어하기 위한 props 추가
+    openMenuId: number | null;
+    setOpenMenuId: Dispatch<SetStateAction<number | null>>;
+  }
 
-function LpCard({ lp, setSearch }: LpProps) {
+function LpCard({ lp, setSearch, openMenuId, setOpenMenuId }: LpProps) {
     
     const { mutate: likeMutate } = useLike(lp.id);
     const { mutate: disLikeMutate } = useDisLike(lp.id);
@@ -32,6 +37,24 @@ function LpCard({ lp, setSearch }: LpProps) {
     const isLiked = isLoggedIn && lp.likes.some((like: Likes) => like.userId === userData?.data.id);
 
     const likeColor = isLiked ? 'text-pink-400' : 'text-white';
+
+    const isAuthor = isLoggedIn && userData?.data.id === lp.authorId;
+
+    // 6. DropdownMenu에 전달할 메뉴 항목 배열 정의
+    const lpMenuItems = [
+    {
+      label: '수정',
+      onClick: () => {
+      },
+    },
+    {
+      label: '삭제',
+      onClick: () => {
+        
+      },
+      className: 'text-red-400',
+    },
+    ];
 
     // 좋아요 클릭 핸들러
     const handleLike = (e: React.MouseEvent) => {
@@ -62,6 +85,24 @@ function LpCard({ lp, setSearch }: LpProps) {
     return (
         <NavLink className="group relative rounded-lg overflow-hidden aspect-square" to={`/lp/${lp.id}`}>
             
+            {isAuthor && (
+        <div
+          className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100"
+          // 이 래퍼가 NavLink의 페이지 이동을 막아줍니다.
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          <DropdownMenu
+            triggerId={lp.id}
+            openMenuId={openMenuId}
+            setOpenMenuId={setOpenMenuId}
+            menuItems={lpMenuItems}
+          />
+        </div>
+      )}
+
             <img
                 src={lp.thumbnail}
                 alt={lp.title}
