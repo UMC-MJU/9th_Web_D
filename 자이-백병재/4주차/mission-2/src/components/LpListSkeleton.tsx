@@ -7,9 +7,9 @@ interface LpListSkeletonProps {
 const LpListSkeleton = ({ count }: LpListSkeletonProps) => {
     return(
     <>
-    {new Array(count).fill(0).map((idx) => (
-        <LpCardSkeleton key={idx} />
-    ))}
+      {new Array(count).fill(0).map((value, index) => (
+        <LpCardSkeleton key={index} />
+      ))}
     </>);
 }
 

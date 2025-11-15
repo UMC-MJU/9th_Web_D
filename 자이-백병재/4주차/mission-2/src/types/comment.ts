@@ -25,3 +25,18 @@ export type CreateCommentParams = {
 export type CreateCommentRequest = {
   content: string;
 };
+
+export type FixCommentParams = {
+  lpId: number;
+  commentId: number;
+  content: string;
+}
+
+export type DeleteCommentParams = {
+  lpId: number;
+  commentId: number;
+}
+
+export type DeleteCommentResponse = {
+  message: string;
+}
