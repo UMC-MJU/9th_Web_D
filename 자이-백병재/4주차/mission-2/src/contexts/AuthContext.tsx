@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState, type PropsWithChildren } from "react";
+import { createContext, useContext, useState, type PropsWithChildren } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query"; 
 import type { RequestSigninDto, ResponseMyInfoDto } from "../types/auth";
 import { useLocalStorage } from "../hooks/useLocalStorage";
-import { Local_STORAGE_KEYS } from "../constants/key";
+import { Local_STORAGE_KEYS, QUERY_KEY } from "../constants/key";
 import { getMyInfo, postSignin, postSignout } from "../apis/auth";
 
 interface AuthContextType {
@@ -33,23 +34,13 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         () => getStorageRefreshToken(),
     );
 
-    const [userData, setUserData] = useState<ResponseMyInfoDto | null>(null);
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            if (accessToken) {
-                try {
-                    const response: ResponseMyInfoDto = await getMyInfo();
-                    setUserData(response);
-                } catch (error) {
-                    console.error("Failed to fetch user info on load:", error);
-                    logout(); 
-                }
-            }
-        };
-
-        fetchUserData();
-    }, [accessToken]);
+    const { data: userData } = useQuery<ResponseMyInfoDto>({
+      queryKey: QUERY_KEY.myInfo,
+      queryFn: getMyInfo,
+      enabled: !!accessToken,
+    });
 
     const login = async (siginInData: RequestSigninDto) => {
         const {data} = await postSignin(siginInData);
@@ -58,9 +49,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
                 setStorageRefreshToken(data.refreshToken);
                 setAccessToken(data.accessToken)
                 setRefreshToken(data.refreshToken);
-                const response : ResponseMyInfoDto = await getMyInfo();
-                setUserData(response);
-                console.log(response);
+                queryClient.invalidateQueries({ queryKey: QUERY_KEY.myInfo });
             }
     };
     
@@ -74,20 +63,22 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
             removeStorageRefreshToken();
             setAccessToken(null);
             setRefreshToken(null);
-            setUserData(null);
+            queryClient.removeQueries({ queryKey: QUERY_KEY.myInfo });
         }
     };
 
-    return (<AuthContext.Provider value={{ accessToken, refreshToken, login, logout, userData }}>
+    return (<AuthContext.Provider 
+        value={{ accessToken, refreshToken, login, logout, userData: userData || null }}
+    >
         {children}
     </AuthContext.Provider>
     );
 }
 
 export const useAuth = () => {
-    const context =  useContext(AuthContext);
-    if (context === undefined) {
-        alert("useAuth must be used within an AuthProvider");
-    }
-    return context;
+  const context = 	useContext(AuthContext);
+  if (context === undefined) {
+    alert("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };
