@@ -5,6 +5,7 @@ import { useGetInfiniteCommentList } from '../hooks/queries/useGetInfinityCommen
 import { useCreateComment } from '../hooks/queries/useCreateComment';
 import { useAuth } from '../contexts/AuthContext';
 import { useDeleteComment, useFixComment } from '../hooks/queries/useFixComment';
+import DropdownMenu from './DropDownMenu';
 
 export function CommentList({ id }: { id: number }) {
   const [order, setOrder] = useState<'desc' | 'asc'>('desc');
@@ -27,10 +28,10 @@ export function CommentList({ id }: { id: number }) {
     }
     const handleClickOutside = (event: MouseEvent) => {
       const triggerClicked = (event.target as Element).closest(
-        `[data-comment-menu-trigger='${openMenuId}']`
+        `[data-menu-trigger='${openMenuId}']`
       );
       const menuClicked = (event.target as Element).closest(
-        `[data-comment-menu-dropdown='${openMenuId}']`
+        `[data-menu-dropdown='${openMenuId}']`
       );
       if (!triggerClicked && !menuClicked) {
         setOpenMenuId(null);
@@ -164,6 +165,21 @@ export function CommentList({ id }: { id: number }) {
         {allComments.map((comment) => {
           const isAuthor = currentUserId === comment.author?.id;
           const isEditing = editingCommentId === comment.id;
+          const commentMenuItems = [
+            {
+              label: '수정',
+              onClick: () => {
+                setEditingCommentId(comment.id);
+                setEditText(comment.content);
+              },
+            },
+            {
+              label: '삭제',
+              onClick: () => {
+                deleteCommentMutate({ lpId: id, commentId: comment.id });
+              },
+            },
+          ];
 
           return (
             <div
@@ -180,53 +196,13 @@ export function CommentList({ id }: { id: number }) {
                     {new Date(comment.createdAt).toLocaleDateString()}
                   </span>
 
-                  {/* "..." 버튼 (작성자이고 수정 중이 아닐 때) */}
                   {isAuthor && !isEditing && (
-                    <div className="relative">
-                      <button
-                        data-comment-menu-trigger={comment.id}
-                        onClick={() =>
-                          setOpenMenuId((prevId) =>
-                            prevId === comment.id ? null : comment.id
-                          )
-                        }
-                        className="p-1 rounded-full text-gray-400 hover:bg-gray-700"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="1"></circle>
-                          <circle cx="19" cy="12" r="1"></circle>
-                          <circle cx="5" cy="12" r="1"></circle>
-                        </svg>
-                      </button>
-
-                      {/* 드롭다운 메뉴 */}
-                      {openMenuId === comment.id && (
-                        <div
-                          data-comment-menu-dropdown={comment.id}
-                          className="absolute top-full right-0 mt-2 w-32 bg-gray-700 rounded-lg shadow-lg z-10"
-                        >
-                          <button
-                            onClick={() => {
-                              setEditingCommentId(comment.id);
-                              setEditText(comment.content);
-                              setOpenMenuId(null);
-                            }}
-                            className="w-full text-left px-4 py-2 text-sm text-white rounded-t-lg hover:bg-gray-600"
-                          >
-                            수정
-                          </button>
-                          <button
-                            onClick={() => {
-                              deleteCommentMutate({lpId: id, commentId: comment.id});
-                              setOpenMenuId(null);
-                            }}
-                            className="w-full text-left px-4 py-2 text-sm text-red-400 rounded-b-lg hover:bg-gray-600"
-                          >
-                            삭제
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    <DropdownMenu
+                      triggerId={comment.id}
+                      openMenuId={openMenuId}
+                      setOpenMenuId={setOpenMenuId}
+                      menuItems={commentMenuItems}
+                    />
                   )}
                 </div>
               </div>

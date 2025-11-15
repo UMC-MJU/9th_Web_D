@@ -41,7 +41,6 @@ export const CreateLpButton = () => {
   // 최종 제출 핸들러
   const handleSubmit = () => {
     mutate({ title: title, content: content, thumbnail: thumbnailUrl, tags: tags });
-    console.log("제출할 데이터:", { title, content, thumbnail: thumbnailUrl, tags });
     closeModalAndReset(); 
   };
 
