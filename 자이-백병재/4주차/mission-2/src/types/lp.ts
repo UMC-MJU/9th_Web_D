@@ -79,6 +79,14 @@ export type ResponseLikes = {
     tags: string[],
 }  
   
+export type FixLpParams = {
+    lpId: number,
+    title: string,
+    content: string,
+    thumbnail: string | null,
+    tags: string[],
+}  
+
 export type CreateLpBody = {
     title: string,
     content: string,
@@ -97,3 +105,10 @@ export type CreateLpResponse = {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export type DeleteLpResponse = {
+    status: boolean,
+    statusCode: number,
+    message: string,
+    data: boolean
+  }

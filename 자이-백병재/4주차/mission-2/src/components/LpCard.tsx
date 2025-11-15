@@ -3,8 +3,9 @@ import type { Likes, Tags } from "../types/lp";
 import formatDate from "../utils/formatDate";
 import { useDisLike, useLike } from "../hooks/queries/useLike";
 import { useAuth } from "../contexts/AuthContext";
-import DropdownMenu from "./DropDownMenu";
 import type { Dispatch, SetStateAction } from "react";
+import { useDeleteLp } from "../hooks/queries/useDeleteLp";
+import DropdownMenu from "./DropDownMenu";
 
 type LpItem = {
     id: number;
@@ -40,6 +41,8 @@ function LpCard({ lp, setSearch, openMenuId, setOpenMenuId }: LpProps) {
 
     const isAuthor = isLoggedIn && userData?.data.id === lp.authorId;
 
+    const {mutate: deleteMutate} = useDeleteLp();
+
     // 6. DropdownMenu에 전달할 메뉴 항목 배열 정의
     const lpMenuItems = [
     {
@@ -50,7 +53,7 @@ function LpCard({ lp, setSearch, openMenuId, setOpenMenuId }: LpProps) {
     {
       label: '삭제',
       onClick: () => {
-        
+        deleteMutate(lp.id);
       },
       className: 'text-red-400',
     },
