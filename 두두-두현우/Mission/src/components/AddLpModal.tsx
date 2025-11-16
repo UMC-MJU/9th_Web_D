@@ -200,41 +200,43 @@ export default function AddLpModal({
 
           <div>
             <label className="block mb-2 text-sm text-white/80">썸네일</label>
-            <div
-              onDrop={onDrop}
-              onDragOver={onDragOver}
-              className="mb-3 flex items-center justify-center gap-3 rounded-2xl border border-dashed border-white/25 bg-black/20 p-4 text-white/70"
-            >
-              <div className="flex flex-col items-center text-center text-xs">
-                <span className="mb-2">PNG, JPG 이미지</span>
-                <span className="text-white/50">또는</span>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="mt-2 rounded-full bg-white/90 px-3 py-1 text-black cursor-pointer hover:bg-white"
-                  disabled={state === "loading"}
-                >
-                  파일 선택
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg"
-                  className="hidden"
-                  onChange={onFileChange}
-                  disabled={state === "loading"}
+            {thumbPreview || thumbnailValue ? (
+              <div className="mb-3 overflow-hidden rounded-2xl border border-white/20 bg-black/30">
+                <img
+                  src={thumbPreview || thumbnailValue}
+                  alt="thumbnail preview"
+                  className="w-full h-auto object-contain"
+                  style={{ maxHeight: 240 }}
                 />
               </div>
-              {(thumbPreview || thumbnailValue) && (
-                <div className="ml-4 h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/20 bg-black/30">
-                  <img
-                    src={thumbPreview || thumbnailValue}
-                    alt="preview"
-                    className="h-full w-full object-cover"
+            ) : (
+              <div
+                onDrop={onDrop}
+                onDragOver={onDragOver}
+                className="mb-3 flex items-center justify-center gap-3 rounded-2xl border border-dashed border-white/25 bg-black/20 p-4 text-white/70"
+              >
+                <div className="flex flex-col items-center text-center text-xs">
+                  <span className="mb-2">PNG, JPG 이미지</span>
+                  <span className="text-white/50">또는</span>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="mt-2 rounded-full bg-white/90 px-3 py-1 text-black cursor-pointer hover:bg-white"
+                    disabled={state === "loading"}
+                  >
+                    파일 선택
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    className="hidden"
+                    onChange={onFileChange}
+                    disabled={state === "loading"}
                   />
                 </div>
-              )}
-            </div>
+              </div>
+            )}
             <input type="hidden" {...register("thumbnail")} />
             {errors.thumbnail && (
               <p className="mt-2 text-red-300 text-sm">
