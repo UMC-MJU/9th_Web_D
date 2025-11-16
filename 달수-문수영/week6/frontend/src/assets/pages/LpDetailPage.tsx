@@ -1,8 +1,9 @@
 import { useParams, Link } from 'react-router-dom';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../../apis';
 import QueryState from '../../components/QueryState';
+import { isLoggedIn } from '../../utils/auth';
 
 interface LpItem {
   id: number;
@@ -32,6 +33,8 @@ interface LpCommentsPayload {
 export default function LpDetailPage() {
   const { lpid } = useParams<{ lpid: string }>();
   const [order, setOrder] = useState<'desc' | 'asc'>('desc');
+  const [commentInput, setCommentInput] = useState<string>('');
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isError, refetch } = useQuery({
     enabled: Boolean(lpid),
@@ -116,6 +119,29 @@ export default function LpDetailPage() {
     return () => observer.disconnect();
   }, [fetchNextComments, hasMoreComments, isFetchingNextComments]);
 
+  // 댓글 작성
+  const { mutate: createComment, isPending: creatingComment } = useMutation({
+    mutationFn: async (content: string) => {
+      const res = await api.post(`/lps/${lpid}/comments`, { content });
+      return res.data;
+    },
+    onSuccess: () => {
+      // 댓글 목록 무효화(정렬 값이 포함된 모든 목록에 반영)
+      queryClient.invalidateQueries({ queryKey: ['lpComments', lpid] });
+      setCommentInput('');
+    },
+  });
+
+  const handleSubmitComment = () => {
+    const text = commentInput.trim();
+    if (!text) return;
+    if (!isLoggedIn()) {
+      window.location.href = '/login';
+      return;
+    }
+    createComment(text);
+  };
+
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <div className="mb-4">
@@ -142,42 +168,50 @@ export default function LpDetailPage() {
 
       {/* 댓글 섹션 */}
       <section className="mt-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base font-semibold">댓글</h2>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-600">정렬</label>
-            <select
-              value={order}
-              onChange={(e) => setOrder(e.target.value as 'desc' | 'asc')}
-              className="border rounded px-2 py-1 text-xs"
-              aria-label="댓글 정렬 선택"
-            >
-              <option value="desc">최신순</option>
-              <option value="asc">오래된순</option>
-            </select>
+        {/* 헤더 + 정렬 + 입력이 한 박스 안에 */}
+        <div className="mb-4 rounded-lg border bg-white p-3">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold">댓글</h2>
+            <div className="inline-flex overflow-hidden rounded-md border border-gray-300">
+              <button
+                type="button"
+                className={`px-3 py-1 text-xs ${order === 'asc' ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                onClick={() => setOrder('asc')}
+              >
+                오래된순
+              </button>
+              <button
+                type="button"
+                className={`px-3 py-1 text-xs ${order === 'desc' ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                onClick={() => setOrder('desc')}
+              >
+                최신순
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* 입력 박스 (UI용) */}
-        <div className="mb-4 border rounded p-3 bg-white">
-          <label htmlFor="lp-comment-input" className="block text-xs font-medium text-gray-600 mb-2">
-            댓글 작성
-          </label>
-          <textarea
-            id="lp-comment-input"
-            className="w-full min-h-20 border rounded p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
-            placeholder="데모에서는 작성이 비활성화되어 있습니다."
-            disabled
-          />
-          <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-            <span>작성은 비활성화 상태입니다.</span>
+          <div className="flex items-center gap-2">
+            <input
+              id="lp-comment-input"
+              type="text"
+              className="flex-1 h-9 border border-gray-300 rounded-md px-3 text-sm bg-white placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-300"
+              placeholder={isLoggedIn() ? '댓글을 입력해주세요' : '로그인 후 댓글을 작성할 수 있습니다.'}
+              value={commentInput}
+              onChange={(e) => setCommentInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSubmitComment();
+                }
+              }}
+            />
             <button
               type="button"
-              disabled
-              className="px-3 py-1 rounded bg-gray-300 text-white cursor-not-allowed"
-              aria-disabled="true"
+              disabled={!commentInput.trim() || creatingComment}
+              className="px-3 h-9 rounded-md bg-gray-800 text-white hover:bg-gray-700 transition-colors disabled:bg-gray-400"
+              onClick={handleSubmitComment}
             >
-              등록
+              작성
             </button>
           </div>
         </div>
