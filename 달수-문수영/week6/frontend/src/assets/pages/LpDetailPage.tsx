@@ -3,7 +3,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../../apis';
 import QueryState from '../../components/QueryState';
-import { isLoggedIn } from '../../utils/auth';
+import { isLoggedIn, getUserInfo, getCurrentUserEmail } from '../../utils/auth';
 
 interface LpItem {
   id: number;
@@ -21,7 +21,8 @@ interface LpComment {
   id: number;
   content: string;
   createdAt: string;
-  author?: { id: number; nickname: string } | null;
+  authorId?: number;
+  author?: { id: number; name: string; email: string } | null;
 }
 
 interface LpCommentsPayload {
@@ -35,6 +36,11 @@ export default function LpDetailPage() {
   const [order, setOrder] = useState<'desc' | 'asc'>('desc');
   const [commentInput, setCommentInput] = useState<string>('');
   const queryClient = useQueryClient();
+  const currentUserId = Number(getUserInfo().id || NaN);
+  const currentEmail = getCurrentUserEmail();
+  const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingText, setEditingText] = useState<string>('');
 
   const { data, isLoading, isError, refetch } = useQuery({
     enabled: Boolean(lpid),
@@ -142,6 +148,46 @@ export default function LpDetailPage() {
     createComment(text);
   };
 
+  // 댓글 수정
+  const { mutate: updateComment, isPending: updatingComment } = useMutation({
+    mutationFn: async (payload: { commentId: number; content: string }) => {
+      const res = await api.patch(`/lps/${lpid}/comments/${payload.commentId}`, {
+        content: payload.content,
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lpComments', lpid] });
+      setEditingId(null);
+      setEditingText('');
+      setMenuOpenId(null);
+    },
+  });
+
+  const startEdit = (commentId: number, content: string) => {
+    setEditingId(commentId);
+    setEditingText(content);
+    setMenuOpenId(null);
+  };
+
+  const saveEdit = (commentId: number) => {
+    const text = editingText.trim();
+    if (!text) return;
+    updateComment({ commentId, content: text });
+  };
+
+  // 댓글 삭제
+  const { mutate: deleteComment } = useMutation({
+    mutationFn: async (commentId: number) => {
+      const res = await api.delete(`/lps/${lpid}/comments/${commentId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lpComments', lpid] });
+      setMenuOpenId(null);
+    },
+  });
+
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <div className="mb-4">
@@ -234,14 +280,81 @@ export default function LpDetailPage() {
         >
           <>
             <ul className="divide-y border rounded">
-              {comments.map((c) => (
-                <li key={c.id} className="p-3">
-                  <div className="text-xs text-gray-500 mb-1">
-                    {(c.author?.nickname ?? '익명')} · {new Date(c.createdAt).toLocaleString()}
-                  </div>
-                  <div className="text-sm text-gray-800 whitespace-pre-wrap">{c.content}</div>
-                </li>
-              ))}
+              {comments.map((c) => {
+                const mine =
+                  (typeof currentUserId === 'number' && !Number.isNaN(currentUserId) && (c.authorId === currentUserId || Number(c.author?.id) === currentUserId)) ||
+                  (!!currentEmail && c.author?.email === currentEmail);
+                const isEditing = editingId === c.id;
+                return (
+                  <li key={c.id} className="p-3 relative">
+                    <div className="flex items-start justify-between mb-1">
+                      <div className="text-xs text-gray-500">
+                        {(c.author?.name ?? '익명')} · {new Date(c.createdAt).toLocaleString()}
+                      </div>
+                      {mine && (
+                        <div className="relative">
+                          <button
+                            type="button"
+                            aria-label="댓글 메뉴 열기"
+                            className="px-2 py-1 text-gray-500 hover:text-gray-800"
+                            onClick={() => setMenuOpenId((prev) => (prev === c.id ? null : c.id))}
+                          >
+                            ⋯
+                          </button>
+                          {menuOpenId === c.id && (
+                            <div className="absolute right-0 mt-1 w-28 rounded border bg-white shadow z-10">
+                              <button
+                                className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+                                onClick={() => startEdit(c.id, c.content)}
+                              >
+                                수정
+                              </button>
+                              <button
+                                className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                                onClick={() => deleteComment(c.id)}
+                              >
+                                삭제
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        <textarea
+                          className="w-full min-h-20 border rounded p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
+                          value={editingText}
+                          onChange={(e) => setEditingText(e.target.value)}
+                        />
+                        <div className="flex items-center gap-2 justify-end">
+                          <button
+                            type="button"
+                            className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100"
+                            onClick={() => {
+                              setEditingId(null);
+                              setEditingText('');
+                            }}
+                          >
+                            취소
+                          </button>
+                          <button
+                            type="button"
+                            disabled={!editingText.trim() || updatingComment}
+                            className="px-3 py-1 rounded bg-black text-white hover:bg-gray-800 disabled:bg-gray-400"
+                            onClick={() => saveEdit(c.id)}
+                          >
+                            저장
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-sm text-gray-800 whitespace-pre-wrap">{c.content}</div>
+                    )}
+                  </li>
+                );
+              })}
               {comments.length === 0 && (
                 <li className="p-3 text-sm text-gray-500">첫 댓글을 남겨보세요.</li>
               )}
