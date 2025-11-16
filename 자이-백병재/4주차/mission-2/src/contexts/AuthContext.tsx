@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     const queryClient = useQueryClient();
 
     const { data: userData } = useQuery<ResponseMyInfoDto>({
-      queryKey: QUERY_KEY.myInfo,
+      queryKey: [QUERY_KEY.myInfo],
       queryFn: getMyInfo,
       enabled: !!accessToken,
     });
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
                 setStorageRefreshToken(data.refreshToken);
                 setAccessToken(data.accessToken)
                 setRefreshToken(data.refreshToken);
-                queryClient.invalidateQueries({ queryKey: QUERY_KEY.myInfo });
+                queryClient.invalidateQueries({ queryKey: [QUERY_KEY.myInfo] });
             }
     };
     
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
             removeStorageRefreshToken();
             setAccessToken(null);
             setRefreshToken(null);
-            queryClient.removeQueries({ queryKey: QUERY_KEY.myInfo });
+            queryClient.removeQueries({ queryKey: [QUERY_KEY.myInfo] });
         }
     };
 
