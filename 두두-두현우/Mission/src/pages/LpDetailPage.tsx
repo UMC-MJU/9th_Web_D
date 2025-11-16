@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { fetchLpDetail, type LpDetail } from "../apis/lp";
+import { fetchLpDetail } from "../apis/lp";
+import type { LpDetail } from "../types/lp";
 import LpCommentsSection from "../components/LpCommentsSection";
 
 const fallbackThumbnail =

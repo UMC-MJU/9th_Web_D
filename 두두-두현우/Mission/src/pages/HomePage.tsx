@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchLpList, type Lp } from "../apis/lp";
+import { fetchLpList } from "../apis/lp";
+import type { Lp } from "../types/lp";
 
 interface HomePageProps {
   username: string;
