@@ -1,11 +1,14 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { isLoggedIn, getCurrentUserNickname, logout } from '../../utils/auth';
+import { api } from '../../apis';
 
 const HomeLayout = () => {
     const [loggedIn, setLoggedIn] = useState<boolean>(isLoggedIn());
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const { pathname } = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const onChange = () => setLoggedIn(isLoggedIn());
@@ -17,9 +20,22 @@ const HomeLayout = () => {
         };
     }, []);
 
+    const { mutate: signoutMutate, isPending: signingOut } = useMutation({
+        mutationFn: async () => {
+            const res = await api.post('/auth/signout');
+            return res.data;
+        },
+        onSettled: () => {
+            // 서버 응답 관계없이 클라이언트 세션 정리
+            logout();
+            setLoggedIn(false);
+            navigate('/login');
+        },
+    });
+
     const handleLogout = () => {
-        logout();
-        setLoggedIn(false);
+        if (signingOut) return;
+        signoutMutate();
     };
 
     const nickname = loggedIn ? getCurrentUserNickname() : '';
@@ -48,9 +64,10 @@ const HomeLayout = () => {
                             </span>
                             <button
                                 onClick={handleLogout}
-                                className='px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 transition-colors'
+                                className='px-3 py-1 rounded border border-gray-300 hover:bg-gray-100 transition-colors disabled:bg-gray-200'
+                                disabled={signingOut}
                             >
-                                로그아웃
+                                {signingOut ? '로그아웃 중...' : '로그아웃'}
                             </button>
                         </div>
                     ) : (
