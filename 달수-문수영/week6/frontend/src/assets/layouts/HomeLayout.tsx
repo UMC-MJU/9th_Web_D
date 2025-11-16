@@ -1,10 +1,11 @@
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { isLoggedIn, getCurrentUserNickname, logout } from '../../utils/auth';
 
 const HomeLayout = () => {
     const [loggedIn, setLoggedIn] = useState<boolean>(isLoggedIn());
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+    const { pathname } = useLocation();
 
     useEffect(() => {
         const onChange = () => setLoggedIn(isLoggedIn());
@@ -115,13 +116,15 @@ const HomeLayout = () => {
                 </div>
             )}
 
-            <Link
-                to='/lps'
-                aria-label='플로팅 버튼: 영화 노래 게시판으로 이동'
-                className='fixed bottom-6 right-6 w-12 h-12 rounded-full bg-black text-white shadow-lg flex items-center justify-center text-2xl hover:bg-gray-800 transition-colors'
-            >
-                +
-            </Link>
+            {pathname !== '/lps' && (
+                <Link
+                    to='/lps'
+                    aria-label='플로팅 버튼: 영화 노래 게시판으로 이동'
+                    className='fixed bottom-6 right-6 w-12 h-12 rounded-full bg-black text-white shadow-lg flex items-center justify-center text-2xl hover:bg-gray-800 transition-colors'
+                >
+                    +
+                </Link>
+            )}
         </div>
     );
 };

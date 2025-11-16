@@ -3,6 +3,8 @@ import { useMemo, useRef, useEffect, useState } from 'react';
 import { api } from '../apis';
 import { Link } from 'react-router-dom';
 import QueryState from './QueryState';
+import CreateLpModal from './CreateLpModal';
+import { isLoggedIn } from '../utils/auth';
 
 type Order = 'asc' | 'desc';
 
@@ -22,6 +24,7 @@ interface LpListPayload {
 
 export default function InfiniteLpsList() {
   const [order, setOrder] = useState<Order>('desc');
+  const [openCreate, setOpenCreate] = useState(false);
 
   const {
     data,
@@ -118,7 +121,7 @@ export default function InfiniteLpsList() {
               <li key={lp.id} className="p-0">
                 <Link
                   to={`/lp/${lp.id}`}
-                  className="p-3 flex items-center gap-3 hover:bg-gray-50 transition-colors block"
+                  className="p-3 flex items-center gap-3 hover:bg-gray-50 transition-colors"
                   aria-label={`${lp.title} 상세 보기`}
                 >
                   {lp.thumbnail && (
@@ -159,6 +162,24 @@ export default function InfiniteLpsList() {
           <div ref={sentinelRef} className="h-px" />
         </>
       </QueryState>
+
+      {/* 플로팅 생성 버튼 */}
+      <button
+        type="button"
+        aria-label="LP 글 작성"
+        className="fixed z-50 bottom-6 right-6 w-12 h-12 rounded-full bg-black text-white shadow-lg flex items-center justify-center text-2xl hover:bg-gray-800 transition-colors"
+        onClick={() => {
+          if (!isLoggedIn()) {
+            window.location.href = '/login';
+            return;
+          }
+          setOpenCreate(true);
+        }}
+      >
+        +
+      </button>
+
+      <CreateLpModal open={openCreate} onClose={() => setOpenCreate(false)} />
     </div>
   );
 }
