@@ -100,3 +100,19 @@ export const createLp = async (body: CreateLpRequest): Promise<Lp> => {
 
   return data as Lp;
 };
+
+// ---------------- LP 삭제 ----------------
+type DeleteLpResponse =
+  | { status: boolean; statusCode: number; message: string; data: boolean }
+  | boolean;
+
+export const deleteLp = async (id: number | string): Promise<boolean> => {
+  const { data } = await axiosInstance.delete<DeleteLpResponse>(
+    API_ENDPOINTS.LP.DETAIL(id)
+  );
+
+  if (typeof data === "object" && data !== null && "data" in data) {
+    return (data as { data: boolean }).data;
+  }
+  return data as boolean;
+};

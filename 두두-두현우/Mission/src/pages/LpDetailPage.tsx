@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { fetchLpDetail } from "../apis/lp";
+import { fetchLpDetail, deleteLp } from "../apis/lp";
 import type { LpDetail } from "../types/lp";
 import LpCommentsSection from "../components/LpCommentsSection";
 
@@ -97,6 +97,20 @@ export default function LpDetailPage() {
     navigate(-1);
   };
 
+  const handleDelete = async () => {
+    if (!lp) return;
+    const ok = window.confirm("정말 이 LP를 삭제하시겠습니까?");
+    if (!ok) return;
+    try {
+      await deleteLp(lp.id);
+      // 홈/목록에서 제거되도록 이벤트 발송
+      window.dispatchEvent(new CustomEvent("lp:deleted", { detail: lp.id }));
+      navigate("/", { replace: true });
+    } catch {
+      alert("삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    }
+  };
+
   if (status === "loading" || status === "idle") {
     return (
       <div className="min-h-screen bg-[#010102] text-white">
@@ -155,6 +169,13 @@ export default function LpDetailPage() {
             className="text-sm text-white/70 transition hover:text-white"
           >
             ← 목록으로
+          </button>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="rounded-full bg-rose-500/90 px-4 py-2 text-xs font-medium text-white hover:bg-rose-500 transition cursor-pointer"
+          >
+            삭제
           </button>
         </div>
 

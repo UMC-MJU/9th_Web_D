@@ -188,6 +188,19 @@ export default function HomePage({ username }: HomePageProps) {
     };
   }, []);
 
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const custom = event as CustomEvent<number>;
+      const deletedId = custom.detail;
+      setLps((prev) => prev.filter((lp) => lp.id !== deletedId));
+      setCurrentIndex(0);
+    };
+    window.addEventListener("lp:deleted", handler as EventListener);
+    return () => {
+      window.removeEventListener("lp:deleted", handler as EventListener);
+    };
+  }, []);
+
   const totalLps = lps.length;
   const currentLp = totalLps > 0 ? lps[currentIndex] : null;
   const HOME_FALLBACK_THUMB =
