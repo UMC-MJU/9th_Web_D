@@ -14,6 +14,7 @@ interface LpItem {
   authorId?: number;
   author?: { id: number; name: string; email: string } | null;
   tags?: { id: number; name: string }[];
+  likes?: { id: number; userId: number; lpId: number }[];
 }
 
 interface LpDetailPayload {
@@ -68,6 +69,20 @@ export default function LpDetailPage() {
     gcTime: 5 * 60 * 1000,
   });
 
+  // 상대 시간 포맷터
+  const formatRelative = (iso: string) => {
+    const ts = new Date(iso).getTime();
+    const diffSec = Math.floor((Date.now() - ts) / 1000);
+    if (diffSec < 60) return `${diffSec}초 전`;
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return `${diffMin}분 전`;
+    const diffHour = Math.floor(diffMin / 60);
+    if (diffHour < 24) return `${diffHour}시간 전`;
+    const diffDay = Math.floor(diffHour / 24);
+    if (diffDay < 7) return `${diffDay}일 전`;
+    return new Date(iso).toLocaleDateString();
+  };
+
   if (isError) {
     return (
       <div className="p-6 max-w-3xl mx-auto">
@@ -120,6 +135,53 @@ export default function LpDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lps'] });
       navigate('/lps', { replace: true });
+    },
+  });
+
+  // 좋아요
+  const liked = useMemo(
+    () => (data?.likes ?? []).some((l: any) => Number(l?.userId) === currentUserId),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data, currentUserId]
+  );
+  const likeCount = (data?.likes?.length ?? 0) as number;
+
+  const { mutate: toggleLike, isPending: togglingLike } = useMutation({
+    mutationFn: async (doLike: boolean) => {
+      if (doLike) {
+        await api.post(`/lps/${lpid}/likes`);
+      } else {
+        await api.delete(`/lps/${lpid}/likes`);
+      }
+      return true;
+    },
+    onMutate: async (doLike) => {
+      await queryClient.cancelQueries({ queryKey: ['lp', lpid] });
+      const previous = queryClient.getQueryData<any>(['lp', lpid]);
+      queryClient.setQueryData(['lp', lpid], (old: any) => {
+        if (!old) return old;
+        const currentLikes = Array.isArray(old.likes) ? [...old.likes] : [];
+        if (doLike) {
+          // 낙관적 추가
+          if (!currentLikes.some((x: any) => Number(x.userId) === currentUserId)) {
+            currentLikes.push({ id: Date.now(), userId: currentUserId, lpId: old.id });
+          }
+        } else {
+          // 낙관적 제거
+          const idx = currentLikes.findIndex((x: any) => Number(x.userId) === currentUserId);
+          if (idx >= 0) currentLikes.splice(idx, 1);
+        }
+        return { ...old, likes: currentLikes };
+      });
+      return { previous };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(['lp', lpid], ctx.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['lp', lpid] });
     },
   });
 
@@ -239,99 +301,109 @@ export default function LpDetailPage() {
           목록으로
         </Link>
       </div>
-      <article className="border rounded p-4">
-        <header className="flex items-start gap-4 mb-4">
-          {data.thumbnail && (
-            <img src={editingLp ? (thumbPreview || editThumbnail || data.thumbnail) : data.thumbnail} alt="" className="w-24 h-24 object-cover rounded" />
-          )}
-          <div className="min-w-0">
+      <article className="rounded-2xl border border-gray-200 bg-white text-gray-900 p-5 md:p-6 shadow">
+        <header className="mb-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center ring-1 ring-emerald-200">
+                <span className="text-emerald-500 text-xs">●</span>
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm text-gray-900 truncate">{data.author?.name ?? '익명'}</div>
+                <div className="text-[11px] text-gray-500 truncate">{data.author?.email ?? ''}</div>
+              </div>
+            </div>
+
+            <div className="shrink-0 flex items-center gap-2 text-xs text-gray-500">
+              <span>{formatRelative(data.createdAt)}</span>
+              {mine && (
+                <div className="flex items-center gap-1">
+                  {editingLp ? (
+                    <>
+                      <button
+                        type="button"
+                        aria-label="썸네일 변경"
+                        title="썸네일 변경"
+                        className="p-1.5 rounded border border-gray-300 hover:bg-gray-100"
+                        onClick={() => fileRef.current?.click()}
+                      >
+                        🖼️
+                      </button>
+                      <button
+                        className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-100"
+                        onClick={() => {
+                          setEditingLp(false);
+                          setEditTitle('');
+                          setEditContent('');
+                          setEditThumbnail('');
+                          setThumbPreview('');
+                          setEditTags([]);
+                          setTagInput('');
+                        }}
+                        disabled={updatingLp}
+                      >
+                        취소
+                      </button>
+                      <button
+                        className="px-2 py-1 rounded bg-black text-white hover:bg-gray-800 disabled:bg-gray-400"
+                        onClick={() => {
+                          const payload: { title?: string; content?: string; thumbnail?: string; tags?: string[] } = {
+                            title: editTitle || undefined,
+                            content: editContent || undefined,
+                            thumbnail: (editThumbnail || thumbPreview) || undefined,
+                          };
+                          if (editTags.length > 0) payload.tags = editTags;
+                          updateLp(payload);
+                        }}
+                        disabled={updatingLp}
+                      >
+                        저장
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        className="px-2 py-1 rounded border border-gray-300 hover:bg-gray-100"
+                        onClick={() => {
+                          setEditingLp(true);
+                          setEditTitle(data.title);
+                          setEditContent(data.content);
+                          setEditThumbnail(data.thumbnail ?? '');
+                          setEditTags((data.tags ?? []).map((t) => t.name));
+                        }}
+                      >
+                        수정
+                      </button>
+                      <button
+                        className="px-2 py-1 rounded border border-red-300 text-red-600 hover:bg-red-50 disabled:opacity-60"
+                        onClick={() => {
+                          if (confirm('정말 삭제하시겠습니까?')) deleteLp();
+                        }}
+                        disabled={deletingLp}
+                      >
+                        삭제
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-3 min-w-0">
             {editingLp ? (
               <input
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full text-xl font-semibold border rounded px-2 py-1"
+                className="w-full text-2xl font-semibold rounded px-2 py-1 bg-white text-gray-900 border border-gray-300"
                 placeholder="제목"
               />
             ) : (
-              <h1 className="text-xl font-semibold break-words">{data.title}</h1>
+              <h1 className="text-2xl font-semibold break-words">{data.title}</h1>
             )}
-            <div className="text-xs text-gray-500 mt-1">
-              {new Date(data.createdAt).toLocaleString()}
-            </div>
           </div>
-
-          {mine && (
-            <div className="ml-auto flex items-center gap-2">
-              {editingLp ? (
-                <>
-                  <button
-                    type="button"
-                    aria-label="썸네일 변경"
-                    title="썸네일 변경"
-                    className="p-2 rounded-full border border-gray-300 hover:bg-gray-100"
-                    onClick={() => fileRef.current?.click()}
-                  >
-                    <span role="img" aria-hidden="true">🖼️</span>
-                  </button>
-                  <button
-                    className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100"
-                    onClick={() => {
-                      setEditingLp(false);
-                      setEditTitle('');
-                      setEditContent('');
-                      setEditThumbnail('');
-                      setThumbPreview('');
-                      setEditTags([]);
-                      setTagInput('');
-                    }}
-                    disabled={updatingLp}
-                  >
-                    취소
-                  </button>
-                  <button
-                    className="px-3 py-1 rounded bg-black text-white hover:bg-gray-800 disabled:bg-gray-400"
-                    onClick={() => {
-                      const payload: { title?: string; content?: string; thumbnail?: string; tags?: string[] } = {
-                        title: editTitle || undefined,
-                        content: editContent || undefined,
-                        thumbnail: (editThumbnail || thumbPreview) || undefined,
-                      };
-                      if (editTags.length > 0) payload.tags = editTags;
-                      updateLp(payload);
-                    }}
-                    disabled={updatingLp}
-                  >
-                    저장
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100"
-                    onClick={() => {
-                      setEditingLp(true);
-                      setEditTitle(data.title);
-                      setEditContent(data.content);
-                      setEditThumbnail(data.thumbnail ?? '');
-                      setEditTags((data.tags ?? []).map((t) => t.name));
-                    }}
-                  >
-                    수정
-                  </button>
-                  <button
-                    className="px-3 py-1 rounded border border-red-300 text-red-600 hover:bg-red-50 disabled:bg-red-200"
-                    onClick={() => {
-                      if (confirm('정말 삭제하시겠습니까?')) deleteLp();
-                    }}
-                    disabled={deletingLp}
-                  >
-                    삭제
-                  </button>
-                </>
-              )}
-            </div>
-          )}
         </header>
+
         {/* 파일 입력 (숨김) */}
         {editingLp && (
           <input
@@ -359,21 +431,54 @@ export default function LpDetailPage() {
             }}
           />
         )}
-        {editingLp ? (
-          <textarea
-            value={editContent}
-            onChange={(e) => setEditContent(e.target.value)}
-            className="w-full min-h-32 border rounded p-2"
-            placeholder="내용"
-          />
-        ) : (
-          <div className="whitespace-pre-wrap leading-relaxed text-gray-800">
-            {data.content}
+        {/* 썸네일 / 디스크 영역 */}
+        {data.thumbnail && !editingLp && (
+          <div className="mt-2">
+            <div className="mx-auto max-w-xl">
+              {/* LP 디스크 스타일 썸네일 */}
+              <div
+                className="relative aspect-square rounded-2xl bg-gray-600 ring-1 ring-black/40"
+                style={{
+                  boxShadow:
+                    '0 14px 28px rgba(0,0,0,0.35), 0 10px 10px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -12px 24px rgba(0,0,0,0.45)',
+                }}
+              >
+                {/* 회전 컨테이너: 디스크+라벨 함께 회전 */}
+                <div className="absolute inset-6 animate-[spin_8s_linear_infinite] will-change-transform">
+                  {/* 디스크(이미지) + 블랙 링 */}
+                  <div className="absolute inset-0 rounded-full overflow-hidden ring-8 ring-gray-800 shadow-xl">
+                    <div
+                      className="w-full h-full bg-center bg-cover"
+                      style={{ backgroundImage: `url(${thumbPreview || editThumbnail || data.thumbnail})` }}
+                      aria-label="LP Thumbnail"
+                    />
+                  </div>
+                  {/* 중앙 라벨 */}
+                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white ring-4 ring-gray-200 shadow-inner" />
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
+        {/* 본문 */}
+        <div className="mt-4">
+          {editingLp ? (
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="w-full min-h-32 rounded p-2 bg-white text-gray-900 border border-gray-300"
+              placeholder="내용"
+            />
+          ) : (
+            <div className="whitespace-pre-wrap leading-relaxed text-gray-700">
+              “{data.content}”
+            </div>
+          )}
+        </div>
+
         {/* 태그 */}
-        <div className="mt-3">
+        <div className="mt-4">
           {editingLp ? (
             <div>
               <label className="block text-xs text-gray-600 mb-1">태그</label>
@@ -381,7 +486,7 @@ export default function LpDetailPage() {
                 <input
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
-                  className="flex-1 border rounded px-3 py-2 text-sm"
+                  className="flex-1 rounded px-3 py-2 text-sm bg-white text-gray-900 border border-gray-300"
                   placeholder="태그 입력 후 추가"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -409,7 +514,7 @@ export default function LpDetailPage() {
                     setEditTags((prev) => [...prev, t]);
                     setTagInput('');
                   }}
-                  className="px-3 py-2 text-sm rounded bg-gray-500 text-white hover:bg-gray-400"
+                  className="px-3 py-2 text-sm rounded bg-black text-white hover:bg-gray-800"
                 >
                   추가
                 </button>
@@ -417,7 +522,7 @@ export default function LpDetailPage() {
               {editTags.length > 0 && (
                 <ul className="mt-2 flex flex-wrap gap-2">
                   {editTags.map((t, idx) => (
-                    <li key={`${t}-${idx}`} className="text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-800 border flex items-center gap-1">
+                    <li key={`${t}-${idx}`} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-300 flex items-center gap-1">
                       <span className="font-medium">#{t}</span>
                       <button
                         type="button"
@@ -434,11 +539,36 @@ export default function LpDetailPage() {
           ) : (
             <ul className="mt-2 flex flex-wrap gap-2">
               {(data.tags ?? []).map((t) => (
-                <li key={t.id} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700 border">#{t.name}</li>
+                <li key={t.id} className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-300">#{t.name}</li>
               ))}
             </ul>
           )}
         </div>
+
+        {/* 좋아요 */}
+        {!editingLp && (
+          <div className="mt-5 flex items-center justify-center gap-2">
+            <button
+              type="button"
+              aria-pressed={liked}
+              disabled={togglingLike}
+              onClick={() => {
+                if (!isLoggedIn()) {
+                  window.location.href = '/login';
+                  return;
+                }
+                toggleLike(!liked);
+              }}
+              className={`w-10 h-10 rounded-full flex items-center justify-center border transition-colors ${liked ? 'border-pink-500 bg-pink-50 text-pink-500' : 'border-gray-300 hover:bg-gray-100 text-gray-700'}`}
+              title={liked ? '좋아요 취소' : '좋아요'}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </button>
+            <span className="text-pink-600 text-sm">{likeCount}</span>
+          </div>
+        )}
       </article>
 
       {/* 댓글 섹션 */}
