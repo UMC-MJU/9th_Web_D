@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../../apis';
 import QueryState from '../../components/QueryState';
 import { isLoggedIn, getUserInfo, getCurrentUserEmail } from '../../utils/auth';
+import { tokenStorage } from '../../lib/token';
 
 interface LpItem {
   id: number;
@@ -40,7 +41,19 @@ export default function LpDetailPage() {
   const [order, setOrder] = useState<'desc' | 'asc'>('desc');
   const [commentInput, setCommentInput] = useState<string>('');
   const queryClient = useQueryClient();
-  const currentUserId = Number(getUserInfo().id || NaN);
+  // 사용자 ID: 토큰의 sub 우선, 없으면 userInfo.id
+  const accessToken = tokenStorage.getAccess();
+  let parsedUserId: number | null = null;
+  try {
+    if (accessToken) {
+      const payload = JSON.parse(atob(accessToken.split('.')[1] || '')) as { sub?: number | string };
+      const subNum = Number(payload?.sub);
+      if (!Number.isNaN(subNum)) parsedUserId = subNum;
+    }
+  } catch {
+    parsedUserId = null;
+  }
+  const currentUserId = parsedUserId ?? Number(getUserInfo().id || NaN);
   const currentEmail = getCurrentUserEmail();
   const navigate = useNavigate();
 
