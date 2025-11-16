@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../apis';
 import { isLoggedIn } from '../utils/auth';
@@ -21,9 +21,11 @@ export default function CreateLpModal({ open, onClose }: CreateLpModalProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [thumbnail, setThumbnail] = useState('');
+  const [previewUrl, setPreviewUrl] = useState('');
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [published, setPublished] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const isValid = useMemo(() => {
     return title.trim().length > 0 && content.trim().length > 0 && tags.length > 0;
@@ -78,6 +80,8 @@ export default function CreateLpModal({ open, onClose }: CreateLpModalProps) {
     setTitle('');
     setContent('');
     setThumbnail('');
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl('');
     setTagInput('');
     setTags([]);
     setPublished(true);
@@ -85,6 +89,42 @@ export default function CreateLpModal({ open, onClose }: CreateLpModalProps) {
   };
 
   if (!open) return null;
+
+  // 파일 선택 트리거
+  const openFilePicker = () => {
+    fileInputRef.current?.click();
+  };
+
+  // 파일 변경 시 업로드 및 미리보기
+  const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // 로컬 미리보기
+    const localUrl = URL.createObjectURL(file);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(localUrl);
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const { data } = await api.post('/uploads', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      // 래핑 여부 대응
+      const uploadedUrl: string =
+        data?.data?.imageUrl ?? data?.imageUrl ?? '';
+      if (uploadedUrl) {
+        setThumbnail(uploadedUrl);
+      }
+    } catch (err) {
+      alert('이미지 업로드에 실패했습니다. 다시 시도해 주세요.');
+      // 실패 시 미리보기도 초기화
+      URL.revokeObjectURL(localUrl);
+      setPreviewUrl('');
+    } finally {
+      // 동일 파일 재업로드 가능하도록 초기화
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50">
@@ -110,10 +150,34 @@ export default function CreateLpModal({ open, onClose }: CreateLpModalProps) {
               ✕
             </button>
           </div>
-          <div className="mx-auto mb-2 w-32 h-32 relative">
-            <div className="absolute inset-0 rounded-full bg-linear-to-br from-gray-700 to-black shadow-inner" />
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-gray-200" />
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-black" />
+          <div className="mx-auto mb-2 flex items-center justify-center">
+            {/* 업로드 미리보기 */}
+            {previewUrl ? (
+              <img
+                src={previewUrl}
+                alt="업로드 미리보기"
+                className="w-36 h-36 object-cover rounded-md z-10"
+                onClick={openFilePicker}
+              />
+            ) : null}
+            {/* LP 디스크 (클릭 시 파일 선택) */}
+            <button
+              type="button"
+              aria-label="LP 이미지 선택"
+              onClick={openFilePicker}
+              className={`relative w-36 h-36 rounded-full focus:outline-none focus:ring-2 focus:ring-white/30 ${previewUrl ? '-ml-6' : ''}`}
+            >
+              <div className="absolute inset-0 rounded-full bg-linear-to-br from-gray-700 to-black shadow-inner" />
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-gray-200" />
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-black" />
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
           </div>
         </div>
         <div className="px-4 pb-4 space-y-3">
