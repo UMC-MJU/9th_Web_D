@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../../apis';
@@ -11,6 +11,9 @@ interface LpItem {
   content: string;
   createdAt: string;
   thumbnail?: string | null;
+  authorId?: number;
+  author?: { id: number; name: string; email: string } | null;
+  tags?: { id: number; name: string }[];
 }
 
 interface LpDetailPayload {
@@ -38,6 +41,17 @@ export default function LpDetailPage() {
   const queryClient = useQueryClient();
   const currentUserId = Number(getUserInfo().id || NaN);
   const currentEmail = getCurrentUserEmail();
+  const navigate = useNavigate();
+
+  // LP 수정 상태
+  const [editingLp, setEditingLp] = useState<boolean>(false);
+  const [editTitle, setEditTitle] = useState<string>('');
+  const [editContent, setEditContent] = useState<string>('');
+  const [editThumbnail, setEditThumbnail] = useState<string>('');
+  const [thumbPreview, setThumbPreview] = useState<string>('');
+  const [editTags, setEditTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState<string>('');
+  const fileRef = useRef<HTMLInputElement | null>(null);
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingText, setEditingText] = useState<string>('');
@@ -78,6 +92,36 @@ export default function LpDetailPage() {
       </div>
     );
   }
+
+  const mine =
+    (typeof currentUserId === 'number' && !Number.isNaN(currentUserId) && (data.authorId === currentUserId || Number(data.author?.id) === currentUserId)) ||
+    (!!currentEmail && data.author?.email === currentEmail);
+
+  // LP 수정
+  const { mutate: updateLp, isPending: updatingLp } = useMutation({
+    mutationFn: async (payload: { title?: string; content?: string; thumbnail?: string; tags?: string[] }) => {
+      const res = await api.patch(`/lps/${lpid}`, payload);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lp', lpid] });
+      queryClient.invalidateQueries({ queryKey: ['lps'] });
+      setEditingLp(false);
+      setThumbPreview('');
+    },
+  });
+
+  // LP 삭제
+  const { mutate: deleteLp, isPending: deletingLp } = useMutation({
+    mutationFn: async () => {
+      const res = await api.delete(`/lps/${lpid}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lps'] });
+      navigate('/lps', { replace: true });
+    },
+  });
 
   // 댓글 무한 스크롤
   const {
@@ -198,17 +242,202 @@ export default function LpDetailPage() {
       <article className="border rounded p-4">
         <header className="flex items-start gap-4 mb-4">
           {data.thumbnail && (
-            <img src={data.thumbnail} alt="" className="w-24 h-24 object-cover rounded" />
+            <img src={editingLp ? (thumbPreview || editThumbnail || data.thumbnail) : data.thumbnail} alt="" className="w-24 h-24 object-cover rounded" />
           )}
           <div className="min-w-0">
-            <h1 className="text-xl font-semibold break-words">{data.title}</h1>
+            {editingLp ? (
+              <input
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="w-full text-xl font-semibold border rounded px-2 py-1"
+                placeholder="제목"
+              />
+            ) : (
+              <h1 className="text-xl font-semibold break-words">{data.title}</h1>
+            )}
             <div className="text-xs text-gray-500 mt-1">
               {new Date(data.createdAt).toLocaleString()}
             </div>
           </div>
+
+          {mine && (
+            <div className="ml-auto flex items-center gap-2">
+              {editingLp ? (
+                <>
+                  <button
+                    type="button"
+                    aria-label="썸네일 변경"
+                    title="썸네일 변경"
+                    className="p-2 rounded-full border border-gray-300 hover:bg-gray-100"
+                    onClick={() => fileRef.current?.click()}
+                  >
+                    <span role="img" aria-hidden="true">🖼️</span>
+                  </button>
+                  <button
+                    className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100"
+                    onClick={() => {
+                      setEditingLp(false);
+                      setEditTitle('');
+                      setEditContent('');
+                      setEditThumbnail('');
+                      setThumbPreview('');
+                      setEditTags([]);
+                      setTagInput('');
+                    }}
+                    disabled={updatingLp}
+                  >
+                    취소
+                  </button>
+                  <button
+                    className="px-3 py-1 rounded bg-black text-white hover:bg-gray-800 disabled:bg-gray-400"
+                    onClick={() => {
+                      const payload: { title?: string; content?: string; thumbnail?: string; tags?: string[] } = {
+                        title: editTitle || undefined,
+                        content: editContent || undefined,
+                        thumbnail: (editThumbnail || thumbPreview) || undefined,
+                      };
+                      if (editTags.length > 0) payload.tags = editTags;
+                      updateLp(payload);
+                    }}
+                    disabled={updatingLp}
+                  >
+                    저장
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100"
+                    onClick={() => {
+                      setEditingLp(true);
+                      setEditTitle(data.title);
+                      setEditContent(data.content);
+                      setEditThumbnail(data.thumbnail ?? '');
+                      setEditTags((data.tags ?? []).map((t) => t.name));
+                    }}
+                  >
+                    수정
+                  </button>
+                  <button
+                    className="px-3 py-1 rounded border border-red-300 text-red-600 hover:bg-red-50 disabled:bg-red-200"
+                    onClick={() => {
+                      if (confirm('정말 삭제하시겠습니까?')) deleteLp();
+                    }}
+                    disabled={deletingLp}
+                  >
+                    삭제
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </header>
-        <div className="whitespace-pre-wrap leading-relaxed text-gray-800">
-          {data.content}
+        {/* 파일 입력 (숨김) */}
+        {editingLp && (
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              if (!f) return;
+              const local = URL.createObjectURL(f);
+              if (thumbPreview) URL.revokeObjectURL(thumbPreview);
+              setThumbPreview(local);
+              try {
+                const form = new FormData();
+                form.append('file', f);
+                const { data: up } = await api.post('/uploads', form, {
+                  headers: { 'Content-Type': 'multipart/form-data' },
+                });
+                const url = up?.data?.imageUrl ?? up?.imageUrl ?? '';
+                if (url) setEditThumbnail(url);
+              } finally {
+                e.currentTarget.value = '';
+              }
+            }}
+          />
+        )}
+        {editingLp ? (
+          <textarea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            className="w-full min-h-32 border rounded p-2"
+            placeholder="내용"
+          />
+        ) : (
+          <div className="whitespace-pre-wrap leading-relaxed text-gray-800">
+            {data.content}
+          </div>
+        )}
+
+        {/* 태그 */}
+        <div className="mt-3">
+          {editingLp ? (
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">태그</label>
+              <div className="flex gap-2">
+                <input
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  className="flex-1 border rounded px-3 py-2 text-sm"
+                  placeholder="태그 입력 후 추가"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const t = tagInput.trim();
+                      if (!t) return;
+                      if (editTags.includes(t)) {
+                        setTagInput('');
+                        return;
+                      }
+                      setEditTags((prev) => [...prev, t]);
+                      setTagInput('');
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const t = tagInput.trim();
+                    if (!t) return;
+                    if (editTags.includes(t)) {
+                      setTagInput('');
+                      return;
+                    }
+                    setEditTags((prev) => [...prev, t]);
+                    setTagInput('');
+                  }}
+                  className="px-3 py-2 text-sm rounded bg-gray-500 text-white hover:bg-gray-400"
+                >
+                  추가
+                </button>
+              </div>
+              {editTags.length > 0 && (
+                <ul className="mt-2 flex flex-wrap gap-2">
+                  {editTags.map((t, idx) => (
+                    <li key={`${t}-${idx}`} className="text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-800 border flex items-center gap-1">
+                      <span className="font-medium">#{t}</span>
+                      <button
+                        type="button"
+                        className="hover:text-red-600"
+                        onClick={() => setEditTags((prev) => prev.filter((_, i) => i !== idx))}
+                      >
+                        ✕
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : (
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {(data.tags ?? []).map((t) => (
+                <li key={t.id} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700 border">#{t.name}</li>
+              ))}
+            </ul>
+          )}
         </div>
       </article>
 
@@ -355,9 +584,6 @@ export default function LpDetailPage() {
                   </li>
                 );
               })}
-              {comments.length === 0 && (
-                <li className="p-3 text-sm text-gray-500">첫 댓글을 남겨보세요.</li>
-              )}
             </ul>
 
             {/* 하단 스켈레톤 또는 더보기 */}
@@ -380,9 +606,7 @@ export default function LpDetailPage() {
                   >
                     더 보기
                   </button>
-                ) : (
-                  <span className="text-xs text-gray-500">모든 댓글을 확인했습니다.</span>
-                )}
+                ) : null}
               </div>
             )}
             <div ref={sentinelRef} className="h-px" />
