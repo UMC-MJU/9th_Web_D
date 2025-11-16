@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { fetchLpDetail, deleteLp } from "../apis/lp";
+import { fetchLpDetail, deleteLp, addLpLike, removeLpLike } from "../apis/lp";
 import type { LpDetail } from "../types/lp";
 import LpCommentsSection from "../components/LpCommentsSection";
 
@@ -89,8 +89,28 @@ export default function LpDetailPage() {
     setIsPlaying((prev) => !prev);
   };
 
-  const toggleLike = () => {
+  const toggleLike = async () => {
+    if (!lp) return;
+    // 1) 낙관적 업데이트: API 호출 전에 UI 먼저 반영
+    //    현재 상태의 반대값을 계산해서 UI를 즉시 토글합니다.
     setIsLiked((prev) => !prev);
+    try {
+      // 2) 실제 API 호출
+      //    - 좋아요가 켜지는 경우: POST /v1/lps/{id}/likes
+      //    - 좋아요가 꺼지는 경우: DELETE /v1/lps/{id}/likes
+      //    setState가 비동기이므로, 예상되는 다음 상태에 따라 분기합니다.
+      const willLike = !isLiked;
+      if (willLike) {
+        await addLpLike(lp.id);
+      } else {
+        await removeLpLike(lp.id);
+      }
+      // 3) 성공 시 추가 동작 없음 (UI는 이미 반영됨)
+    } catch {
+      // 4) 실패 시 낙관적 업데이트 되돌리기
+      setIsLiked((prev) => !prev);
+      alert("좋아요 요청에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    }
   };
 
   const handleBack = () => {
