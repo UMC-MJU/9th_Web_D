@@ -92,8 +92,8 @@ const formatDate = (isoString: string) => {
   });
 };
 
-const formatTagLine = (tags: Lp["tags"]) => {
-  if (!tags.length) {
+const formatTagLine = (tags?: Lp["tags"]) => {
+  if (!Array.isArray(tags) || tags.length === 0) {
     return "태그 없음";
   }
 
@@ -122,6 +122,9 @@ export default function HomePage({ username }: HomePageProps) {
   const [error, setError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [brokenThumbIds, setBrokenThumbIds] = useState<Set<number>>(
+    () => new Set()
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -168,8 +171,27 @@ export default function HomePage({ username }: HomePageProps) {
     };
   }, [retryKey]);
 
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const custom = event as CustomEvent<Lp>;
+      const created = custom.detail;
+      if (!created) return;
+      setLps((prev) => {
+        const without = prev.filter((lp) => lp.id !== created.id);
+        return [created, ...without];
+      });
+      setCurrentIndex(0);
+    };
+    window.addEventListener("lp:created", handler as EventListener);
+    return () => {
+      window.removeEventListener("lp:created", handler as EventListener);
+    };
+  }, []);
+
   const totalLps = lps.length;
   const currentLp = totalLps > 0 ? lps[currentIndex] : null;
+  const HOME_FALLBACK_THUMB =
+    "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80";
 
   const moveTo = (direction: number) => {
     if (totalLps === 0) {
@@ -272,7 +294,23 @@ export default function HomePage({ username }: HomePageProps) {
                       }}
                     >
                       <div className="flex flex-col items-center gap-4">
-                        <div className="relative h-48 w-48 rounded-full border border-white/10 bg-white/5 shadow-[0_24px_55px_rgba(0,0,0,0.4)] transition-all duration-500 ease-out">
+                        <div className="relative h-48 w-48 rounded-full border border-white/10 bg-white/5 shadow-[0_24px_55px_rgba(0,0,0,0.4)] transition-all duration-500 ease-out overflow-hidden">
+                          <img
+                            src={
+                              lp.thumbnail && !brokenThumbIds.has(lp.id)
+                                ? lp.thumbnail
+                                : HOME_FALLBACK_THUMB
+                            }
+                            alt={`${lp.title} thumbnail`}
+                            className="absolute inset-0 h-full w-full object-cover"
+                            onError={() =>
+                              setBrokenThumbIds((prev) => {
+                                const next = new Set(prev);
+                                next.add(lp.id);
+                                return next;
+                              })
+                            }
+                          />
                           <div className="absolute inset-3 rounded-full border border-white/15" />
                           <div className="absolute inset-1/4 rounded-full bg-black/70" />
                         </div>

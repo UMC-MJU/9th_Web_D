@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createLp } from "../apis/lp";
+import { uploadImage } from "../apis/uploads";
 import type { Lp } from "../types/lp";
 
 interface AddLpModalProps {
@@ -25,6 +27,7 @@ export default function AddLpModal({
   onClose,
   onCreated,
 }: AddLpModalProps) {
+  const navigate = useNavigate();
   const [state, setState] = useState<"idle" | "loading" | "success" | "error">(
     "idle"
   );
@@ -32,6 +35,7 @@ export default function AddLpModal({
   const [thumbPreview, setThumbPreview] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [tags, setTags] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const {
     register,
@@ -64,6 +68,14 @@ export default function AddLpModal({
 
   const onSubmit = async (values: LpFormValues) => {
     setErrorMsg("");
+    if (!values.thumbnail) {
+      setErrorMsg("이미지를 먼저 업로드해주세요.");
+      return;
+    }
+    if (isUploading) {
+      setErrorMsg("이미지 업로드가 완료될 때까지 기다려주세요.");
+      return;
+    }
     setState("loading");
     try {
       const lp = await createLp({
@@ -74,9 +86,17 @@ export default function AddLpModal({
         published: true,
       });
       setState("success");
-      onCreated?.(lp);
+      const previewUrl = thumbPreview || thumbnailValue;
+      const augmented =
+        !lp.thumbnail && previewUrl ? { ...lp, thumbnail: previewUrl } : lp;
+      onCreated?.(augmented);
+      window.dispatchEvent(
+        new CustomEvent("lp:created", { detail: augmented })
+      );
       setTimeout(() => {
         handleClose();
+        // 생성 직후 홈으로 이동하여 즉시 반영된 목록을 보여줍니다.
+        navigate("/", { replace: true });
       }, 500);
     } catch {
       setState("error");
@@ -96,7 +116,21 @@ export default function AddLpModal({
     }
     const url = URL.createObjectURL(file);
     setThumbPreview(url);
-    setValue("thumbnail", url, { shouldValidate: true, shouldDirty: true });
+    // 업로드 API로 실제 접근 가능한 URL을 받아 thumbnail 필드에 저장
+    setIsUploading(true);
+    uploadImage(file)
+      .then((imageUrl) => {
+        setValue("thumbnail", imageUrl, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      })
+      .catch(() => {
+        setErrorMsg("이미지 업로드에 실패했습니다. 다시 시도해주세요.");
+      })
+      .finally(() => {
+        setIsUploading(false);
+      });
   };
 
   const onDrop: React.DragEventHandler<HTMLDivElement> = (event) => {
@@ -208,6 +242,11 @@ export default function AddLpModal({
                   className="w-full h-auto object-contain"
                   style={{ maxHeight: 240 }}
                 />
+                {isUploading && (
+                  <div className="flex items-center justify-center py-2 text-xs text-white/70">
+                    이미지 업로드 중...
+                  </div>
+                )}
               </div>
             ) : (
               <div

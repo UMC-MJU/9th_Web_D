@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fetchLpDetail } from "../apis/lp";
 import type { LpDetail } from "../types/lp";
 import LpCommentsSection from "../components/LpCommentsSection";
@@ -12,11 +12,16 @@ type DetailStatus = "idle" | "loading" | "success" | "error";
 export default function LpDetailPage() {
   const { lpId } = useParams<{ lpId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const fallbackFromState =
+    (location.state as { fallbackThumbnail?: string } | null)
+      ?.fallbackThumbnail ?? "";
   const isMountedRef = useRef(true);
   const [lp, setLp] = useState<LpDetail | null>(null);
   const [status, setStatus] = useState<DetailStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [thumbError, setThumbError] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
@@ -96,7 +101,23 @@ export default function LpDetailPage() {
     return (
       <div className="min-h-screen bg-[#010102] text-white">
         <div className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center px-6">
-          <p className="text-white/70">LP 정보를 불러오는 중...</p>
+          {fallbackFromState ? (
+            <div className="flex flex-col items-center">
+              <div
+                className="relative h-72 w-72 rounded-full border border-white/5 bg-black/60 shadow-[0_30px_90px_rgba(0,0,0,0.55)]"
+                style={{
+                  backgroundImage: `url(${fallbackFromState})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              >
+                <div className="absolute inset-0 rounded-full border border-white/10" />
+              </div>
+              <p className="mt-6 text-white/70">LP 정보를 불러오는 중...</p>
+            </div>
+          ) : (
+            <p className="text-white/70">LP 정보를 불러오는 중...</p>
+          )}
         </div>
       </div>
     );
@@ -121,7 +142,8 @@ export default function LpDetailPage() {
     );
   }
 
-  const thumbnail = lp.thumbnail || fallbackThumbnail;
+  const thumbnail =
+    (!thumbError && (lp.thumbnail || fallbackFromState)) || fallbackThumbnail;
 
   return (
     <div className="min-h-screen bg-[#010102] text-white">
@@ -148,12 +170,15 @@ export default function LpDetailPage() {
                 isPlaying ? "animate-spin" : ""
               }`}
               style={{
-                backgroundImage: `url(${thumbnail})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
                 animationDuration: "6s",
               }}
             >
+              <img
+                src={thumbnail}
+                alt={`${lp.title} thumbnail`}
+                className="absolute inset-0 h-full w-full rounded-full object-cover"
+                onError={() => setThumbError(true)}
+              />
               <div className="absolute inset-0 rounded-full border border-white/10" />
               <button
                 type="button"

@@ -15,4 +15,8 @@ export const API_ENDPOINTS = {
     DETAIL: (id: number | string) => `/v1/lps/${id}`,
     COMMENTS: (id: number | string) => `/v1/lps/${id}/comments`,
   },
+  UPLOAD: {
+    FILE: "/v1/uploads", // 인증 필요
+    PUBLIC_FILE: "/v1/uploads/public", // 비인증
+  },
 } as const;
