@@ -53,8 +53,8 @@ export default function CreateLpModal({ open, onClose }: CreateLpModalProps) {
     setTagInput('');
   };
 
-  const handleRemoveTag = (t: string) => {
-    setTags((prev) => prev.filter((x) => x !== t));
+  const handleRemoveTag = (index: number) => {
+    setTags((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = () => {
@@ -156,7 +156,7 @@ export default function CreateLpModal({ open, onClose }: CreateLpModalProps) {
               <img
                 src={previewUrl}
                 alt="업로드 미리보기"
-                className="w-36 h-36 object-cover rounded-md z-10"
+                className="w-44 h-44 object-cover rounded-md z-10 shadow-lg"
                 onClick={openFilePicker}
               />
             ) : null}
@@ -165,7 +165,7 @@ export default function CreateLpModal({ open, onClose }: CreateLpModalProps) {
               type="button"
               aria-label="LP 이미지 선택"
               onClick={openFilePicker}
-              className={`relative w-36 h-36 rounded-full focus:outline-none focus:ring-2 focus:ring-white/30 ${previewUrl ? '-ml-6' : ''}`}
+              className={`relative w-48 h-48 rounded-full focus:outline-none focus:ring-2 focus:ring-white/30 ${previewUrl ? '-ml-16' : ''}`}
             >
               <div className="absolute inset-0 rounded-full bg-linear-to-br from-gray-700 to-black shadow-inner" />
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-gray-200" />
@@ -212,6 +212,10 @@ export default function CreateLpModal({ open, onClose }: CreateLpModalProps) {
                     e.preventDefault();
                     handleAddTag();
                   }
+                  if (e.key === 'Backspace' && tagInput.trim() === '' && tags.length > 0) {
+                    // 입력이 비어있고 백스페이스를 누르면 마지막 태그 제거
+                    setTags((prev) => prev.slice(0, -1));
+                  }
                 }}
               />
               <button
@@ -224,14 +228,15 @@ export default function CreateLpModal({ open, onClose }: CreateLpModalProps) {
             </div>
             {tags.length > 0 && (
               <ul className="mt-2 flex flex-wrap gap-2">
-                {tags.map((t) => (
-                  <li key={t} className="text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-800 border flex items-center gap-1">
+                {tags.map((t, idx) => (
+                  <li key={`${t}-${idx}`} className="text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-800 border flex items-center gap-1">
                     <span className="font-medium">#{t}</span>
                     <button
                       type="button"
                       aria-label={`${t} 태그 제거`}
                       className="hover:text-red-600"
-                      onClick={() => handleRemoveTag(t)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => handleRemoveTag(idx)}
                     >
                       ✕
                     </button>
