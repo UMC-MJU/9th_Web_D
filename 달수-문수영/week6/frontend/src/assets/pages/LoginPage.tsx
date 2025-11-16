@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { loginSchema, type LoginFormData } from '../../schemas/auth';
 import { useLocalStorage, type UserInfo, type AuthToken, defaultUserInfo, defaultAuthToken } from '../../hooks/useLocalStorage';
 import { tokenStorage } from '../../lib/token';
@@ -22,57 +23,54 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const from = (location.state as { from?: string } | null)?.from || '/';
+    const queryClient = useQueryClient();
 
     // 로컬 스토리지 훅 사용
     const [userInfo, setUserInfo] = useLocalStorage<UserInfo>('userInfo', defaultUserInfo);
     const [, setAuthToken] = useLocalStorage<AuthToken>('authToken', defaultAuthToken);
 
-    const onSubmit = async (data: LoginFormData) => {
-        console.log('로그인 데이터:', data);
-
-        let res;
-        try {
-            // 실제 로그인 API 호출
-            res = await api.post('/auth/signin', {
+    const { mutate: loginMutate, isPending } = useMutation({
+        mutationFn: async (data: LoginFormData) => {
+            const res = await api.post('/auth/signin', {
                 email: data.email,
                 password: data.password,
             });
-        } catch (e: any) {
+            return res.data?.data ?? res.data;
+        },
+        onError: (e: any) => {
             const msg = e?.response?.data?.message ?? '로그인에 실패했습니다.';
             alert(Array.isArray(msg) ? msg[0] : msg);
-            return;
-        }
+        },
+        onSuccess: (payload: { accessToken: string; refreshToken: string }) => {
+            const { accessToken, refreshToken } = payload;
+            // 토큰 저장
+            tokenStorage.set(accessToken, refreshToken);
+            // 만료 시간 파싱
+            const jwt = JSON.parse(atob(accessToken.split('.')[1])) as { exp: number };
+            const expiresAtMs = jwt.exp * 1000;
+            // 사용자 정보/토큰 로컬 저장
+            const updatedUserInfo: UserInfo = {
+                ...userInfo,
+                email: watchedValues.email,
+                token: accessToken,
+                loginTime: Date.now(),
+            };
+            const newAuthToken: AuthToken = {
+                accessToken,
+                refreshToken,
+                expiresAt: expiresAtMs,
+            };
+            setUserInfo(updatedUserInfo);
+            setAuthToken(newAuthToken);
+            // 내 정보/보호 페이지 최신화
+            queryClient.invalidateQueries({ queryKey: ['me'] });
+            alert('로그인이 완료되었습니다!');
+            navigate(from, { replace: true });
+        },
+    });
 
-        // 백엔드 공통 응답 래핑: { status, statusCode, message, data: { accessToken, refreshToken, ... } }
-        const { accessToken, refreshToken } = res.data.data;
-
-        // 토큰 저장 (인터셉터가 사용)
-        tokenStorage.set(accessToken, refreshToken);
-
-        // 화면 표기를 위해 만료 시간 파싱(JWT exp 사용)
-        const payload = JSON.parse(atob(accessToken.split('.')[1])) as { exp: number };
-        const expiresAtMs = payload.exp * 1000;
-
-        // 사용자 정보 저장 (로그인 시 기존 정보 업데이트)
-        const updatedUserInfo: UserInfo = {
-            ...userInfo,
-            email: data.email,
-            token: accessToken,
-            loginTime: Date.now(),
-        };
-
-        // 토큰 정보 저장(기존 훅 상태도 유지)
-        const newAuthToken: AuthToken = {
-            accessToken,
-            refreshToken,
-            expiresAt: expiresAtMs,
-        };
-
-        setUserInfo(updatedUserInfo);
-        setAuthToken(newAuthToken);
-
-        alert('로그인이 완료되었습니다!');
-        navigate(from, { replace: true });
+    const onSubmit = (data: LoginFormData) => {
+        loginMutate(data);
     };
     
     // 간단한 비활성 조건: 값 비어있음 또는 유효성 에러 존재
@@ -125,9 +123,9 @@ const LoginPage = () => {
 
                 <button
                     type="submit"
-                    disabled={isDisabled}
+                    disabled={isDisabled || isPending}
                     className="w-full bg-black text-white py-3 rounded-md text-lg font-medium hover:bg-gray-800 transition-colors cursor-pointer disabled:bg-gray-400">
-                        로그인
+                        {isPending ? '로그인 중...' : '로그인'}
                 </button>
             </form>
             
