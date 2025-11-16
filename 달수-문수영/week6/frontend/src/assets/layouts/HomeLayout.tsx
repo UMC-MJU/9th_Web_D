@@ -29,7 +29,7 @@ const HomeLayout = () => {
             // 서버 응답 관계없이 클라이언트 세션 정리
             logout();
             setLoggedIn(false);
-            navigate('/login');
+            navigate('/');
         },
     });
 
