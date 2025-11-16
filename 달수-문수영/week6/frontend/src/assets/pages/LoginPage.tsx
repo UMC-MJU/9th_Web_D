@@ -65,7 +65,7 @@ const LoginPage = () => {
             // 내 정보/보호 페이지 최신화
             queryClient.invalidateQueries({ queryKey: ['me'] });
             alert('로그인이 완료되었습니다!');
-            navigate(from, { replace: true });
+            navigate('/', { replace: true });
         },
     });
 
