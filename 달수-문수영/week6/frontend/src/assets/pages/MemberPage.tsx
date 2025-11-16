@@ -54,11 +54,64 @@ const MemberPage = () => {
       const res = await api.patch('/users', payload);
       return res.data;
     },
+    // 낙관적 업데이트: 서버 응답 전 닉네임/소개를 즉시 반영
+    onMutate: async (payload) => {
+      await queryClient.cancelQueries({ queryKey: ['me'] });
+      const previousMe = queryClient.getQueryData<any>(['me']);
+
+      // 캐시 업데이트
+      queryClient.setQueryData(['me'], (old: any) => {
+        const current = old ?? {};
+        return {
+          ...current,
+          name: payload.name ?? current.name,
+          bio: payload.bio ?? current.bio,
+          avatar: payload.avatar ?? current.avatar,
+        };
+      });
+
+      // NavBar 갱신을 위해 로컬 스토리지의 닉네임 동기화
+      let previousUserInfo: any = null;
+      try {
+        const stored = localStorage.getItem('userInfo');
+        previousUserInfo = stored ? JSON.parse(stored) : null;
+        if (payload.name) {
+          const next = { ...(previousUserInfo ?? {}), nickname: payload.name };
+          localStorage.setItem('userInfo', JSON.stringify(next));
+          // Same-tab 갱신 이벤트
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('auth-changed'));
+          }
+        }
+      } catch {
+        // noop
+      }
+
+      return { previousMe, previousUserInfo };
+    },
+    onError: (_err, _payload, context) => {
+      // 롤백
+      if (context?.previousMe) {
+        queryClient.setQueryData(['me'], context.previousMe);
+      }
+      try {
+        if (context?.previousUserInfo) {
+          localStorage.setItem('userInfo', JSON.stringify(context.previousUserInfo));
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('auth-changed'));
+          }
+        }
+      } catch {
+        // noop
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['me'] });
       setEditing(false);
       setPreview('');
       refetch();
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] });
     },
   });
 
@@ -150,7 +203,7 @@ const MemberPage = () => {
               />
               <input
                 className="w-full h-10 rounded bg-white border border-gray-300 px-3 text-gray-900"
-                placeholder="Bio (선택)"
+                placeholder="본인을 소개해보세요(선택)"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
               />
