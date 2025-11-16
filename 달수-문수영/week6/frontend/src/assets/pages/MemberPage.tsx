@@ -1,6 +1,9 @@
 import { useState, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../apis';
+import { useNavigate } from 'react-router-dom';
+import { logout } from '../../utils/auth';
+import { tokenStorage } from '../../lib/token';
 
 type MeResponse = {
   data: {
@@ -14,12 +17,14 @@ type MeResponse = {
 
 const MemberPage = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [editing, setEditing] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
   const [bio, setBio] = useState<string>('');
   const [avatar, setAvatar] = useState<string>('');
   const [preview, setPreview] = useState<string>('');
+  const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['me'],
@@ -66,6 +71,21 @@ const MemberPage = () => {
     e.currentTarget.value = '';
   };
 
+  // 회원 탈퇴
+  const { mutate: deleteMe, isPending: deleting } = useMutation({
+    mutationFn: async () => {
+      const res = await api.delete('/users');
+      return res.data;
+    },
+    onSuccess: () => {
+      // 클라이언트 상태 초기화
+      logout();
+      tokenStorage.clear();
+      queryClient.clear();
+      navigate('/login', { replace: true });
+    },
+  });
+
   if (isLoading || !data) {
     return (
       <div className="p-8">
@@ -80,22 +100,30 @@ const MemberPage = () => {
     <div className="p-6 max-w-3xl mx-auto">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">마이페이지</h1>
-        <button
-          className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100"
-          onClick={() => {
-            if (!editing) {
-              setEditing(true);
-              setName(data.name ?? '');
-              setBio(data.bio ?? '');
-              setAvatar(data.avatar ?? '');
-            } else {
-              setEditing(false);
-              setPreview('');
-            }
-          }}
-        >
-          {editing ? '닫기' : '설정'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-100"
+            onClick={() => {
+              if (!editing) {
+                setEditing(true);
+                setName(data.name ?? '');
+                setBio(data.bio ?? '');
+                setAvatar(data.avatar ?? '');
+              } else {
+                setEditing(false);
+                setPreview('');
+              }
+            }}
+          >
+            {editing ? '닫기' : '설정'}
+          </button>
+          <button
+            className="px-3 py-1 rounded border border-red-300 text-red-600 hover:bg-red-50"
+            onClick={() => setConfirmOpen(true)}
+          >
+            탈퇴하기
+          </button>
+        </div>
       </div>
 
       <div className="rounded-xl bg-white text-gray-900 p-6 flex items-center gap-6 border">
@@ -155,6 +183,41 @@ const MemberPage = () => {
           </button>
         ) : null}
       </div>
+
+      {/* 탈퇴 확인 모달 */}
+      {confirmOpen && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setConfirmOpen(false)} />
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92vw] max-w-sm rounded-lg bg-white shadow-xl"
+          >
+            <div className="p-4 flex items-center justify-between">
+              <h3 className="font-semibold">회원 탈퇴</h3>
+              <button className="p-1 rounded hover:bg-gray-100" onClick={() => setConfirmOpen(false)}>✕</button>
+            </div>
+            <div className="p-4 text-sm text-gray-700">
+              정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+            </div>
+            <div className="p-3 flex items-center justify-end gap-2">
+              <button
+                className="px-3 py-2 rounded border border-gray-300 hover:bg-gray-100"
+                onClick={() => setConfirmOpen(false)}
+              >
+                아니오
+              </button>
+              <button
+                className="px-3 py-2 rounded bg-red-600 text-white hover:bg-red-500 disabled:bg-red-300"
+                onClick={() => deleteMe()}
+                disabled={deleting}
+              >
+                {deleting ? '처리 중...' : '예'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
