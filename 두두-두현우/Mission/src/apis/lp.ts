@@ -116,3 +116,32 @@ export const deleteLp = async (id: number | string): Promise<boolean> => {
   }
   return data as boolean;
 };
+
+// ---------------- LP 좋아요 추가/취소 ----------------
+type LikeEntity = { id: number; userId: number; lpId: number };
+type LikeApiResponse =
+  | { status: boolean; statusCode: number; message: string; data: LikeEntity }
+  | LikeEntity;
+
+export const addLpLike = async (id: number | string): Promise<LikeEntity> => {
+  const { data } = await axiosInstance.post<LikeApiResponse>(
+    API_ENDPOINTS.LP.LIKES(id),
+    {}
+  );
+  if (typeof data === "object" && data !== null && "data" in data) {
+    return (data as { data: LikeEntity }).data;
+  }
+  return data as LikeEntity;
+};
+
+export const removeLpLike = async (
+  id: number | string
+): Promise<LikeEntity> => {
+  const { data } = await axiosInstance.delete<LikeApiResponse>(
+    API_ENDPOINTS.LP.LIKES(id)
+  );
+  if (typeof data === "object" && data !== null && "data" in data) {
+    return (data as { data: LikeEntity }).data;
+  }
+  return data as LikeEntity;
+};

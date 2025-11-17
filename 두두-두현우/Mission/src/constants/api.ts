@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
     LIST: "/v1/lps",
     DETAIL: (id: number | string) => `/v1/lps/${id}`,
     COMMENTS: (id: number | string) => `/v1/lps/${id}/comments`,
+    LIKES: (id: number | string) => `/v1/lps/${id}/likes`,
   },
   UPLOAD: {
     FILE: "/v1/uploads", // 인증 필요
