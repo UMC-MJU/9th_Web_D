@@ -6,13 +6,12 @@ import {
   useQueryClient,
   type InfiniteData,
 } from "@tanstack/react-query";
-import {
-  createLpComment,
-  fetchLpComments,
-  type CreateLpCommentRequest,
-  type LpComment,
-  type LpCommentListResponse,
-} from "../apis/lp";
+import { createLpComment, fetchLpComments } from "../apis/lp";
+import type {
+  CreateLpCommentRequest,
+  LpComment,
+  LpCommentListResponse,
+} from "../types/lp";
 import { STORAGE_KEYS } from "../constants";
 
 const COMMENT_PAGE_SIZE = 10;

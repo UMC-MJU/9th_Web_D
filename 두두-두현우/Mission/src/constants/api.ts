@@ -10,9 +10,17 @@ export const API_ENDPOINTS = {
     GOOGLE_LOGIN: "/v1/auth/google/login",
     GOOGLE_CALLBACK: "/v1/auth/google/callback",
   },
+  USER: {
+    ME: "/v1/users/me",
+    UPDATE: "/v1/users",
+  },
   LP: {
     LIST: "/v1/lps",
     DETAIL: (id: number | string) => `/v1/lps/${id}`,
     COMMENTS: (id: number | string) => `/v1/lps/${id}/comments`,
+  },
+  UPLOAD: {
+    FILE: "/v1/uploads", // 인증 필요
+    PUBLIC_FILE: "/v1/uploads/public", // 비인증
   },
 } as const;
