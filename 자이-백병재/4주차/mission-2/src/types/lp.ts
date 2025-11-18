@@ -16,6 +16,8 @@ export type PaginationDTO = {
     limit?: number;
     search?: string;
     order?: "asc" | "desc";
+    staleTime?: number;
+    gcTime?: number;
 }
 
 export type Tags = {
