@@ -5,9 +5,11 @@ import ErrorPage from '../pages/ErrorPage';
 import { useGetInfiniteLpList } from '../hooks/queries/useGetInfinityLpList';
 import {useInView} from 'react-intersection-observer';
 import LpListSkeleton from './LpListSkeleton';
+import useDebounce from '../hooks/useDebounce';
 
 export function LpList() {
     const [search, setSearch] = useState("");
+    const debouncedSearch = useDebounce<string>(search, 300);
     const [order, setOrder] = useState<'desc'|'asc'>('desc');
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
     const { 
@@ -18,7 +20,7 @@ export function LpList() {
         fetchNextPage,
         isError
      } = useGetInfiniteLpList({
-        search: search,
+        search: debouncedSearch,
         limit: 30,
         order: order,
     });
