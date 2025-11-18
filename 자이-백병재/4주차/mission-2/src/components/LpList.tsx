@@ -20,9 +20,10 @@ export function LpList() {
         fetchNextPage,
         isError
      } = useGetInfiniteLpList({
-        search: debouncedSearch,
+        search: debouncedSearch.trim(), // 여기서 trim 해서 공백에 반응 안하게
         limit: 30,
         order: order,
+        enabled: true   // 구조상 false를 하면 리스트를 아예 안가져온다.
     });
 
     const { ref, inView } = useInView();

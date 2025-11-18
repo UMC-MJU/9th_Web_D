@@ -18,6 +18,7 @@ export type PaginationDTO = {
     order?: "asc" | "desc";
     staleTime?: number;
     gcTime?: number;
+    enabled?: boolean;
 }
 
 export type Tags = {
