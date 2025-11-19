@@ -6,6 +6,7 @@ import { useGetInfiniteLpList } from '../hooks/queries/useGetInfinityLpList';
 import {useInView} from 'react-intersection-observer';
 import LpListSkeleton from './LpListSkeleton';
 import useDebounce from '../hooks/useDebounce';
+import useThrottle from '../hooks/useThrottle';
 
 export function LpList() {
     const [search, setSearch] = useState("");
@@ -28,11 +29,11 @@ export function LpList() {
 
     const { ref, inView } = useInView();
 
-    useEffect(() => {
-        if (inView && !isFetching && hasNextPage) {
-        fetchNextPage();
-    }
-    }, [inView, isFetching, hasNextPage, fetchNextPage]);
+    useThrottle(() => {
+        if (inView && hasNextPage && !isFetching) {
+            fetchNextPage();
+        }
+    }, 1000, [inView, hasNextPage, isFetching]);
 
     return (
         // 전체를 감싸는 div
