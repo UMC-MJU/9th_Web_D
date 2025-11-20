@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchLpList } from "../apis/lp";
 import type { Lp } from "../types/lp";
+import { useDebounce } from "../hooks/useDebounce";
 
 interface HomePageProps {
   username: string;
@@ -125,6 +126,8 @@ export default function HomePage({ username }: HomePageProps) {
   const [brokenThumbIds, setBrokenThumbIds] = useState<Set<number>>(
     () => new Set()
   );
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 500);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -139,6 +142,7 @@ export default function HomePage({ username }: HomePageProps) {
           cursor: 0,
           limit: 10,
           order: "asc",
+          search: debouncedSearch.trim() || undefined,
           signal: controller.signal,
         });
 
@@ -169,7 +173,7 @@ export default function HomePage({ username }: HomePageProps) {
       isMounted = false;
       controller.abort();
     };
-  }, [retryKey]);
+  }, [retryKey, debouncedSearch]);
 
   useEffect(() => {
     const handler = (event: Event) => {
@@ -252,6 +256,16 @@ export default function HomePage({ username }: HomePageProps) {
         <h1 className="text-2xl font-semibold text-white">
           {username ? `Welcome, ${username}!` : "Welcome"}
         </h1>
+
+        <div className="mt-6 mb-8">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="LP 이름으로 검색..."
+            className="w-full max-w-md px-4 py-3 backdrop-blur-md bg-black/20 border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent text-sm transition-all duration-300"
+          />
+        </div>
 
         <div className="relative flex flex-1 flex-col items-center justify-center">
           {isLoading ? (
