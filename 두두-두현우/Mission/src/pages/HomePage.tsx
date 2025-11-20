@@ -129,9 +129,18 @@ export default function HomePage({ username }: HomePageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 500);
 
+  // 초기 로드 및 retry 시 전체 목록 조회
   useEffect(() => {
     const controller = new AbortController();
     let isMounted = true;
+
+    // 검색어가 있을 때는 이 effect에서 처리하지 않음
+    if (debouncedSearch.trim() !== "") {
+      return () => {
+        isMounted = false;
+        controller.abort();
+      };
+    }
 
     const loadLps = async () => {
       setIsLoading(true);
@@ -142,7 +151,6 @@ export default function HomePage({ username }: HomePageProps) {
           cursor: 0,
           limit: 10,
           order: "asc",
-          search: debouncedSearch.trim() || undefined,
           signal: controller.signal,
         });
 
@@ -174,6 +182,60 @@ export default function HomePage({ username }: HomePageProps) {
       controller.abort();
     };
   }, [retryKey, debouncedSearch]);
+
+  // 검색어가 있을 때만 검색 실행
+  useEffect(() => {
+    const trimmedSearch = debouncedSearch.trim();
+
+    // 빈 쿼리일 때는 검색하지 않음
+    if (trimmedSearch === "") {
+      return;
+    }
+
+    const controller = new AbortController();
+    let isMounted = true;
+
+    const searchLps = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetchLpList({
+          cursor: 0,
+          limit: 10,
+          order: "asc",
+          search: trimmedSearch,
+          signal: controller.signal,
+        });
+
+        if (!isMounted) {
+          return;
+        }
+
+        const fetchedLps = response.data.data;
+        setLps(fetchedLps);
+        setCurrentIndex(0);
+      } catch (fetchError) {
+        if (!isMounted || controller.signal.aborted) {
+          return;
+        }
+
+        console.error("Failed to search LP list:", fetchError);
+        setError("LP 검색에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void searchLps();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [debouncedSearch]);
 
   useEffect(() => {
     const handler = (event: Event) => {
