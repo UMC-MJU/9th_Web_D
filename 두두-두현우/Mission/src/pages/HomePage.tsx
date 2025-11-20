@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchLpList } from "../apis/lp";
 import type { Lp } from "../types/lp";
 import { useDebounce } from "../hooks/useDebounce";
+import { useThrottle } from "../hooks/useThrottle";
 
 interface HomePageProps {
   username: string;
@@ -272,18 +273,23 @@ export default function HomePage({ username }: HomePageProps) {
   const HOME_FALLBACK_THUMB =
     "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80";
 
-  const moveTo = (direction: number) => {
-    if (totalLps === 0) {
-      return;
-    }
+  const moveTo = useCallback(
+    (direction: number) => {
+      if (totalLps === 0) {
+        return;
+      }
 
-    setCurrentIndex((prev) => {
-      const nextIndex = prev + direction;
-      if (nextIndex < 0) return totalLps - 1;
-      if (nextIndex >= totalLps) return 0;
-      return nextIndex;
-    });
-  };
+      setCurrentIndex((prev) => {
+        const nextIndex = prev + direction;
+        if (nextIndex < 0) return totalLps - 1;
+        if (nextIndex >= totalLps) return 0;
+        return nextIndex;
+      });
+    },
+    [totalLps]
+  );
+
+  const throttledMoveTo = useThrottle(moveTo, 500);
 
   const jumpTo = (targetIndex: number) => {
     if (targetIndex < 0 || targetIndex >= totalLps) {
@@ -417,7 +423,7 @@ export default function HomePage({ username }: HomePageProps) {
               <div className="mt-10 flex items-center justify-between gap-10">
                 <button
                   type="button"
-                  onClick={() => moveTo(-1)}
+                  onClick={() => throttledMoveTo(-1)}
                   className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
                 >
                   &#8592;
@@ -439,7 +445,7 @@ export default function HomePage({ username }: HomePageProps) {
                 </div>
                 <button
                   type="button"
-                  onClick={() => moveTo(1)}
+                  onClick={() => throttledMoveTo(1)}
                   className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
                 >
                   &#8594;
