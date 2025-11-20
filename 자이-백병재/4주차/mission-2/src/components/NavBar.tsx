@@ -3,8 +3,12 @@ import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react'; // useEffect를 import합니다.
 import CreateLpModal from '../modals/CreateLpModal';
 import { useDeleteMyInfo, useFixMyInfo } from '../hooks/queries/useMyInfo';
+import { useSidebar } from '../hooks/useSideBar';
+import { Sidebar } from './Sidebar';
 
 const NavBar = () => {
+  const { isOpen, open, close, toggle } = useSidebar();
+
   const shadowClass = "[text-shadow:0_1px_4px_rgb(0_0_0_/_0.9)]";
 
   const baseLinkClass = `
@@ -69,10 +73,11 @@ const NavBar = () => {
   }, [isEditModalOpen]);
 
   return (
+    <>
     <nav 
       className="fixed top-0 w-full z-50 py-4 bg-transparent">
       <div className="flex h-12 items-center justify-between px-8"> 
-        <div className="flex items-center">
+        <div className="flex items-center gap-10">
           <NavLink 
             to="/" 
             className={`
@@ -84,6 +89,13 @@ const NavBar = () => {
           >
             LPage
           </NavLink>
+          <button
+        onClick={open}
+        className=" z-70 px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-md font-bold hover:bg-gray-100 transition-colors"
+      >
+        {/* 열려있으면 '닫기', 닫혀있으면 '메뉴' 글자가 나옵니다 */}
+        {isOpen ? "X" : "☰"}
+      </button>
         </div>
 
         <div className="flex items-center space-x-6">
@@ -185,6 +197,8 @@ const NavBar = () => {
         
       )}
     </nav>
+    <Sidebar isOpen={isOpen} toggle={toggle}/>
+    </>
   );
 };
 
