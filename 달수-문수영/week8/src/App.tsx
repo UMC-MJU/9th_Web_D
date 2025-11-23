@@ -1,33 +1,10 @@
-import { useEffect, useState } from 'react';
+import useSidebar from './hooks/useSidebar';
 
 function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const open = () => setSidebarOpen(true);
-  const close = () => setSidebarOpen(false);
-  const toggle = () => setSidebarOpen((v) => !v);
-
-  useEffect(() => {
-    document.body.style.overflow = sidebarOpen ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [sidebarOpen]);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const isToggle = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b';
-      if (isToggle) {
-        e.preventDefault();
-        toggle();
-        return;
-      }
-      if (e.key === 'Escape') {
-        close();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  const { isOpen: sidebarOpen, open, close } = useSidebar({
+    lockBodyScroll: true,
+    enableHotkeys: true,
+  });
 
   return (
     <div className="min-h-dvh bg-gray-50 text-gray-900">
