@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchLpList } from "../apis/lp";
 import type { Lp } from "../types/lp";
+import { useDebounce } from "../hooks/useDebounce";
+import { useThrottle } from "../hooks/useThrottle";
 
 interface HomePageProps {
   username: string;
@@ -125,10 +127,21 @@ export default function HomePage({ username }: HomePageProps) {
   const [brokenThumbIds, setBrokenThumbIds] = useState<Set<number>>(
     () => new Set()
   );
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 500);
 
+  // 초기 로드 및 retry 시 전체 목록 조회
   useEffect(() => {
     const controller = new AbortController();
     let isMounted = true;
+
+    // 검색어가 있을 때는 이 effect에서 처리하지 않음
+    if (debouncedSearch.trim() !== "") {
+      return () => {
+        isMounted = false;
+        controller.abort();
+      };
+    }
 
     const loadLps = async () => {
       setIsLoading(true);
@@ -169,7 +182,61 @@ export default function HomePage({ username }: HomePageProps) {
       isMounted = false;
       controller.abort();
     };
-  }, [retryKey]);
+  }, [retryKey, debouncedSearch]);
+
+  // 검색어가 있을 때만 검색 실행
+  useEffect(() => {
+    const trimmedSearch = debouncedSearch.trim();
+
+    // 빈 쿼리일 때는 검색하지 않음
+    if (trimmedSearch === "") {
+      return;
+    }
+
+    const controller = new AbortController();
+    let isMounted = true;
+
+    const searchLps = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetchLpList({
+          cursor: 0,
+          limit: 10,
+          order: "asc",
+          search: trimmedSearch,
+          signal: controller.signal,
+        });
+
+        if (!isMounted) {
+          return;
+        }
+
+        const fetchedLps = response.data.data;
+        setLps(fetchedLps);
+        setCurrentIndex(0);
+      } catch (fetchError) {
+        if (!isMounted || controller.signal.aborted) {
+          return;
+        }
+
+        console.error("Failed to search LP list:", fetchError);
+        setError("LP 검색에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void searchLps();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [debouncedSearch]);
 
   useEffect(() => {
     const handler = (event: Event) => {
@@ -206,18 +273,23 @@ export default function HomePage({ username }: HomePageProps) {
   const HOME_FALLBACK_THUMB =
     "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80";
 
-  const moveTo = (direction: number) => {
-    if (totalLps === 0) {
-      return;
-    }
+  const moveTo = useCallback(
+    (direction: number) => {
+      if (totalLps === 0) {
+        return;
+      }
 
-    setCurrentIndex((prev) => {
-      const nextIndex = prev + direction;
-      if (nextIndex < 0) return totalLps - 1;
-      if (nextIndex >= totalLps) return 0;
-      return nextIndex;
-    });
-  };
+      setCurrentIndex((prev) => {
+        const nextIndex = prev + direction;
+        if (nextIndex < 0) return totalLps - 1;
+        if (nextIndex >= totalLps) return 0;
+        return nextIndex;
+      });
+    },
+    [totalLps]
+  );
+
+  const throttledMoveTo = useThrottle(moveTo, 500);
 
   const jumpTo = (targetIndex: number) => {
     if (targetIndex < 0 || targetIndex >= totalLps) {
@@ -252,6 +324,16 @@ export default function HomePage({ username }: HomePageProps) {
         <h1 className="text-2xl font-semibold text-white">
           {username ? `Welcome, ${username}!` : "Welcome"}
         </h1>
+
+        <div className="mt-6 mb-8">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="LP 이름으로 검색..."
+            className="w-full max-w-md px-4 py-3 backdrop-blur-md bg-black/20 border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent text-sm transition-all duration-300"
+          />
+        </div>
 
         <div className="relative flex flex-1 flex-col items-center justify-center">
           {isLoading ? (
@@ -341,7 +423,7 @@ export default function HomePage({ username }: HomePageProps) {
               <div className="mt-10 flex items-center justify-between gap-10">
                 <button
                   type="button"
-                  onClick={() => moveTo(-1)}
+                  onClick={() => throttledMoveTo(-1)}
                   className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
                 >
                   &#8592;
@@ -363,7 +445,7 @@ export default function HomePage({ username }: HomePageProps) {
                 </div>
                 <button
                   type="button"
-                  onClick={() => moveTo(1)}
+                  onClick={() => throttledMoveTo(1)}
                   className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
                 >
                   &#8594;
