@@ -6,6 +6,7 @@ import useDebounce from '../../hooks/useDebounce';
 
 export default function MovieSearchPage() {
 	const [query, setQuery] = useState('');
+	const [isComposing, setIsComposing] = useState(false);
 	const debouncedQuery = useDebounce(query.trim(), 300);
 
 	const {
@@ -19,7 +20,7 @@ export default function MovieSearchPage() {
 		isFetchingNextPage,
 		isFetching,
 	} = useInfiniteQuery({
-		enabled: debouncedQuery.length > 0,
+		enabled: debouncedQuery.length > 0 && !isComposing,
 		queryKey: ['search', debouncedQuery],
 		queryFn: async ({ pageParam = 1 }: { pageParam?: number }) => {
 			const v4Token = import.meta.env.VITE_TMDB_KEY as string | undefined;
@@ -78,13 +79,19 @@ export default function MovieSearchPage() {
 						type="text"
 						value={query}
 						onChange={(e) => setQuery(e.target.value)}
+						onCompositionStart={() => setIsComposing(true)}
+						onCompositionEnd={(e) => {
+							setIsComposing(false);
+							// 조합 완료 시점의 값으로 한번 더 동기화하여 디바운스가 정확히 동작하도록 보장
+							setQuery(e.currentTarget.value);
+						}}
 						placeholder="영화 제목을 입력하세요"
 						className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300"
 					/>
 			
 				</div>
 
-				{debouncedQuery.length === 0 ?		null : (
+				{debouncedQuery.length === 0 || isComposing ?		null : (
 					<QueryState
 						isLoading={isLoading}
 						isError={isError}
