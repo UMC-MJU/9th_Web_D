@@ -2,6 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import MovieCard, { type TmdbMovie } from '../../components/MovieCard';
 import QueryState from '../../components/QueryState';
 import { useState, useMemo, useEffect, useRef } from 'react';
+import useThrottle from '../../hooks/useThrottle';
 
 function PopularMoviesGrid() {
 	const [order, setOrder] = useState<'desc' | 'asc'>('desc');
@@ -44,6 +45,16 @@ function PopularMoviesGrid() {
 		() => (data?.pages ?? []).flatMap((p) => p.results ?? []),
 		[data]
 	);
+
+	// Throttle auto-load trigger to avoid rapid duplicate fetches
+	const [intersectionSignal, setIntersectionSignal] = useState(0);
+	const throttledSignal = useThrottle(intersectionSignal, 600);
+	useEffect(() => {
+		if (throttledSignal === 0) return;
+		if (hasNextPage && !isFetchingNextPage) {
+			fetchNextPage();
+		}
+	}, [throttledSignal, hasNextPage, isFetchingNextPage, fetchNextPage]);
 	const sortedMovies = useMemo(() => {
 		const copy = [...movies];
 		copy.sort((a, b) => {
@@ -62,12 +73,12 @@ function PopularMoviesGrid() {
 		const observer = new IntersectionObserver((entries) => {
 			const first = entries[0];
 			if (first.isIntersecting && hasNextPage && !isFetchingNextPage) {
-				fetchNextPage();
+				setIntersectionSignal((v) => v + 1);
 			}
 		});
 		observer.observe(el);
 		return () => observer.disconnect();
-	}, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+	}, [hasNextPage, isFetchingNextPage]);
 
 	return (
 		<QueryState
