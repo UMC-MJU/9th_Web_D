@@ -14,6 +14,7 @@ import MovieDetailPage from './assets/pages/MovieDetailPage';
 import LpDetailPage from './assets/pages/LpDetailPage';
 import InfinitePostsAutoJsonPlaceholder from './components/InfinitePostsAutoJsonPlaceholder';
 import InfiniteLpsList from './components/InfiniteLpsList';
+import MovieSearchPage from './assets/pages/MovieSearchPage';
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const router = createBrowserRouter([
         </ProtectedRoute>
       )},
       {path: 'movies/:id', element: <MovieDetailPage />},
+      {path: 'search', element: <MovieSearchPage />},
     ],
 	},
 ]);

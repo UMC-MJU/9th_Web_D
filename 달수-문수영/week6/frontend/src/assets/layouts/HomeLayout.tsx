@@ -101,6 +101,9 @@ const HomeLayout = () => {
                                 <Link to='/member' className='block px-2 py-1 rounded hover:bg-gray-100'>마이페이지</Link>
                         </li>
                         <li>
+                                <Link to='/search' className='block px-2 py-1 rounded hover:bg-gray-100'>영화 검색</Link>
+                        </li>
+                        <li>
                                 <Link to='/lps' className='block px-2 py-1 rounded hover:bg-gray-100'>영화 노래 게시판</Link>
                         </li>
                     </ul>
@@ -129,6 +132,9 @@ const HomeLayout = () => {
                         <ul className='space-y-2 text-sm'>
                             <li>
                                 <Link to='/member' className='block px-2 py-2 rounded hover:bg-gray-100' onClick={() => setSidebarOpen(false)}>마이페이지</Link>
+                            </li>
+                            <li>
+                                <Link to='/search' className='block px-2 py-2 rounded hover:bg-gray-100' onClick={() => setSidebarOpen(false)}>영화 검색</Link>
                             </li>
                             <li>
                                 <Link to='/lps' className='block px-2 py-2 rounded hover:bg-gray-100' onClick={() => setSidebarOpen(false)}>영화 노래 게시판</Link>
