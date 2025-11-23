@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const open = () => setSidebarOpen(true);
+  const close = () => setSidebarOpen(false);
+  const toggle = () => setSidebarOpen((v) => !v);
 
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? 'hidden' : '';
@@ -10,16 +13,31 @@ function App() {
     };
   }, [sidebarOpen]);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const isToggle = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b';
+      if (isToggle) {
+        e.preventDefault();
+        toggle();
+        return;
+      }
+      if (e.key === 'Escape') {
+        close();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   return (
     <div className="min-h-dvh bg-gray-50 text-gray-900">
-      {/* Top Nav */}
       <nav className="h-14 border-b bg-white/80 backdrop-blur sticky top-0 z-20 flex items-center justify-between px-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
             aria-label="메뉴 열기"
             aria-expanded={sidebarOpen}
-            onClick={() => setSidebarOpen(true)}
+            onClick={open}
             className="p-2 rounded hover:bg-gray-100 transition-colors"
           >
             <svg width="24" height="24" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -33,7 +51,7 @@ function App() {
       <div
         aria-hidden={!sidebarOpen}
         className={`fixed inset-0 z-30 bg-black/30 transition-opacity ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-        onClick={() => setSidebarOpen(false)}
+        onClick={close}
       />
       <aside
         aria-label="사이드바"
@@ -46,7 +64,7 @@ function App() {
           <button
             type="button"
             aria-label="메뉴 닫기"
-            onClick={() => setSidebarOpen(false)}
+            onClick={close}
             className="p-2 rounded hover:bg-gray-100 transition-colors"
           >
             ✕
