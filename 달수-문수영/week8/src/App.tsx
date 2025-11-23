@@ -54,6 +54,26 @@ function App() {
           <li><a className="block rounded px-2 py-2 hover:bg-gray-100 transition-colors" href="#">설정</a></li>
         </ul>
       </aside>
+      <main className="max-w-3xl mx-auto p-6 space-y-6">
+        <h1 className="text-2xl font-bold">긴 본문 스크롤 테스트</h1>
+        <section className="space-y-4">
+          {Array.from({ length: 30 }).map((_, i) => (
+            <p key={i} className="leading-7 text-gray-800">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer in sem a libero
+              efficitur ultrices. Sed in augue lacinia, blandit nibh vitae, facilisis sapien.
+              Phasellus venenatis, justo non dictum pharetra, risus odio aliquet nunc, at
+              vestibulum velit libero sit amet urna. Suspendisse nec sollicitudin turpis. In
+              viverra, dui vitae bibendum lacinia, risus arcu posuere turpis, at ultricies massa
+              nulla sit amet orci. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices
+              posuere cubilia curae; Aliquam erat volutpat. Curabitur id tellus id tellus tincidunt
+              interdum. Maecenas ultrices magna ac erat vehicula, at bibendum quam consequat. Donec
+              vulputate, augue id vulputate porta, urna eros lobortis est, vel consectetur lectus
+              risus et velit. Pellentesque habitant morbi tristique senectus et netus et malesuada
+              fames ac turpis egestas.
+            </p>
+          ))}
+        </section>
+      </main>
     </div>
   );
 }
