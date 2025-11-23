@@ -15,7 +15,7 @@ export class CreateUserDto {
   email: string;
 
   @ApiProperty({
-    example: '안녕하세요. 저는 매튜입니다.',
+    example: '본인을 소개해보세요.',
     description: '자기소개',
   })
   @IsString()

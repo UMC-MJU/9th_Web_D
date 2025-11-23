@@ -6,12 +6,16 @@ import { api } from '../../apis';
 
 const HomeLayout = () => {
     const [loggedIn, setLoggedIn] = useState<boolean>(isLoggedIn());
+    const [nickname, setNickname] = useState<string>(getCurrentUserNickname());
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const { pathname } = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
-        const onChange = () => setLoggedIn(isLoggedIn());
+        const onChange = () => {
+            setLoggedIn(isLoggedIn());
+            setNickname(getCurrentUserNickname());
+        };
         window.addEventListener('storage', onChange);
         window.addEventListener('auth-changed', onChange);
         return () => {
@@ -29,6 +33,7 @@ const HomeLayout = () => {
             // 서버 응답 관계없이 클라이언트 세션 정리
             logout();
             setLoggedIn(false);
+            setNickname('');
             navigate('/');
         },
     });
@@ -38,7 +43,7 @@ const HomeLayout = () => {
         signoutMutate();
     };
 
-    const nickname = loggedIn ? getCurrentUserNickname() : '';
+    const displayName = loggedIn ? nickname : '';
 
     return(
         <div className='h-dvh flex flex-col'>
@@ -60,7 +65,7 @@ const HomeLayout = () => {
                     {loggedIn ? (
                         <div className='flex items-center gap-3 text-sm'>
                             <span className='text-gray-700'>
-                                {nickname ? `${nickname}님 반갑습니다.` : '반갑습니다.'}
+                                {displayName ? `${displayName}님 반갑습니다.` : '반갑습니다.'}
                             </span>
                             <button
                                 onClick={handleLogout}
