@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import QueryState from './QueryState';
 import CreateLpModal from './CreateLpModal';
 import { isLoggedIn } from '../utils/auth';
+import useDebounce from '../hooks/useDebounce';
 
 type Order = 'asc' | 'desc';
 
@@ -63,20 +64,53 @@ export default function InfiniteLpsList() {
     [data]
   );
 
-  // 하단 센티널 자동 로드
+  // 하단 센티널 자동 로드 (사용자 스크롤 이후에만 작동)
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const [intersectionSignal, setIntersectionSignal] = useState(0);
+  const [userScrolled, setUserScrolled] = useState(false);
+  useEffect(() => {
+    const onWheel = () => setUserScrolled(true);
+    const onTouchMove = () => setUserScrolled(true);
+    const onKeyDown = (e: KeyboardEvent) => {
+      const keys = ['ArrowDown', 'PageDown', 'Space', 'End'];
+      if (keys.includes(e.key)) setUserScrolled(true);
+    };
+    window.addEventListener('wheel', onWheel, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('wheel', onWheel as any);
+      window.removeEventListener('touchmove', onTouchMove as any);
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, []);
+  // Demo: 스크롤(센티넬 감지) 후 3초 동안 추가 감지가 없을 때만 요청
+  const debouncedSignal = useDebounce(intersectionSignal, 3000);
+  const lastHandledSignalRef = useRef(0);
+  useEffect(() => {
+    if (debouncedSignal === 0) return;
+    // 같은 신호값으로는 한 번만 처리
+    if (debouncedSignal === lastHandledSignalRef.current) return;
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+      lastHandledSignalRef.current = debouncedSignal;
+      // 한 번 로드 후에는 다시 사용자 스크롤이 있을 때만 다음 로드가 가능하도록 잠금
+      setUserScrolled(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSignal, hasNextPage, isFetchingNextPage]);
   useEffect(() => {
     if (!sentinelRef.current) return;
     const el = sentinelRef.current;
     const observer = new IntersectionObserver((entries) => {
       const first = entries[0];
-      if (first.isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
+      if (first.isIntersecting && userScrolled && hasNextPage && !isFetchingNextPage) {
+        setIntersectionSignal((v) => v + 1);
       }
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [hasNextPage, isFetchingNextPage, userScrolled]);
 
   return (
     <div className="p-4 max-w-3xl mx-auto">
@@ -145,20 +179,14 @@ export default function InfiniteLpsList() {
             )}
           </ul>
 
-          {/* 더 보기 버튼 */}
-          <div className="mt-3 flex items-center justify-center">
-            {hasNextPage ? (
-              <button
-                onClick={() => fetchNextPage()}
-                disabled={isFetchingNextPage}
-                className="px-3 py-1 text-sm rounded bg-black text-white hover:bg-gray-800 transition-colors disabled:bg-gray-400"
-              >
-                {isFetchingNextPage ? '불러오는 중...' : '더 보기'}
-              </button>
-            ) : (
-              <span className="text-xs text-gray-500">마지막 페이지입니다.</span>
-            )}
-          </div>
+          {/* 자동 로드 상태 */}
+          {isFetchingNextPage ? (
+            <div className="mt-3 text-xs text-gray-500 text-center">불러오는 중...</div>
+          ) : hasNextPage ? (
+            <div className="mt-3 text-xs text-gray-500 text-center">하단으로 스크롤하면 3초 뒤 다음 페이지가 로드됩니다.</div>
+          ) : (
+            <div className="mt-3 text-xs text-gray-500 text-center">마지막 페이지입니다.</div>
+          )}
           <div ref={sentinelRef} className="h-px" />
         </>
       </QueryState>
