@@ -7,6 +7,9 @@ export function useGetInfiniteLpList({
     limit,
     search,
     order,
+    staleTime = 5 * 60 * 1000,
+    gcTime = 10 * 60 * 1000,
+    enabled,
 }: PaginationDTO) {
     return useInfiniteQuery({
     queryKey:[QUERY_KEY.lps, search, order, limit],
@@ -24,7 +27,8 @@ export function useGetInfiniteLpList({
     },
     
     // staleTime, gcTime 등 기타 옵션
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: staleTime,
+    gcTime: gcTime,
+    enabled: enabled,
   });
 }
