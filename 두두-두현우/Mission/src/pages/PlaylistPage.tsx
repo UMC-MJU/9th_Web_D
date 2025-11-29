@@ -2,20 +2,23 @@ import { useCartStore } from "../store/useCartStore";
 import { useModalStore } from "../store/useModalStore";
 
 const PlaylistPage = () => {
-  // Zustand store에서 상태 불러오기
-  const cartItems = useCartStore((state) => state.cartItems);
-  const amount = useCartStore((state) => state.amount);
-  const total = useCartStore((state) => state.total);
-  const isModalOpen = useModalStore((state) => state.isOpen);
-  const modalType = useModalStore((state) => state.modalType);
+  // Zustand store에서 상태와 액션을 구조 분해 할당으로 가져오기
+  const {
+    cartItems,
+    amount,
+    total,
+    increase,
+    decrease,
+    removeItem,
+    clearCart,
+  } = useCartStore();
 
-  // Zustand store에서 액션 불러오기
-  const increase = useCartStore((state) => state.increase);
-  const decrease = useCartStore((state) => state.decrease);
-  const removeItem = useCartStore((state) => state.removeItem);
-  const openModal = useModalStore((state) => state.openModal);
-  const closeModal = useModalStore((state) => state.closeModal);
-  const clearCart = useCartStore((state) => state.clearCart);
+  const {
+    isOpen: isModalOpen,
+    modalType,
+    openModal,
+    closeModal,
+  } = useModalStore();
 
   // 핸들러 함수들
   const handleIncrease = (id: string) => {
@@ -71,7 +74,7 @@ const PlaylistPage = () => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-semibold">Playlist</h1>
           <div className="text-right">
-            {/* useSelector로 불러온 amount와 total을 UI에 표시 */}
+            {/* Zustand store에서 불러온 amount와 total을 UI에 표시 */}
             <p className="text-white/70 text-sm">전체 수량: {amount}</p>
             <p className="text-white font-semibold">
               총 금액: {formatPrice(total.toString())}
@@ -151,7 +154,7 @@ const PlaylistPage = () => {
 
               {/* 수량 선택기 및 삭제 버튼 */}
               <div className="flex items-center gap-3">
-                {/* 수량 버튼 클릭 시 dispatch */}
+                {/* 수량 버튼 클릭 시 Zustand 액션 호출 */}
                 <div className="flex items-center gap-2 border border-white/10 rounded bg-black/20 px-3 py-2 ">
                   <button
                     type="button"
