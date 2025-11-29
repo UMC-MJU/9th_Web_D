@@ -23,6 +23,9 @@ importers:
       react-redux:
         specifier: ^9.2.0
         version: 9.2.0(@types/react@19.2.7)(react@19.2.0)(redux@5.0.1)
+      redux:
+        specifier: ^5.0.1
+        version: 5.0.1
       redux-thunk:
         specifier: ^3.1.0
         version: 3.1.0(redux@5.0.1)
