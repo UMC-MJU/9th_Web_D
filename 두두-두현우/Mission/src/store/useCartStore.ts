@@ -53,39 +53,48 @@ export const useCartStore = create<CartStore>((set) => ({
   total: initialTotals.total,
 
   // 액션들
+  // 수량 증가 - Redux와 동일한 로직
   increase: (id: string) =>
     set((state) => {
-      const newCartItems = state.cartItems.map((item) =>
-        item.id === id ? { ...item, amount: item.amount + 1 } : item
-      );
-      const totals = calculateCartTotals(newCartItems);
-      return {
-        cartItems: newCartItems,
-        amount: totals.amount,
-        total: totals.total,
-      };
+      const item = state.cartItems.find((item) => item.id === id);
+      if (item) {
+        const newCartItems = state.cartItems.map((item) =>
+          item.id === id ? { ...item, amount: item.amount + 1 } : item
+        );
+        const totals = calculateCartTotals(newCartItems);
+        return {
+          cartItems: newCartItems,
+          amount: totals.amount,
+          total: totals.total,
+        };
+      }
+      return state;
     }),
 
+  // 수량 감소 - Redux와 동일한 로직
   decrease: (id: string) =>
     set((state) => {
       const item = state.cartItems.find((item) => item.id === id);
-      if (!item) return state;
-
-      const newAmount = item.amount - 1;
-      const newCartItems =
-        newAmount < 1
-          ? state.cartItems.filter((item) => item.id !== id)
-          : state.cartItems.map((item) =>
-              item.id === id ? { ...item, amount: newAmount } : item
-            );
-      const totals = calculateCartTotals(newCartItems);
-      return {
-        cartItems: newCartItems,
-        amount: totals.amount,
-        total: totals.total,
-      };
+      if (item) {
+        const newAmount = item.amount - 1;
+        // 수량이 1보다 작아지면 제거
+        const newCartItems =
+          newAmount < 1
+            ? state.cartItems.filter((item) => item.id !== id)
+            : state.cartItems.map((item) =>
+                item.id === id ? { ...item, amount: newAmount } : item
+              );
+        const totals = calculateCartTotals(newCartItems);
+        return {
+          cartItems: newCartItems,
+          amount: totals.amount,
+          total: totals.total,
+        };
+      }
+      return state;
     }),
 
+  // 아이템 제거 - Redux와 동일한 로직
   removeItem: (id: string) =>
     set((state) => {
       const newCartItems = state.cartItems.filter((item) => item.id !== id);
@@ -97,6 +106,7 @@ export const useCartStore = create<CartStore>((set) => ({
       };
     }),
 
+  // 전체 삭제 - Redux와 동일한 로직
   clearCart: () =>
     set({
       cartItems: [],
@@ -104,10 +114,12 @@ export const useCartStore = create<CartStore>((set) => ({
       total: 0,
     }),
 
+  // 전체 합계 계산 - Redux와 동일한 로직 (명시적 호출용)
   calculateTotals: () =>
     set((state) => {
       const totals = calculateCartTotals(state.cartItems);
       return {
+        ...state,
         amount: totals.amount,
         total: totals.total,
       };
