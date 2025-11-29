@@ -1,48 +1,54 @@
-import { useDispatch, useSelector } from "react-redux";
-import { increase, decrease, removeItem, clearCart } from "../store/cartSlice";
-import { openModal, closeModal } from "../store/modalSlice";
-import type { RootState } from "../store/store";
+import { useCartStore } from "../store/useCartStore";
+import { useModalStore } from "../store/useModalStore";
 
 const PlaylistPage = () => {
-  // useSelector로 Redux의 cartItems, amount, total 불러오기
-  const cartItems = useSelector((state: RootState) => state.cart.cartItems);
-  const amount = useSelector((state: RootState) => state.cart.amount);
-  const total = useSelector((state: RootState) => state.cart.total);
-  const isModalOpen = useSelector((state: RootState) => state.modal.isOpen);
-  const modalType = useSelector((state: RootState) => state.modal.modalType);
-  const dispatch = useDispatch();
+  // Zustand store에서 상태 불러오기
+  const cartItems = useCartStore((state) => state.cartItems);
+  const amount = useCartStore((state) => state.amount);
+  const total = useCartStore((state) => state.total);
+  const isModalOpen = useModalStore((state) => state.isOpen);
+  const modalType = useModalStore((state) => state.modalType);
 
-  // useDispatch로 increase, decrease, removeItem, clearCart, calculateTotals 호출
+  // Zustand store에서 액션 불러오기
+  const increase = useCartStore((state) => state.increase);
+  const decrease = useCartStore((state) => state.decrease);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const openModal = useModalStore((state) => state.openModal);
+  const closeModal = useModalStore((state) => state.closeModal);
+  const clearCart = useCartStore((state) => state.clearCart);
+
+  // 핸들러 함수들
   const handleIncrease = (id: string) => {
-    dispatch(increase(id));
-    // increase reducer 내부에서 자동으로 calculateTotals가 호출됨
+    increase(id);
+    // increase 액션 내부에서 자동으로 calculateTotals가 호출됨
   };
 
   const handleDecrease = (id: string) => {
-    dispatch(decrease(id));
-    // decrease reducer 내부에서 자동으로 calculateTotals가 호출됨
+    decrease(id);
+    // decrease 액션 내부에서 자동으로 calculateTotals가 호출됨
   };
 
   const handleRemoveItem = (id: string) => {
-    dispatch(removeItem(id));
-    // removeItem reducer 내부에서 자동으로 calculateTotals가 호출됨
+    removeItem(id);
+    // removeItem 액션 내부에서 자동으로 calculateTotals가 호출됨
   };
 
   const handleClearCartClick = () => {
-    dispatch(openModal("clearCart"));
+    openModal("clearCart");
   };
 
   const handleConfirmClearCart = () => {
-    dispatch(clearCart());
-    dispatch(closeModal());
+    clearCart(); // cartStore의 clearCart 호출
+    closeModal(); // modalStore의 closeModal 호출
+    // 두 Zustand store의 액션이 연동되어 작동
   };
 
   const handleCancelClearCart = () => {
-    dispatch(closeModal());
+    closeModal();
   };
 
-  // calculateTotals는 increase, decrease, removeItem reducer 내부에서 자동으로 호출됨
-  // 명시적으로 호출하려면: dispatch(calculateTotals());
+  // calculateTotals는 increase, decrease, removeItem 액션 내부에서 자동으로 호출됨
+  // 명시적으로 호출하려면: useCartStore.getState().calculateTotals();
 
   const formatPrice = (price: string) => {
     return `$${Number(price).toLocaleString()}`;

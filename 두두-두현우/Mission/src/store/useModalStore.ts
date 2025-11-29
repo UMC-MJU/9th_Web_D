@@ -20,12 +20,14 @@ export const useModalStore = create<ModalStore>((set) => ({
   modalType: null,
 
   // 액션들
+  // 모달 열기
   openModal: (modalType: "clearCart") =>
     set({
       isOpen: true,
       modalType,
     }),
 
+  // 모달 닫기
   closeModal: () =>
     set({
       isOpen: false,
