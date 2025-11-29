@@ -44,7 +44,7 @@ export default function Navbar({
             className={`
             backdrop-blur-md bg-white/20 border border-white/30 rounded-full shadow-lg
             transition-all duration-500 ease-out px-4 py-3
-            ${isHovered ? "w-80" : "w-16"}
+            ${isHovered ? "w-92" : "w-16"}
           `}
           >
             <div className="flex items-center justify-center h-10 relative">
@@ -62,7 +62,7 @@ export default function Navbar({
               {/* 확장된 버튼들 */}
               <div
                 className={`
-                flex items-center justify-center space-x-6 w-full
+                flex items-center justify-center w-full
                 transition-opacity duration-300
                 ${isHovered ? "opacity-100" : "opacity-0"}
               `}
