@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { increase, decrease, removeItem, clearCart } from "../store/cartSlice";
+import { openClearCartModal, closeModal } from "../store/modalSlice";
 import type { RootState } from "../store/store";
 
 const PlaylistPage = () => {
@@ -7,6 +8,8 @@ const PlaylistPage = () => {
   const cartItems = useSelector((state: RootState) => state.cart.cartItems);
   const amount = useSelector((state: RootState) => state.cart.amount);
   const total = useSelector((state: RootState) => state.cart.total);
+  const isModalOpen = useSelector((state: RootState) => state.modal.isOpen);
+  const modalType = useSelector((state: RootState) => state.modal.modalType);
   const dispatch = useDispatch();
 
   // useDispatch로 increase, decrease, removeItem, clearCart, calculateTotals 호출
@@ -25,9 +28,17 @@ const PlaylistPage = () => {
     // removeItem reducer 내부에서 자동으로 calculateTotals가 호출됨
   };
 
-  const handleClearCart = () => {
+  const handleClearCartClick = () => {
+    dispatch(openClearCartModal());
+  };
+
+  const handleConfirmClearCart = () => {
     dispatch(clearCart());
-    // clearCart는 직접 amount와 total을 0으로 설정하므로 calculateTotals 불필요
+    dispatch(closeModal());
+  };
+
+  const handleCancelClearCart = () => {
+    dispatch(closeModal());
   };
 
   // calculateTotals는 increase, decrease, removeItem reducer 내부에서 자동으로 호출됨
@@ -67,11 +78,42 @@ const PlaylistPage = () => {
           <div className="mb-4 flex justify-end">
             <button
               type="button"
-              onClick={handleClearCart}
+              onClick={handleClearCartClick}
               className="px-4 py-2 border border-red-500/50 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors text-sm cursor-pointer"
             >
               전체 삭제
             </button>
+          </div>
+        )}
+
+        {/* 삭제 확인 모달 */}
+        {isModalOpen && modalType === "clearCart" && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-black border border-white/20 rounded-lg p-6 max-w-md w-full mx-4">
+              <h2 className="text-xl font-semibold text-white mb-4">
+                정말 삭제하시겠습니까?
+              </h2>
+              <p className="text-white/70 mb-6">
+                장바구니의 모든 아이템이 삭제됩니다. 이 작업은 되돌릴 수
+                없습니다.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={handleCancelClearCart}
+                  className="px-4 py-2 border border-white/20 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  아니요
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmClearCart}
+                  className="px-4 py-2 border border-red-500/50 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors cursor-pointer"
+                >
+                  네
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
