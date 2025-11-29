@@ -1,26 +1,29 @@
-import { useState } from "react";
-import cartItems from "../constants/cartItems";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAmount } from "../store/cartSlice";
+import type { RootState } from "../store/store";
 
 const PlaylistPage = () => {
-  const [items, setItems] = useState(
-    cartItems.map((item) => ({ ...item, amount: item.amount }))
-  );
+  const items = useSelector((state: RootState) => state.cart.items);
+  const dispatch = useDispatch();
 
-  const updateAmount = (id: string, delta: number) => {
-    setItems((prevItems) =>
-      prevItems.map((item) => {
-        if (item.id === id) {
-          const newAmount = Math.max(1, item.amount + delta);
-          return { ...item, amount: newAmount };
-        }
-        return item;
-      })
-    );
+  const handleUpdateAmount = (id: string, delta: number) => {
+    dispatch(updateAmount({ id, delta }));
   };
 
   const formatPrice = (price: string) => {
     return `$${Number(price).toLocaleString()}`;
   };
+
+  if (!items || items.length === 0) {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <div className="mx-auto max-w-3xl px-6 py-12">
+          <h1 className="text-2xl font-semibold mb-8">Playlist</h1>
+          <p className="text-white/70">플레이리스트가 비어있습니다.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -56,7 +59,7 @@ const PlaylistPage = () => {
               <div className="flex items-center gap-2 border border-white/10 rounded bg-black/20 px-3 py-2 ">
                 <button
                   type="button"
-                  onClick={() => updateAmount(item.id, -1)}
+                  onClick={() => handleUpdateAmount(item.id, -1)}
                   className="text-white/70 hover:text-white transition-colors w-6 h-6 flex items-center justify-center cursor-pointer"
                   aria-label="수량 감소"
                 >
@@ -67,7 +70,7 @@ const PlaylistPage = () => {
                 </span>
                 <button
                   type="button"
-                  onClick={() => updateAmount(item.id, 1)}
+                  onClick={() => handleUpdateAmount(item.id, 1)}
                   className="text-white/70 hover:text-white transition-colors w-6 h-6 flex items-center justify-center cursor-pointer"
                   aria-label="수량 증가"
                 >
