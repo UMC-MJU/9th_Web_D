@@ -1,20 +1,26 @@
 import { useDispatch, useSelector } from "react-redux";
-import { updateAmount } from "../store/cartSlice";
+import { increase, decrease } from "../store/cartSlice";
 import type { RootState } from "../store/store";
 
 const PlaylistPage = () => {
-  const items = useSelector((state: RootState) => state.cart.items);
+  const cartItems = useSelector((state: RootState) => state.cart.cartItems);
+  const amount = useSelector((state: RootState) => state.cart.amount);
+  const total = useSelector((state: RootState) => state.cart.total);
   const dispatch = useDispatch();
 
-  const handleUpdateAmount = (id: string, delta: number) => {
-    dispatch(updateAmount({ id, delta }));
+  const handleIncrease = (id: string) => {
+    dispatch(increase(id));
+  };
+
+  const handleDecrease = (id: string) => {
+    dispatch(decrease(id));
   };
 
   const formatPrice = (price: string) => {
     return `$${Number(price).toLocaleString()}`;
   };
 
-  if (!items || items.length === 0) {
+  if (!cartItems || cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-black text-white">
         <div className="mx-auto max-w-3xl px-6 py-12">
@@ -28,9 +34,17 @@ const PlaylistPage = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="mx-auto max-w-3xl px-6 py-12">
-        <h1 className="text-2xl font-semibold mb-8">Playlist</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-semibold">Playlist</h1>
+          <div className="text-right">
+            <p className="text-white/70 text-sm">전체 수량: {amount}</p>
+            <p className="text-white font-semibold">
+              총 금액: {formatPrice(total.toString())}
+            </p>
+          </div>
+        </div>
         <div className="space-y-4">
-          {items.map((item) => (
+          {cartItems.map((item) => (
             <div
               key={item.id}
               className="flex items-center gap-4 p-4 border border-white/10 rounded-lg bg-white/5  transition-colors"
@@ -59,7 +73,7 @@ const PlaylistPage = () => {
               <div className="flex items-center gap-2 border border-white/10 rounded bg-black/20 px-3 py-2 ">
                 <button
                   type="button"
-                  onClick={() => handleUpdateAmount(item.id, -1)}
+                  onClick={() => handleDecrease(item.id)}
                   className="text-white/70 hover:text-white transition-colors w-6 h-6 flex items-center justify-center cursor-pointer"
                   aria-label="수량 감소"
                 >
@@ -70,7 +84,7 @@ const PlaylistPage = () => {
                 </span>
                 <button
                   type="button"
-                  onClick={() => handleUpdateAmount(item.id, 1)}
+                  onClick={() => handleIncrease(item.id)}
                   className="text-white/70 hover:text-white transition-colors w-6 h-6 flex items-center justify-center cursor-pointer"
                   aria-label="수량 증가"
                 >
