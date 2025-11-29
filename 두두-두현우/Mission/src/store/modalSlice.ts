@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 interface ModalState {
   isOpen: boolean;
@@ -14,9 +15,9 @@ const modalSlice = createSlice({
   name: "modal",
   initialState,
   reducers: {
-    openClearCartModal: (state) => {
+    openModal: (state, action: PayloadAction<"clearCart">) => {
       state.isOpen = true;
-      state.modalType = "clearCart";
+      state.modalType = action.payload;
     },
     closeModal: (state) => {
       state.isOpen = false;
@@ -25,5 +26,5 @@ const modalSlice = createSlice({
   },
 });
 
-export const { openClearCartModal, closeModal } = modalSlice.actions;
+export const { openModal, closeModal } = modalSlice.actions;
 export default modalSlice.reducer;

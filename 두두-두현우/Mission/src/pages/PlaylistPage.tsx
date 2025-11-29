@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { increase, decrease, removeItem, clearCart } from "../store/cartSlice";
-import { openClearCartModal, closeModal } from "../store/modalSlice";
+import { openModal, closeModal } from "../store/modalSlice";
 import type { RootState } from "../store/store";
 
 const PlaylistPage = () => {
@@ -29,7 +29,7 @@ const PlaylistPage = () => {
   };
 
   const handleClearCartClick = () => {
-    dispatch(openClearCartModal());
+    dispatch(openModal("clearCart"));
   };
 
   const handleConfirmClearCart = () => {
