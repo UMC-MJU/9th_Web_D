@@ -6,6 +6,7 @@ import HomePage from "./pages/HomePage";
 import MyPage from "./pages/MyPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import LpDetailPage from "./pages/LpDetailPage";
+import PlaylistPage from "./pages/PlaylistPage";
 import { STORAGE_KEYS } from "./constants";
 
 function App() {
@@ -116,6 +117,7 @@ function App() {
       {/* Layout이 필요한 페이지들 */}
       <Route element={<Layout {...layoutProps} />}>
         <Route path="/" element={<HomePage username={username} />} />
+        <Route path="/playlist" element={<PlaylistPage />} />
         <Route path="/me" element={<MyPage isLoggedIn={isLoggedIn} />} />
         <Route path="/lps/:lpId" element={<LpDetailPage />} />
       </Route>

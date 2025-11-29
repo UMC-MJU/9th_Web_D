@@ -76,6 +76,15 @@ export default function Navbar({
                   홈
                 </NavButton>
 
+                {/* 플레이리스트 버튼 */}
+                <NavButton
+                  onClick={() => navigate("/playlist")}
+                  isVisible={isHovered}
+                  delay="150"
+                >
+                  플레이리스트
+                </NavButton>
+
                 {/* 마이페이지 버튼 */}
                 <NavButton
                   onClick={() => navigate("/me")}
