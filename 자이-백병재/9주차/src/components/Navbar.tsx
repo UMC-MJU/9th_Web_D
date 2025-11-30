@@ -1,8 +1,7 @@
-import { useSelector } from "../hooks/useCustomRedux";
-
+import { useCartStore } from "../hooks/useCartStore";
 
 const Navbar = () => {
-  const { amount } = useSelector((state) => state.cart);
+  const { amount } = useCartStore();
 
   return (
     <nav className="bg-orange-300 py-4 px-8 mb-10 text-white">

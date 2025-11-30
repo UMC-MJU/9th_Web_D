@@ -1,5 +1,5 @@
-import { useAppDispatch } from '../hooks/useCustomRedux';
-import { decrease, increase, removeItem } from '../slices/cartSlice';
+
+import { useCartStore } from '../hooks/useCartStore';
 import type { Lp } from '../types/cart'; 
 
 interface CartItemProps {
@@ -7,7 +7,7 @@ interface CartItemProps {
 }
 
 const CartItem = ({ lp }: CartItemProps) => {
-  const dispatch = useAppDispatch();
+  const { increase, decrease, removeItem } = useCartStore();
 
   return (
     <div className='flex items-center p-4 border-b border-gray-200'>
@@ -22,24 +22,27 @@ const CartItem = ({ lp }: CartItemProps) => {
         <p className='text-sm font-bold text-gray-600'>{Number(lp.price).toLocaleString()} 원</p>
       </div>
       <div className='flex items-center'>
+        {/* 감소 버튼 */}
         <button
           className='px-3 py-1 bg-gray-300 text-gray-800 rounded-l hover:bg-gray-400 cursor-pointer'
           onClick={() => {
             if (lp.amount === 1) {
-              dispatch(removeItem(lp.id));
+              removeItem(lp.id); // 수량이 1개일 때 누르면 삭제
               return;
             }
-            dispatch(decrease(lp.id));
+            decrease(lp.id);
           }}
         >
           -
         </button>
+        {/* 수량 표시 */}
         <span className='px-4 py-[3px] border-y border-gray-300'>
           {lp.amount}
         </span>
+        {/* 증가 버튼 */}
         <button
           className='px-3 py-1 bg-gray-300 text-gray-800 rounded-r hover:bg-gray-400 cursor-pointer'
-          onClick={() => dispatch(increase(lp.id))}
+          onClick={() => increase(lp.id)}
         >
           +
         </button>
