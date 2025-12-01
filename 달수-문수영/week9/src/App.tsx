@@ -1,6 +1,7 @@
 import Header from './components/Header'
 import CartList from './components/CartList'
 import Summary from './components/Summary'
+import ConfirmModal from './components/ConfirmModal'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from './store'
@@ -22,6 +23,7 @@ function App() {
         <CartList />
         <Summary />
       </main>
+      <ConfirmModal />
     </div>
   )
 }
