@@ -1,13 +1,16 @@
-import { useDispatch } from 'react-redux';
+import { useCartStore } from '../stores/cartStore';
 import type { CartItem } from '../constants/cartItems';
-import { decrementAmount, incrementAmount, removeItem } from '../store/cartSlice';
 
 type Props = {
 	item: CartItem;
 };
 
 const CartItemRow = ({ item }: Props) => {
-	const dispatch = useDispatch();
+	const { incrementAmount, decrementAmount, removeItem } = useCartStore(state => ({
+		incrementAmount: state.incrementAmount,
+		decrementAmount: state.decrementAmount,
+		removeItem: state.removeItem
+	}));
 
 	return (
 		<li className="flex items-center gap-4 py-4">
@@ -26,7 +29,7 @@ const CartItemRow = ({ item }: Props) => {
 				<button
 					aria-label="decrement"
 					className="h-7 w-7 rounded bg-slate-200 text-slate-700 hover:bg-slate-300"
-					onClick={() => dispatch(decrementAmount(item.id))}
+					onClick={() => decrementAmount(item.id)}
 				>
 					-
 				</button>
@@ -34,7 +37,7 @@ const CartItemRow = ({ item }: Props) => {
 				<button
 					aria-label="increment"
 					className="h-7 w-7 rounded bg-slate-800 text-white hover:bg-slate-700"
-					onClick={() => dispatch(incrementAmount(item.id))}
+					onClick={() => incrementAmount(item.id)}
 				>
 					+
 				</button>
@@ -42,7 +45,7 @@ const CartItemRow = ({ item }: Props) => {
 			<button
 				aria-label="remove item"
 				className="ml-2 h-7 rounded bg-slate-200 px-2 text-xs text-slate-600 hover:bg-slate-300"
-				onClick={() => dispatch(removeItem(item.id))}
+				onClick={() => removeItem(item.id)}
 			>
 				삭제
 			</button>
