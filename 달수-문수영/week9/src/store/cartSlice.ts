@@ -14,9 +14,30 @@ const initialState: CartState = {
 const cartSlice = createSlice({
 	name: 'cart',
 	initialState,
-	reducers: {}
+	reducers: {
+		incrementAmount: (state, action: { payload: string }) => {
+			const item = state.items.find(i => i.id === action.payload);
+			if (item) {
+				item.amount += 1;
+			}
+		},
+		decrementAmount: (state, action: { payload: string }) => {
+			const item = state.items.find(i => i.id === action.payload);
+			if (item && item.amount > 1) {
+				item.amount -= 1;
+			}
+		},
+		removeItem: (state, action: { payload: string }) => {
+			state.items = state.items.filter(i => i.id !== action.payload);
+		},
+		clearCart: state => {
+			state.items = [];
+		}
+	}
 });
 
+export const { incrementAmount, decrementAmount, removeItem, clearCart } =
+	cartSlice.actions;
 export default cartSlice.reducer;
 
 
