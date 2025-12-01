@@ -10,13 +10,18 @@ const ConfirmModal = () => {
 	if (!isOpen) return null;
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center">
+		<div
+			className="fixed inset-0 z-50 flex items-center justify-center"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="confirm-title"
+		>
 			<div
 				className="absolute inset-0 bg-black/40"
 				onClick={() => dispatch(closeModal())}
 			/>
 			<div className="relative z-10 w-[320px] rounded-lg bg-white p-5 shadow-xl">
-				<h2 className="mb-2 text-base font-semibold text-slate-900">
+				<h2 id="confirm-title" className="mb-2 text-base font-semibold text-slate-900">
 					장바구니를 비울까요?
 				</h2>
 				<p className="mb-4 text-sm text-slate-600">
@@ -27,7 +32,7 @@ const ConfirmModal = () => {
 						className="rounded bg-slate-200 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-300"
 						onClick={() => dispatch(closeModal())}
 					>
-						취소
+						아니요
 					</button>
 					<button
 						className="rounded bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-500"
@@ -36,7 +41,7 @@ const ConfirmModal = () => {
 							dispatch(closeModal());
 						}}
 					>
-						전체 삭제
+						네
 					</button>
 				</div>
 			</div>
