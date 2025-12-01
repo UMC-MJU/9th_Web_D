@@ -1,10 +1,7 @@
-import { useDispatch } from 'react-redux';
-import { clearCart } from '../store/cartSlice';
 import { useModalStore } from '../stores/modalStore';
 import { useCartStore } from '../stores/cartStore';
 
 const ConfirmModal = () => {
-	const dispatch = useDispatch();
 	const isOpen = useModalStore(s => s.isOpen);
 	const close = useModalStore(s => s.close);
 	const clearCartZ = useCartStore(s => s.clearCart);
@@ -33,8 +30,6 @@ const ConfirmModal = () => {
 					<button
 						className="rounded bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-500"
 						onClick={() => {
-							// 두 스토어 모두 지원 (Redux / Zustand)
-							dispatch(clearCart());
 							clearCartZ();
 							close();
 						}}

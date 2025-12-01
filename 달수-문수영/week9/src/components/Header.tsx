@@ -1,9 +1,9 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from '../store';
+
 import { useModalStore } from '../stores/modalStore';
+import { useCartStore } from '../stores/cartStore';
 
 const Header = () => {
-	const totalCount = useSelector((state: RootState) => state.cart.amount);
+	const totalCount = useCartStore(s => s.amount);
 	const open = useModalStore(s => s.open);
 
 	return (

@@ -3,18 +3,16 @@ import CartList from './components/CartList'
 import Summary from './components/Summary'
 import ConfirmModal from './components/ConfirmModal'
 import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import type { RootState } from './store'
-import { calculateTotals } from './store/cartSlice'
+import { useCartStore } from './stores/cartStore'
 
 function App() {
-  const dispatch = useDispatch()
-  const items = useSelector((state: RootState) => state.cart.items)
+  const items = useCartStore(s => s.items)
+  const calculateTotals = useCartStore(s => s.calculateTotals)
 
   // 수량/금액 변화 시 합계 갱신
   useEffect(() => {
-    dispatch(calculateTotals())
-  }, [dispatch, items])
+    calculateTotals()
+  }, [calculateTotals, items])
 
   return (
     <div className="min-h-screen bg-slate-100">
