@@ -1,15 +1,10 @@
-import { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../store';
 import { clearCart } from '../store/cartSlice';
 
 const Header = () => {
 	const dispatch = useDispatch();
-	const items = useSelector((state: RootState) => state.cart.items);
-	const totalCount = useMemo(
-		() => items.reduce((sum, item) => sum + item.amount, 0),
-		[items]
-	);
+	const totalCount = useSelector((state: RootState) => state.cart.amount);
 
 	return (
 		<header className="sticky top-0 z-10 bg-slate-800 text-white">
