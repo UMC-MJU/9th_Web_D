@@ -6,6 +6,10 @@ type CartState = {
 	items: CartItem[];
 	amount: number;
 	total: number;
+	// Redux와 매칭되는 이름을 유지
+	incrementAmount: (id: string) => void;
+	decrementAmount: (id: string) => void;
+	// 동일 의미의 별칭(선택)
 	increase: (id: string) => void;
 	decrease: (id: string) => void;
 	removeItem: (id: string) => void;
@@ -29,7 +33,7 @@ export const useCartStore = create<CartState>((set, get) => ({
 	items: cartItems,
 	...computeTotals(cartItems),
 
-	increase: (id: string) =>
+	incrementAmount: (id: string) =>
 		set(state => {
 			const next = state.items.map(it =>
 				it.id === id ? { ...it, amount: it.amount + 1 } : it
@@ -37,7 +41,7 @@ export const useCartStore = create<CartState>((set, get) => ({
 			return { items: next, ...computeTotals(next) };
 		}),
 
-	decrease: (id: string) =>
+	decrementAmount: (id: string) =>
 		set(state => {
 			const target = state.items.find(i => i.id === id);
 			let next = state.items;
@@ -52,6 +56,10 @@ export const useCartStore = create<CartState>((set, get) => ({
 			}
 			return { items: next, ...computeTotals(next) };
 		}),
+
+	// 별칭(컴포넌트 변경 최소화용)
+	increase: (id: string) => get().incrementAmount(id),
+	decrease: (id: string) => get().decrementAmount(id),
 
 	removeItem: (id: string) =>
 		set(state => {
