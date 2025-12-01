@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux';
 import type { CartItem } from '../constants/cartItems';
-import { decrementAmount, incrementAmount } from '../store/cartSlice';
+import { decrementAmount, incrementAmount, removeItem } from '../store/cartSlice';
 
 type Props = {
 	item: CartItem;
@@ -39,6 +39,13 @@ const CartItemRow = ({ item }: Props) => {
 					+
 				</button>
 			</div>
+			<button
+				aria-label="remove item"
+				className="ml-2 h-7 rounded bg-slate-200 px-2 text-xs text-slate-600 hover:bg-slate-300"
+				onClick={() => dispatch(removeItem(item.id))}
+			>
+				삭제
+			</button>
 			<p className="w-20 text-right text-sm font-medium text-slate-900">
 				₩{Number(item.price).toLocaleString()}
 			</p>
