@@ -1,48 +1,57 @@
-import { useDispatch, useSelector } from "react-redux";
-import { increase, decrease, removeItem, clearCart } from "../store/cartSlice";
-import { openModal, closeModal } from "../store/modalSlice";
-import type { RootState } from "../store/store";
+import { useCartStore } from "../store/useCartStore";
+import { useModalStore } from "../store/useModalStore";
 
 const PlaylistPage = () => {
-  // useSelector로 Redux의 cartItems, amount, total 불러오기
-  const cartItems = useSelector((state: RootState) => state.cart.cartItems);
-  const amount = useSelector((state: RootState) => state.cart.amount);
-  const total = useSelector((state: RootState) => state.cart.total);
-  const isModalOpen = useSelector((state: RootState) => state.modal.isOpen);
-  const modalType = useSelector((state: RootState) => state.modal.modalType);
-  const dispatch = useDispatch();
+  // Zustand store에서 상태와 액션을 구조 분해 할당으로 가져오기
+  const {
+    cartItems,
+    amount,
+    total,
+    increase,
+    decrease,
+    removeItem,
+    clearCart,
+  } = useCartStore();
 
-  // useDispatch로 increase, decrease, removeItem, clearCart, calculateTotals 호출
+  const {
+    isOpen: isModalOpen,
+    modalType,
+    openModal,
+    closeModal,
+  } = useModalStore();
+
+  // 핸들러 함수들
   const handleIncrease = (id: string) => {
-    dispatch(increase(id));
-    // increase reducer 내부에서 자동으로 calculateTotals가 호출됨
+    increase(id);
+    // increase 액션 내부에서 자동으로 calculateTotals가 호출됨
   };
 
   const handleDecrease = (id: string) => {
-    dispatch(decrease(id));
-    // decrease reducer 내부에서 자동으로 calculateTotals가 호출됨
+    decrease(id);
+    // decrease 액션 내부에서 자동으로 calculateTotals가 호출됨
   };
 
   const handleRemoveItem = (id: string) => {
-    dispatch(removeItem(id));
-    // removeItem reducer 내부에서 자동으로 calculateTotals가 호출됨
+    removeItem(id);
+    // removeItem 액션 내부에서 자동으로 calculateTotals가 호출됨
   };
 
   const handleClearCartClick = () => {
-    dispatch(openModal("clearCart"));
+    openModal("clearCart");
   };
 
   const handleConfirmClearCart = () => {
-    dispatch(clearCart());
-    dispatch(closeModal());
+    clearCart(); // cartStore의 clearCart 호출
+    closeModal(); // modalStore의 closeModal 호출
+    // 두 Zustand store의 액션이 연동되어 작동
   };
 
   const handleCancelClearCart = () => {
-    dispatch(closeModal());
+    closeModal();
   };
 
-  // calculateTotals는 increase, decrease, removeItem reducer 내부에서 자동으로 호출됨
-  // 명시적으로 호출하려면: dispatch(calculateTotals());
+  // calculateTotals는 increase, decrease, removeItem 액션 내부에서 자동으로 호출됨
+  // 명시적으로 호출하려면: useCartStore.getState().calculateTotals();
 
   const formatPrice = (price: string) => {
     return `$${Number(price).toLocaleString()}`;
@@ -65,7 +74,7 @@ const PlaylistPage = () => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-semibold">Playlist</h1>
           <div className="text-right">
-            {/* useSelector로 불러온 amount와 total을 UI에 표시 */}
+            {/* Zustand store에서 불러온 amount와 total을 UI에 표시 */}
             <p className="text-white/70 text-sm">전체 수량: {amount}</p>
             <p className="text-white font-semibold">
               총 금액: {formatPrice(total.toString())}
@@ -145,7 +154,7 @@ const PlaylistPage = () => {
 
               {/* 수량 선택기 및 삭제 버튼 */}
               <div className="flex items-center gap-3">
-                {/* 수량 버튼 클릭 시 dispatch */}
+                {/* 수량 버튼 클릭 시 Zustand 액션 호출 */}
                 <div className="flex items-center gap-2 border border-white/10 rounded bg-black/20 px-3 py-2 ">
                   <button
                     type="button"

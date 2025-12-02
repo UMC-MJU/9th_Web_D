@@ -21,7 +21,8 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.4",
     "tailwindcss": "^4.1.14",
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
