@@ -1,19 +1,25 @@
 import { useEffect } from "react";
 import CartItem from "./CartItem";
 import Modal from "./Modal";
-import { useAppDispatch, useSelector } from "../hooks/useCustomRedux";
-import { calculateTotals } from "../slices/cartSlice";
-import { openModal } from "../slices/modalSlice";
+import { useCartStore } from "../hooks/useCartStore";
+
 
 const CartList = () => {
-  const { cartItems, total } = useSelector((state) => state.cart);
-  const { isOpen } = useSelector((state) => state.modal);
-  const dispatch = useAppDispatch();
+  // Zustand 스토어에서 필요한 값과 함수 가져오기
+  const { 
+    cartItems, 
+    total, 
+    isOpen, 
+    calculateTotals, 
+    openModal 
+  } = useCartStore();
 
+  // 장바구니 아이템이 변경될 때마다 합계 다시 계산
   useEffect(() => {
-    dispatch(calculateTotals());
-  }, [cartItems, dispatch]);
+    calculateTotals();
+  }, [cartItems, calculateTotals]);
 
+  // 장바구니가 비었을 때 화면
   if (cartItems.length < 1) {
     return (
       <section className='text-center mt-10'>
@@ -27,30 +33,27 @@ const CartList = () => {
 
   return (
     <section className="flex flex-col items-center justify-center mb-10 relative">
+      {/* 모달이 열려있으면(isOpen === true) 렌더링 */}
       {isOpen && <Modal />}
-      <header className="w-full max-w-2xl flex justify-between items-end mb-8 px-2">
-        <h2 className="text-3xl font-bold">장바구니</h2>
 
+      <header className="w-full max-w-2xl flex justify-between items-end mb-8 px-2">
+        <h2 className="text-3xl font-bold">당신의 장바구니</h2>
+        
+        {/* 장바구니 비우기 버튼 */}
         <button 
             className="text-sm px-3 py-1 text-red-500 border border-red-400 rounded-md hover:bg-red-50 transition cursor-pointer font-medium"
-            onClick={() => dispatch(openModal())}
+            onClick={openModal}
         >
             장바구니 비우기
         </button>
       </header>
       
+      {/* 아이템 리스트 */}
       <ul className="w-full max-w-2xl">
         {cartItems.map((item) => (
           <CartItem key={item.id} lp={item} />
         ))}
       </ul>
-
-      <footer className="w-full max-w-2xl mt-8 border-t border-gray-300 pt-4">
-        <div className="flex justify-between text-xl font-bold mb-6 px-2">
-            <h4>총 가격</h4>
-            <span>{Number(total).toLocaleString()} 원</span>
-        </div>
-      </footer>
     </section>
   );
 };
