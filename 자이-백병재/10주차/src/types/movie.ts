@@ -8,15 +8,24 @@ export type movieGetParams = {
 
 export type movieGetResponse = {
     page: number;
-    results: movieData[];
+    results: IMovie[];
     total_pages: number;
     total_results: number;
 }
 
-export type movieData = {
-    adult: boolean;
-    backdrop_path: string;
-    overview: string;
+export interface IMovie {
+    id: number;
     title: string;
-    poster_path: string;
-}
+    overview: string;
+    poster_path: string | null;
+    backdrop_path: string | null;
+    release_date: string;
+    vote_average: number;
+    vote_count: number;
+    video: boolean;
+    adult: boolean;
+    original_language: string;
+    original_title: string;
+    genre_ids: number[];
+    popularity: number;
+  }
