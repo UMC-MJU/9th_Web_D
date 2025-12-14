@@ -1,6 +1,6 @@
 type Language = "en-US" | "ko-KR";
 
-export type movieGetParms = {
+export type movieGetParams = {
     query: string;
     include_adult: boolean;
     language: Language;
@@ -18,4 +18,5 @@ export type movieData = {
     backdrop_path: string;
     overview: string;
     title: string;
+    poster_path: string;
 }

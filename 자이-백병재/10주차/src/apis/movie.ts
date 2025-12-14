@@ -1,14 +1,19 @@
 import movieAxios from "./axios";
-import type { movieGetParms, movieGetResponse } from "../types/movie";
+import type { movieGetParams, movieGetResponse } from "../types/movie";
 
+export const getMovie = async ({query, include_adult, language}: movieGetParams): Promise<movieGetResponse> => {
 
-export const getMovie = async ({query, include_adult, language}: movieGetParms): Promise<movieGetResponse> => {
-    const response = await movieAxios.get("/search/movie", {
-        params: {
-            query,
-            include_adult,
-            language,
-        },
-    });
+    const url = query ? "/search/movie" : "/movie/popular";
+
+    const params: any = {
+        include_adult,
+        language,
+    };
+
+    if (query) {
+        params.query = query;
+    }
+
+    const response = await movieAxios.get(url, { params });
     return response.data;
 }
