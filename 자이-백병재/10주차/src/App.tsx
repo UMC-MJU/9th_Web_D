@@ -1,8 +1,19 @@
+import { useGetMovie } from "./hooks/useMovie";
+
 function App() {
+
+  const { data } = useGetMovie();
+console.log(data?.results);
+
   return (
-    <h1 className="text-3xl font-bold underline text-red-500">
-      Hello world!
-    </h1>
+    <>
+    {data?.results.map((movie) => (
+      <div key={movie.title}>
+        <h1>{movie.title}</h1>
+        <p>{movie.overview}</p>
+      </div>
+    ))}
+    </>
   )
 }
 
