@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useGetMovie } from "../hooks/useGetMovie";
 import type { IMovie } from "../types/movie";
 import { MovieModal } from "./MovieModal";
+import MovieCard from "./MovieCard";
 
 interface MovieListProps {
   searchParams: {
@@ -13,9 +14,17 @@ interface MovieListProps {
 
 export const MovieList = ({ searchParams }: MovieListProps) => {
   const { data, isLoading, isError } = useGetMovie(searchParams);
-  
-
   const [selectedMovie, setSelectedMovie] = useState<IMovie | null>(null);
+
+  // [최적화 2] 핸들러 함수 메모이제이션 (MovieCard에 전달될 때 props 변경 방지)
+  const handleSelectMovie = useCallback((movie: IMovie) => {
+    setSelectedMovie(movie);
+  }, []);
+
+  // [최적화 3] 모달 닫기 핸들러 메모이제이션
+  const handleCloseModal = useCallback(() => {
+    setSelectedMovie(null);
+  }, []);
 
   if (isLoading) return <div className="text-center py-20 text-gray-500 font-medium">데이터를 불러오는 중입니다...</div>;
   if (isError) return <div className="text-center py-20 text-red-500 font-bold">에러가 발생했습니다 😢</div>;
@@ -30,46 +39,19 @@ export const MovieList = ({ searchParams }: MovieListProps) => {
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
         {movies.map((movie: IMovie) => (
-          <div 
+          // 분리한 컴포넌트 사용
+          <MovieCard
             key={movie.id} 
-
-            onClick={() => setSelectedMovie(movie)}
-            className="w-full bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-100 cursor-pointer"
-          >
-            
-            <div className="group relative w-full aspect-[2/3] overflow-hidden bg-gray-200">
-              {movie.poster_path ? (
-                <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  alt={movie.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold">
-                  NO IMAGE
-                </div>
-              )}
-
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                 <span className="text-white font-bold border border-white px-4 py-2 rounded-full">
-                    상세보기
-                 </span>
-              </div>
-            </div>
-
-            <div className="p-4 h-[70px] flex items-center justify-center">
-              <h1 className="text-base font-bold text-center text-slate-800 line-clamp-2">
-                {movie.title}
-              </h1>
-            </div>
-          </div>
+            movie={movie} 
+            onClick={handleSelectMovie} 
+          />
         ))}
       </div>
 
       {selectedMovie && (
         <MovieModal 
           movie={selectedMovie} 
-          onClose={() => setSelectedMovie(null)} 
+          onClose={handleCloseModal} 
         />
       )}
     </>
