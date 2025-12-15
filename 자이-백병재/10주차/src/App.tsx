@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { SearchBar } from "./components/SearchBar";
 import { MovieList } from "./components/MovieList";
 
@@ -9,13 +9,14 @@ function App() {
     language: "ko-KR",
   });
 
-  const handleSearch = (query: string, includeAdult: boolean, language: string) => {
+  // [최적화] 이 함수가 재생성되지 않아야 SearchBar도 리렌더링을 막을 수 있음
+  const handleSearch = useCallback((query: string, includeAdult: boolean, language: string) => {
     setSearchParams({
       query,
       include_adult: includeAdult,
       language,
     });
-  };
+  }, []);
 
   return (
     // 1. 전체 페이지 배경: 연한 회색 (bg-gray-100)
