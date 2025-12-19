@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../store';
-import { clearCart } from '../store/cartSlice';
+import { openModal } from '../store/modalSlice';
 
 const Header = () => {
 	const dispatch = useDispatch();
@@ -19,7 +19,7 @@ const Header = () => {
 					</div>
 					<button
 						className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
-						onClick={() => dispatch(clearCart())}
+						onClick={() => dispatch(openModal())}
 					>
 						전체 삭제
 					</button>
