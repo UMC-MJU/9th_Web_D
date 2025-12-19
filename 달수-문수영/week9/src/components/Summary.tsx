@@ -1,8 +1,8 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from '../store';
+import { useCartStore } from '../stores/cartStore';
 
 const Summary = () => {
-	const { amount, total } = useSelector((state: RootState) => state.cart);
+	const amount = useCartStore(s => s.amount);
+	const total = useCartStore(s => s.total);
 
 	return (
 		<section className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">

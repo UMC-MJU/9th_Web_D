@@ -1,9 +1,8 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from '../store';
+import { useCartStore } from '../stores/cartStore';
 import CartItemRow from './CartItemRow';
 
 const CartList = () => {
-	const items = useSelector((state: RootState) => state.cart.items);
+	const items = useCartStore(state => state.items);
 	return (
 		<ul className="list-none divide-y divide-slate-200 p-0">
 			{items.map(item => (

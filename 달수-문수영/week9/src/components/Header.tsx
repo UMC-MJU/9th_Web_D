@@ -1,10 +1,10 @@
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from '../store';
-import { openModal } from '../store/modalSlice';
+
+import { useModalStore } from '../stores/modalStore';
+import { useCartStore } from '../stores/cartStore';
 
 const Header = () => {
-	const dispatch = useDispatch();
-	const totalCount = useSelector((state: RootState) => state.cart.amount);
+	const totalCount = useCartStore(s => s.amount);
+	const open = useModalStore(s => s.open);
 
 	return (
 		<header className="sticky top-0 z-10 bg-slate-800 text-white">
@@ -19,7 +19,7 @@ const Header = () => {
 					</div>
 					<button
 						className="rounded bg-slate-700 px-3 py-1 text-sm hover:bg-slate-600"
-						onClick={() => dispatch(openModal())}
+						onClick={() => open()}
 					>
 						전체 삭제
 					</button>

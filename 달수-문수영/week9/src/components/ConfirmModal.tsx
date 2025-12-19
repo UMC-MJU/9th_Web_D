@@ -1,11 +1,10 @@
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from '../store';
-import { closeModal } from '../store/modalSlice';
-import { clearCart } from '../store/cartSlice';
+import { useModalStore } from '../stores/modalStore';
+import { useCartStore } from '../stores/cartStore';
 
 const ConfirmModal = () => {
-	const dispatch = useDispatch();
-	const isOpen = useSelector((state: RootState) => state.modal.isOpen);
+	const isOpen = useModalStore(s => s.isOpen);
+	const close = useModalStore(s => s.close);
+	const clearCartZ = useCartStore(s => s.clearCart);
 
 	if (!isOpen) return null;
 
@@ -16,10 +15,7 @@ const ConfirmModal = () => {
 			aria-modal="true"
 			aria-labelledby="confirm-title"
 		>
-			<div
-				className="absolute inset-0 bg-black/40"
-				onClick={() => dispatch(closeModal())}
-			/>
+			<div className="absolute inset-0 bg-black/40" onClick={() => close()} />
 			<div className="relative z-10 w-[320px] rounded-lg bg-white p-5 shadow-xl">
 				<h2 id="confirm-title" className="mb-2 text-base font-semibold text-slate-900">
 					장바구니를 비울까요?
@@ -28,17 +24,14 @@ const ConfirmModal = () => {
 					이 작업은 되돌릴 수 없습니다.
 				</p>
 				<div className="flex justify-end gap-2">
-					<button
-						className="rounded bg-slate-200 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-300"
-						onClick={() => dispatch(closeModal())}
-					>
+					<button className="rounded bg-slate-200 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-300" onClick={() => close()}>
 						아니요
 					</button>
 					<button
 						className="rounded bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-500"
 						onClick={() => {
-							dispatch(clearCart());
-							dispatch(closeModal());
+							clearCartZ();
+							close();
 						}}
 					>
 						네
